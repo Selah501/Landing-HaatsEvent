@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>하츠 충남대리점 공식 캠페인</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Oswald:wght@500&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --color-pitch-black: #000000;
@@ -18,64 +20,261 @@
             --color-highlight-gold: #eed37f;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--color-charcoal-canvas); color: var(--color-pure-white); font-family: 'Inter', sans-serif; display: flex; justify-content: center; }
-        
-        .mobile-container { width: 100%; max-width: 480px; background-color: var(--color-pitch-black); min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 60px; }
-        
-        .sticky-nav { position: sticky; top: 0; background-color: var(--color-graphite-base); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1c1c1e; z-index: 100; }
-        .nav-logo { font-weight: 600; font-size: 14px; }
-        .nav-logo span { color: var(--color-interactive-lime); margin-right: 6px; }
-        .btn-call { background-color: var(--color-action-raspberry); color: var(--color-pure-white); text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        .hero-section { padding: 42px 24px 24px 24px; }
-        .hero-title { font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 500; line-height: 1.1; letter-spacing: -0.03em; }
-        .hero-subtitle { font-size: 13px; color: var(--color-silver-mist); margin-top: 12px; line-height: 1.4; }
+        body {
+            background-color: var(--color-charcoal-canvas);
+            color: var(--color-pure-white);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+        }
 
-        .campaign-container { padding: 0 24px; display: flex; flex-direction: column; gap: 16px; }
-        
+        .mobile-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--color-pitch-black);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 60px;
+        }
+
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            background-color: var(--color-graphite-base);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1c1c1e;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .nav-logo span {
+            color: var(--color-interactive-lime);
+            margin-right: 6px;
+        }
+
+        .btn-call {
+            background-color: var(--color-action-raspberry);
+            color: var(--color-pure-white);
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .hero-section {
+            padding: 42px 24px 24px 24px;
+        }
+
+        .hero-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 36px;
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-subtitle {
+            font-size: 13px;
+            color: var(--color-silver-mist);
+            margin-top: 12px;
+            line-height: 1.4;
+        }
+
+        .campaign-container {
+            padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
         /* 메인 카드 스타일 */
-        .campaign-card { background-color: var(--color-deep-slate); border-radius: 8px; padding: 20px; text-decoration: none; color: var(--color-pure-white); display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: all 0.3s ease; border: 1px solid transparent; }
-        .campaign-card.active { border-color: var(--color-highlight-gold); }
-        
-        .badge-status { align-self: flex-start; background-color: var(--color-interactive-lime); color: var(--color-pitch-black); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
-        .card-title { font-size: 19px; font-weight: 600; margin-top: 4px; }
-        .card-price { font-size: 14px; color: var(--color-interactive-lime); font-weight: 600; }
-        .card-period { font-size: 12px; color: var(--color-silver-mist); }
+        .campaign-card {
+            background-color: var(--color-deep-slate);
+            border-radius: 8px;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--color-pure-white);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .campaign-card.active {
+            border-color: var(--color-highlight-gold);
+        }
+
+        .badge-status {
+            align-self: flex-start;
+            background-color: var(--color-interactive-lime);
+            color: var(--color-pitch-black);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .card-title {
+            font-size: 19px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .card-price {
+            font-size: 14px;
+            color: var(--color-interactive-lime);
+            font-weight: 600;
+        }
+
+        .card-period {
+            font-size: 12px;
+            color: var(--color-silver-mist);
+        }
 
         /* 클릭 유도 아이콘 애니메이션 */
-        .click-arrow { align-self: flex-end; font-size: 16px; color: var(--color-highlight-gold); animation: bounce 1s infinite alternate; }
-        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(6px); } }
+        .click-arrow {
+            align-self: flex-end;
+            font-size: 16px;
+            color: var(--color-highlight-gold);
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(6px);
+            }
+        }
 
         /* 분기 전개 영역 스타일 */
-        .expanded-content { display: none; background-color: #16181b; border-radius: 0 0 8px 8px; padding: 20px; border-top: 1px solid #2c2c2e; margin-top: -8px; margin-bottom: 12px; }
-        
+        .expanded-content {
+            display: none;
+            background-color: #16181b;
+            border-radius: 0 0 8px 8px;
+            padding: 20px;
+            border-top: 1px solid #2c2c2e;
+            margin-top: -8px;
+            margin-bottom: 12px;
+        }
+
         /* 전단지 발췌 시네마틱 블록 */
-        .flyer-extract { background-color: var(--color-graphite-base); border-radius: 6px; padding: 16px; margin-bottom: 20px; border-left: 3px solid var(--color-action-raspberry); }
-        .flyer-tag { font-size: 12px; color: var(--color-action-raspberry); font-weight: 600; margin-bottom: 4px; }
-        .flyer-text { font-size: 15px; font-weight: 600; line-height: 1.5; color: var(--color-pure-white); }
-        .flyer-text span { color: var(--color-interactive-lime); }
+        .flyer-extract {
+            background-color: var(--color-graphite-base);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--color-action-raspberry);
+        }
+
+        .flyer-tag {
+            font-size: 12px;
+            color: var(--color-action-raspberry);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .flyer-text {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--color-pure-white);
+        }
+
+        .flyer-text span {
+            color: var(--color-interactive-lime);
+        }
 
         /* 양식 스타일 */
-        .form-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
-        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-        .input-group input { background-color: transparent; border: 1px solid var(--color-pure-white); color: var(--color-pure-white); padding: 12px; font-size: 14px; border-radius: 0px; outline: none; }
-        .input-group input::placeholder { color: #596170; }
-        
-        .btn-submit { background-color: var(--color-action-raspberry); color: var(--color-pure-white); border: none; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; border-radius: 8px; }
+        .form-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
 
-        .footer-area { padding: 40px 24px 24px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .quick-links { display: flex; gap: 16px; font-size: 13px; }
-        .quick-links a { color: var(--color-silver-mist); }
-        .brand-footer { font-size: 11px; color: #596170; }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            background-color: transparent;
+            border: 1px solid var(--color-pure-white);
+            color: var(--color-pure-white);
+            padding: 12px;
+            font-size: 14px;
+            border-radius: 0px;
+            outline: none;
+        }
+
+        .input-group input::placeholder {
+            color: #596170;
+        }
+
+        .btn-submit {
+            background-color: var(--color-action-raspberry);
+            color: var(--color-pure-white);
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .footer-area {
+            padding: 40px 24px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quick-links {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+        }
+
+        .quick-links a {
+            color: var(--color-silver-mist);
+        }
+
+        .brand-footer {
+            font-size: 11px;
+            color: #596170;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="mobile-container">
         <nav class="sticky-nav">
             <div class="nav-logo"><span>[공식]</span>하츠 충남대리점</div>
-            <a href="tel:1668-4660" class="btn-call">전화 문의</a>
+            <a href="tel:010-2886-5086" class="btn-call">전화 문의</a>
         </nav>
 
         <header class="hero-section">
@@ -84,7 +283,7 @@
         </header>
 
         <main class="campaign-container">
-            
+
             <div id="card-1" class="campaign-card" onclick="toggleCampaign(1, '내포 이지더원 1차 핫썸머 2026.6')">
                 <span class="badge-status">진행중 EVENT</span>
                 <div class="card-title">내포 이지더원 1차 핫썸머 2026.6</div>
@@ -92,7 +291,7 @@
                 <div class="card-period">접수기간: 2026. 06. 22(월) ~ 06. 29(월)</div>
                 <div class="click-arrow">▼ 클릭하여 신청하기</div>
             </div>
-            
+
             <div id="content-1" class="expanded-content">
                 <div class="flyer-extract">
                     <div class="flyer-tag">하츠 충남대리점 단독 기획 쿨세일</div>
@@ -100,7 +299,7 @@
                     <div class="flyer-text">💧 뽀송욕실 ➔ <span>완전제습! (초강력 제습)</span></div>
                     <div class="flyer-text">🚬 담배냄새 ➔ <span>완벽차단! (고성능 전동댐퍼)</span></div>
                 </div>
-                
+
                 <div class="form-title">간편 상담 예약</div>
                 <div class="input-group">
                     <input type="text" id="apt-1" placeholder="[아파트 동/호수] 예: 101동 102호">
@@ -118,7 +317,7 @@
                 <div class="card-period">접수기간: 2026. 06. 23(화) ~ 06. 30(화)</div>
                 <div class="click-arrow">▼ 클릭하여 신청하기</div>
             </div>
-            
+
             <div id="content-2" class="expanded-content">
                 <div class="flyer-extract">
                     <div class="flyer-tag">하츠 충남대리점 단독 기획 쿨세일</div>
@@ -126,7 +325,7 @@
                     <div class="flyer-text">💧 뽀송욕실 ➔ <span>완전제습! (초강력 제습)</span></div>
                     <div class="flyer-text">🚬 담배냄새 ➔ <span>완벽차단! (고성능 전동댐퍼)</span></div>
                 </div>
-                
+
                 <div class="form-title">간편 상담 예약</div>
                 <div class="input-group">
                     <input type="text" id="apt-2" placeholder="[아파트 동/호수] 예: 201동 202호">
@@ -149,7 +348,7 @@
 
     <script>
         // 발급받으신 구글 앱스 스크립트 웹앱 URL 주소를 아래 따옴표 안에 넣어주시면 됩니다.
-        const GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby4V9uFN-mLqMPGiEPuJzS4ZT1q5dOe_lBL5vEFyY89CRHc8mBoMo5anxfEsW4i1MNaGw/exec"; 
+        const GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz9YRMBOht4R32fiwcs6dHLVw9uHvYwV4FvY2LZ0cU1aj1CSSkJ1ZtoL33-ehdcgkVUsA/exec";
         let currentEventName = "";
 
         // 박스 클릭 시 타 단지 숨기기 및 토글 로직
@@ -178,10 +377,18 @@
         // 구글 시트 데이터 전송 함수
         function submitForm(id) {
             const apartment = document.getElementById(`apt-${id}`).value;
-            const phone = document.getElementById(`phone-${id}`).value;
+            let phone = document.getElementById(`phone-${id}`).value;
             const consultTime = document.getElementById(`time-${id}`).value;
 
-            if(!apartment || !phone) {
+            // 전화번호 하이픈 자동 추가 처리
+            phone = phone.replace(/[^0-9]/g, ''); // 숫자만 추출
+            if (phone.length === 11) {
+                phone = phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+            } else if (phone.length === 10) {
+                phone = phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+            }
+
+            if (!apartment || !phone) {
                 alert("동/호수와 연락처를 입력해 주세요.");
                 return;
             }
@@ -213,4 +420,5 @@
         }
     </script>
 </body>
+
 </html>

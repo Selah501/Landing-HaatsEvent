@@ -400,7 +400,7 @@
                 eventName: currentEventName
             };
 
-            // 구글 시트로 전송 (실제 URL 교체 시 정상 작동)
+            const GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby4sFDQcQ8BWX0jLdKZq86Ob3z537xSaHZ7Xl2ecg1k4kLO9Qw0TtMPG8BgUIiiUfekRQ/exec";
             fetch(GOOGLE_WEBAPP_URL, {
                 method: "POST",
                 mode: "no-cors",

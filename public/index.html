@@ -15,7 +15,7 @@
     <div class="mobile-container">
         <nav class="sticky-nav">
             <div class="nav-logo"><span>[공식]</span>하츠 충남대리점</div>
-            <a href="tel:010-2886-5086" class="btn-call">전화 문의</a>
+            <a href="tel:010-2886-5086" class="btn btn-secondary">전화 문의</a>
         </nav>
 
         <header class="hero-section">
@@ -41,13 +41,25 @@
                     <div class="flyer-text">🚬 담배냄새 ➔ <span>완벽차단! (고성능 전동댐퍼)</span></div>
                 </div>
 
-                <div class="form-title">간편 상담 예약</div>
-                <div class="input-group">
-                    <input type="text" id="apt-1" placeholder="[아파트 동/호수] 예: 101동 102호">
-                    <input type="text" id="phone-1" placeholder="[연락처] 010-0000-0000">
-                    <input type="text" id="time-1" placeholder="[원하는 상담시간] 예: 오후 2시 이후, 주말 가능">
+                <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+                    <a href="./products/tioram-mini.html" class="btn btn-outline">제품 상세 보기</a>
+                    <a href="./guide/work-and-payment.html" class="btn btn-outline">시공 안내 보기</a>
                 </div>
-                <button class="btn-submit" onclick="submitForm(1)">무료 상담 신청하기</button>
+
+                <button id="btn-show-form-1" class="btn btn-primary" style="margin-bottom: 12px;" onclick="showForm(1)">👉 무료 상담 예약하기</button>
+
+                <div id="form-container-1" style="display: none; background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333;">
+                    <div class="form-title">간편 상담 예약</div>
+                    <div class="input-group">
+                        <input type="text" id="apt-1" placeholder="[아파트 동/호수] 예: 101동 102호">
+                        <input type="text" id="phone-1" placeholder="[연락처] 010-0000-0000">
+                        <input type="text" id="time-1" placeholder="[원하는 상담시간] 예: 오후 2시 이후, 주말 가능">
+                    </div>
+                    <button class="btn btn-primary" onclick="submitForm(1)">신청서 제출하기</button>
+                    <button class="btn btn-ghost" style="margin-top: 8px;" onclick="hideForm(1)">입력 취소</button>
+                </div>
+                
+                <button class="btn btn-ghost" style="margin-top: 12px;" onclick="toggleCampaign(1, '')">▲ 이벤트 접기 (목록으로)</button>
             </div>
 
 
@@ -67,13 +79,25 @@
                     <div class="flyer-text">🚬 담배냄새 ➔ <span>완벽차단! (고성능 전동댐퍼)</span></div>
                 </div>
 
-                <div class="form-title">간편 상담 예약</div>
-                <div class="input-group">
-                    <input type="text" id="apt-2" placeholder="[아파트 동/호수] 예: 201동 202호">
-                    <input type="text" id="phone-2" placeholder="[연락처] 010-0000-0000">
-                    <input type="text" id="time-2" placeholder="[원하는 상담시간] 예: 평일 저녁 6시 이후">
+                <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+                    <a href="./products/tioram-mini.html" class="btn btn-outline">제품 상세 보기</a>
+                    <a href="./guide/work-and-payment.html" class="btn btn-outline">시공 안내 보기</a>
                 </div>
-                <button class="btn-submit" onclick="submitForm(2)">무료 상담 신청하기</button>
+
+                <button id="btn-show-form-2" class="btn btn-primary" style="margin-bottom: 12px;" onclick="showForm(2)">👉 무료 상담 예약하기</button>
+
+                <div id="form-container-2" style="display: none; background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333;">
+                    <div class="form-title">간편 상담 예약</div>
+                    <div class="input-group">
+                        <input type="text" id="apt-2" placeholder="[아파트 동/호수] 예: 201동 202호">
+                        <input type="text" id="phone-2" placeholder="[연락처] 010-0000-0000">
+                        <input type="text" id="time-2" placeholder="[원하는 상담시간] 예: 평일 저녁 6시 이후">
+                    </div>
+                    <button class="btn btn-primary" onclick="submitForm(2)">신청서 제출하기</button>
+                    <button class="btn btn-ghost" style="margin-top: 8px;" onclick="hideForm(2)">입력 취소</button>
+                </div>
+                
+                <button class="btn btn-ghost" style="margin-top: 12px;" onclick="toggleCampaign(2, '')">▲ 이벤트 접기 (목록으로)</button>
             </div>
 
         </main>
@@ -90,6 +114,16 @@
     <script>
         let currentEventName = "";
 
+        // 폼 열기/닫기 로직
+        function showForm(id) {
+            document.getElementById(`form-container-${id}`).style.display = "block";
+            document.getElementById(`btn-show-form-${id}`).style.display = "none";
+        }
+        function hideForm(id) {
+            document.getElementById(`form-container-${id}`).style.display = "none";
+            document.getElementById(`btn-show-form-${id}`).style.display = "flex";
+        }
+
         // 박스 클릭 시 타 단지 숨기기 및 토글 로직
         function toggleCampaign(id, eventName) {
             currentEventName = eventName;
@@ -104,6 +138,7 @@
                 targetContent.style.display = "none";
                 targetCard.classList.remove('active');
                 otherCard.style.display = "flex";
+                hideForm(id); // 접을 때 폼도 초기화
             } else {
                 // 선택한 것만 열고 상대방 박스 완전히 숨김
                 targetContent.style.display = "block";

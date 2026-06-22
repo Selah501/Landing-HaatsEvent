@@ -15,13 +15,15 @@
             margin-bottom: 48px;
             background-color: var(--color-pitch-black);
         }
-        .video-container iframe {
+        .video-container iframe,
+        .video-container video {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             border: 0;
+            object-fit: cover;
         }
         .feature-icon {
             font-size: 2.5rem;
@@ -56,57 +58,64 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="brand-logo">[공식] 하츠 충남대리점</div>
-        <a href="tel:1668-4660" class="btn-primary">[전화 문의]</a>
-    </nav>
+    <div class="mobile-container">
+        <nav class="sticky-nav">
+            <div class="nav-logo"><span>[공식]</span>하츠 충남대리점</div>
+            <a href="tel:010-2886-5086" class="btn-call">전화 문의</a>
+        </nav>
 
-    <div class="container">
-        <div class="video-container">
-            <!-- 유튜브 임시 플레이스홀더 -->
-            <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <div class="container" style="padding: 24px; flex: 1;">
+            <div class="video-container">
+                <!-- 제품 설명 영상 -->
+                <video controls autoplay muted playsinline>
+                    <source src="../videos/tioram-mini.mp4" type="video/mp4">
+                    브라우저가 동영상을 지원하지 않습니다.
+                </video>
+            </div>
+
+            <h2 style="margin-bottom: 32px; text-align: center; color: var(--color-interactive-lime);">핵심 기능 3종</h2>
+
+            <div class="card" style="background-color: var(--color-deep-slate); padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+                <div class="feature-icon">💧</div>
+                <h3 style="margin-bottom: 8px;">종일 보송한 [초강력 제습]</h3>
+                <p style="color: var(--color-silver-mist); font-size: 14px;">습기 찬 욕실을 쾌적하게 건조시켜 곰팡이 걱정 없는 뽀송뽀송한 환경을 제공합니다.</p>
+            </div>
+
+            <div class="card" style="background-color: var(--color-deep-slate); padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+                <div class="feature-icon">❄️</div>
+                <h3 style="margin-bottom: 8px;">샤워 후 시원한 [냉풍 드라이]</h3>
+                <p style="color: var(--color-silver-mist); font-size: 14px;">무더운 여름철 샤워 후 땀나지 않게 시원한 바람으로 쾌적하게 말려줍니다.</p>
+            </div>
+
+            <div class="card" style="background-color: var(--color-deep-slate); padding: 20px; border-radius: 8px; margin-bottom: 16px;">
+                <div class="feature-icon">🚭</div>
+                <h3 style="margin-bottom: 8px;">이웃집 담배 냄새 [전동댐퍼 완벽 차단]</h3>
+                <p style="color: var(--color-silver-mist); font-size: 14px;">외부에서 유입되는 각종 악취와 담배 냄새를 모터 기반 댐퍼로 확실히 막아줍니다.</p>
+            </div>
+
+            <button class="accordion">상세 기술 스펙 보기 ▼</button>
+            <div class="panel">
+                <p style="padding: 16px 0; color: var(--color-silver-mist);">
+                    - 모델명: 티오람 MINI<br>
+                    - 소비전력: 40W (환기) / 1200W (온풍)<br>
+                    - 정격전압: 220V, 60Hz<br>
+                    - 기능: 환기, 온풍, 제습, 냉풍, 스마트 타이머
+                </p>
+            </div>
+            
+            <!-- 추후 추가될 내용을 위한 여유 공간 -->
+            <div style="padding-bottom: 40px;"></div>
         </div>
 
-        <h2 style="margin-bottom: 32px; text-align: center; color: var(--color-interactive-lime);">핵심 기능 3종</h2>
-
-        <div class="card">
-            <div class="feature-icon">💧</div>
-            <h3 style="margin-bottom: 8px;">종일 보송한 [초강력 제습]</h3>
-            <p>습기 찬 욕실을 쾌적하게 건조시켜 곰팡이 걱정 없는 뽀송뽀송한 환경을 제공합니다.</p>
-        </div>
-
-        <div class="card">
-            <div class="feature-icon">❄️</div>
-            <h3 style="margin-bottom: 8px;">샤워 후 시원한 [냉풍 드라이]</h3>
-            <p>무더운 여름철 샤워 후 땀나지 않게 시원한 바람으로 쾌적하게 말려줍니다.</p>
-        </div>
-
-        <div class="card">
-            <div class="feature-icon">🚭</div>
-            <h3 style="margin-bottom: 8px;">이웃집 담배 냄새 [전동댐퍼 완벽 차단]</h3>
-            <p>외부에서 유입되는 각종 악취와 담배 냄새를 모터 기반 댐퍼로 확실히 막아줍니다.</p>
-        </div>
-
-        <button class="accordion">상세 기술 스펙 보기 ▼</button>
-        <div class="panel">
-            <p style="padding: 16px 0; color: var(--color-silver-mist);">
-                - 모델명: 티오람 MINI<br>
-                - 소비전력: 40W (환기) / 1200W (온풍)<br>
-                - 정격전압: 220V, 60Hz<br>
-                - 기능: 환기, 온풍, 제습, 냉풍, 스마트 타이머
-            </p>
-        </div>
-
-        <div style="text-align: center; margin-top: 48px;">
-            <a href="https://blog.naver.com/haatz_official/224193594619" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background-color: transparent; border: 1px solid var(--color-interactive-lime); color: var(--color-interactive-lime);">
+        <!-- 하단 고정 버튼 영역 -->
+        <div class="bottom-fixed-buttons" style="position: sticky; bottom: 0; background-color: var(--color-graphite-base); padding: 16px 24px; border-top: 1px solid #1c1c1e; display: flex; flex-direction: column; gap: 12px; z-index: 100;">
+            <a href="https://blog.naver.com/haatz_official/224193594619" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background-color: transparent; border: 1px solid var(--color-interactive-lime); color: var(--color-interactive-lime); padding: 14px; text-decoration: none; border-radius: 8px; font-weight: bold; display: block; text-align: center;">
                 공식 블로그에서 티오람 미니 자세히 보기 ↗
             </a>
-        </div>
-
-        <div class="footer-links">
-            <a href="../index.html">메인으로</a>
-            <a href="tioram-mini.html">제품 상세 보기</a>
-            <a href="../guide/work-and-payment.html">시공 및 결제 안내</a>
+            
+            <a href="../index.html" class="btn-primary" style="background-color: var(--color-action-raspberry); color: var(--color-pure-white); padding: 16px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; display: block; text-align: center; box-shadow: 0 4px 12px rgba(227, 38, 82, 0.4);">
+                ← 이벤트 메인 화면으로 돌아가기
+            </a>
         </div>
     </div>
 

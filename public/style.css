@@ -1,138 +1,253 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Oswald:wght@600;700&display=swap');
-
 :root {
-  --color-pitch-black: #000000;
-  --color-graphite-base: #0d0d0e;
-  --color-charcoal-canvas: #121316;
-  --color-deep-slate: #272c33;
-  
-  --color-action-raspberry: #e32652;
-  --color-interactive-lime: #d0f100;
-  --color-highlight-gold: #dfc573;
-  
-  --color-pure-white: #ffffff;
-  --color-silver-mist: #9ea0a9;
-  
-  --font-body: 'Inter', sans-serif;
-  --font-heading: 'Oswald', 'Inter', sans-serif;
+    --color-pitch-black: #000000;
+    --color-charcoal-canvas: #222326;
+    --color-graphite-base: #0d0d0e;
+    --color-deep-slate: #272c33;
+    --color-pure-white: #ffffff;
+    --color-silver-mist: #9ea0a9;
+    --color-action-raspberry: #e32652;
+    --color-interactive-lime: #dcff00;
+    --color-highlight-gold: #eed37f;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-  background-color: var(--color-charcoal-canvas);
-  color: var(--color-silver-mist);
-  font-family: var(--font-body);
-  line-height: 1.6;
-}
-h1, h2, h3, h4 {
-  color: var(--color-pure-white);
-  font-family: var(--font-heading);
-}
-a { text-decoration: none; color: inherit; }
-
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background-color: var(--color-graphite-base);
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.brand-logo {
-  color: var(--color-interactive-lime);
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-.btn-primary {
-  background-color: var(--color-action-raspberry);
-  color: var(--color-pure-white);
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: filter 0.2s;
-  display: inline-block;
-}
-.btn-primary:hover { filter: brightness(1.1); }
-.btn-block {
-  display: block;
-  width: 100%;
-  text-align: center;
-  padding: 16px;
-  font-size: 1.1rem;
+    background-color: var(--color-charcoal-canvas);
+    color: var(--color-pure-white);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
 }
 
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 64px 24px;
+.mobile-container {
+    width: 100%;
+    max-width: 480px;
+    background-color: var(--color-pitch-black);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 60px;
 }
 
-.hero-headline {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.03em;
-  margin-bottom: 24px;
-  color: var(--color-pure-white);
-}
-.text-center { text-align: center; }
-
-.card {
-  background-color: var(--color-deep-slate);
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: inset 0 0 0 1px rgba(148, 154, 164, 0.5);
-  margin-bottom: 16px;
-}
-.card.active {
-  box-shadow: 0 0 0 2px var(--color-highlight-gold), inset 0 0 0 1px rgba(148, 154, 164, 0.5);
+.sticky-nav {
+    position: sticky;
+    top: 0;
+    background-color: var(--color-graphite-base);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1c1c1e;
+    z-index: 100;
 }
 
-.glass-panel {
-  background: rgba(39, 44, 51, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
+.nav-logo {
+    font-weight: 600;
+    font-size: 14px;
 }
 
-.input-minimal {
-  background: transparent;
-  border: 1px solid var(--color-pure-white);
-  color: var(--color-pure-white);
-  padding: 16px;
-  width: 100%;
-  border-radius: 0px; 
-  font-family: var(--font-body);
-  margin-bottom: 16px;
-}
-.input-minimal:focus {
-  outline: none;
-  border-color: var(--color-interactive-lime);
+.nav-logo span {
+    color: var(--color-interactive-lime);
+    margin-right: 6px;
 }
 
-.footer-links {
-  margin-top: 64px;
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding-bottom: 32px;
+.btn-call {
+    background-color: var(--color-action-raspberry);
+    color: var(--color-pure-white);
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
 }
-.footer-links a {
-  color: var(--color-silver-mist);
-  border: 1px solid var(--color-silver-mist);
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  transition: all 0.2s;
+
+.hero-section {
+    padding: 42px 24px 24px 24px;
 }
-.footer-links a:hover {
-  color: var(--color-pure-white);
-  border-color: var(--color-pure-white);
+
+.hero-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+}
+
+.hero-subtitle {
+    font-size: 13px;
+    color: var(--color-silver-mist);
+    margin-top: 12px;
+    line-height: 1.4;
+}
+
+.campaign-container {
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 메인 카드 스타일 */
+.campaign-card {
+    background-color: var(--color-deep-slate);
+    border-radius: 8px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--color-pure-white);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.campaign-card.active {
+    border-color: var(--color-highlight-gold);
+}
+
+.badge-status {
+    align-self: flex-start;
+    background-color: var(--color-interactive-lime);
+    color: var(--color-pitch-black);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+
+.card-title {
+    font-size: 19px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.card-price {
+    font-size: 14px;
+    color: var(--color-interactive-lime);
+    font-weight: 600;
+}
+
+.card-period {
+    font-size: 12px;
+    color: var(--color-silver-mist);
+}
+
+/* 클릭 유도 아이콘 애니메이션 */
+.click-arrow {
+    align-self: flex-end;
+    font-size: 16px;
+    color: var(--color-highlight-gold);
+    animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(6px); }
+}
+
+/* 분기 전개 영역 스타일 */
+.expanded-content {
+    display: none;
+    background-color: #16181b;
+    border-radius: 0 0 8px 8px;
+    padding: 20px;
+    border-top: 1px solid #2c2c2e;
+    margin-top: -8px;
+    margin-bottom: 12px;
+}
+
+/* 전단지 발췌 시네마틱 블록 */
+.flyer-extract {
+    background-color: var(--color-graphite-base);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-left: 3px solid var(--color-action-raspberry);
+}
+
+.flyer-tag {
+    font-size: 12px;
+    color: var(--color-action-raspberry);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.flyer-text {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-pure-white);
+}
+
+.flyer-text span {
+    color: var(--color-interactive-lime);
+}
+
+/* 양식 스타일 */
+.form-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.input-group input {
+    background-color: transparent;
+    border: 1px solid var(--color-pure-white);
+    color: var(--color-pure-white);
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 0px;
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: #596170;
+}
+
+.btn-submit {
+    background-color: var(--color-action-raspberry);
+    color: var(--color-pure-white);
+    border: none;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.footer-area {
+    padding: 40px 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.quick-links {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+}
+
+.quick-links a {
+    color: var(--color-silver-mist);
+}
+
+.brand-footer {
+    font-size: 11px;
+    color: #596170;
 }

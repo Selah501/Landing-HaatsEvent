@@ -78,8 +78,10 @@
                 if (ev.status === 'active') {
                     html += `
                     <div id="card-${ev.id}" class="campaign-card active-card" onclick="toggleCampaign('${ev.id}', '${ev.title}')">
-                        <span class="badge-status">진행중 EVENT</span>
-                        <div class="card-title">${ev.title}</div>
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <span class="badge-status" style="margin-bottom: 0; margin-right: 8px; background-color: #10b981; color: white;">진행중</span>
+                            <div class="card-title" style="margin-bottom: 0;">${ev.title}</div>
+                        </div>
                         <div class="card-price">${ev.priceText}</div>
                         <div class="card-period">${ev.periodText}</div>
                         <div class="click-arrow">▼ 클릭하여 신청하기</div>
@@ -120,10 +122,13 @@
             eventsData.forEach(ev => {
                 if (ev.status === 'ended') {
                     html += `
-                    <div class="campaign-card ended-card" style="opacity: 0.5; filter: grayscale(100%); background-color: #222; border: 1px solid #444; padding: 16px; margin-bottom: 12px; border-radius: 8px; cursor: default; display: flex; align-items: center;">
-                        <span style="background:#555; color:#fff; font-size:11px; padding:3px 8px; border-radius:4px; margin-right:12px; font-weight: bold; white-space: nowrap;">event종료</span>
+                    <div class="campaign-card ended-card" style="opacity: 0.5; filter: grayscale(100%); background-color: #222; border: 1px solid #444; padding: 16px; margin-bottom: 12px; border-radius: 8px; cursor: default;">
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <span style="background:#555; color:#fff; font-size:12px; padding:4px 8px; border-radius:4px; margin-right:8px; font-weight: bold; white-space: nowrap;">종료됨</span>
+                            <div class="card-title" style="margin-bottom: 0; color: #ccc;">${ev.title}</div>
+                        </div>
                         <div style="font-size: 14px; color: #aaa; word-break: keep-all;">
-                            ${ev.title} / 복합환풍기 파격세일 ${ev.periodText}
+                            복합환풍기 파격세일 ${ev.periodText}
                         </div>
                     </div>`;
                 }

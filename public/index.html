@@ -146,10 +146,22 @@
                     let formProductsHtml = '';
                     allProducts.forEach((prod, idx) => {
                         const text = getProductText(prod);
+                        const isFan = text.includes('환풍기') || text.includes('티오람') || text.includes('댐퍼') || text.includes('제로크');
+                        let qtyHtml = '';
+                        if(isFan) {
+                            qtyHtml = `
+                                <select name="qty-${ev.id}-${prod.id}" style="margin-left:auto; padding: 4px 8px; border-radius: 4px; border: 1px solid #555; background-color: #222; color: white; font-size: 14px;">
+                                    <option value="1대">1대</option>
+                                    <option value="2대">2대</option>
+                                </select>
+                            `;
+                        }
+
                         formProductsHtml += `
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="product-${ev.id}" value="${text}">
+                            <label class="checkbox-label" style="display: flex; align-items: center;">
+                                <input type="checkbox" name="product-${ev.id}" value="${text}" data-id="${prod.id}">
                                 <span>${text}</span>
+                                ${qtyHtml}
                             </label>
                         `;
                     });
@@ -313,7 +325,12 @@
             // 다중 선택(체크박스) 값 취합
             const checkedBoxes = document.querySelectorAll(`input[name="product-${id}"]:checked`);
             let selectedProducts = [];
-            checkedBoxes.forEach(box => selectedProducts.push(box.value));
+            checkedBoxes.forEach(box => {
+                const prodId = box.getAttribute('data-id');
+                const qtySelect = document.querySelector(`select[name="qty-${id}-${prodId}"]`);
+                const qtyText = qtySelect ? ` (${qtySelect.value})` : '';
+                selectedProducts.push(box.value + qtyText);
+            });
             const product = selectedProducts.length > 0 ? selectedProducts.join(' + ') : "미선택";
 
             const payload = {

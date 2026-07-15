@@ -106,17 +106,17 @@
                         </div>
 
                         <button id="btn-show-form-${ev.id}" class="btn btn-primary" style="margin-bottom: 12px;" onclick="showForm('${ev.id}')">👉 무료 상담 예약하기</button>
+                        <a href="./reservation.html?eventId=${ev.id}" class="btn btn-secondary" style="margin-bottom: 12px; display: block; text-align: center; background-color: #6366f1; border-color: #6366f1; color: white;">🛠️ 설치 예약 바로하기</a>
 
                         <div id="form-container-${ev.id}" style="display: none; background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333;">
                             <div class="form-title">간편 상담 예약</div>
                             <div style="margin-bottom: 16px;">
                                 <div style="color: var(--color-pure-white); font-size: 14px; margin-bottom: 8px;">상담 희망 상품 (선택)</div>
-                                <label style="display: block; color: var(--color-silver-mist); margin-bottom: 8px; font-size: 14px; cursor: pointer;">
-                                    <input type="radio" name="product-${ev.id}" value="복합환풍기(티오람미니)" checked style="margin-right: 8px;"> 복합환풍기 (티오람 미니 / 195,000원)
-                                </label>
-                                <label style="display: block; color: var(--color-silver-mist); font-size: 14px; cursor: pointer;">
-                                    <input type="radio" name="product-${ev.id}" value="일반환풍기(냄새차단)" style="margin-right: 8px;"> 일반 환풍기 + 전동댐퍼 (12만~14만)
-                                </label>
+                                ${ (ev.consultProducts ? ev.consultProducts.split(',') : ['복합환풍기 (티오람 미니 / 195,000원)', '일반 환풍기 + 전동댐퍼 (12만~14만)']).map((prod, idx) => `
+                                    <label style="display: block; color: var(--color-silver-mist); margin-bottom: 8px; font-size: 14px; cursor: pointer;">
+                                        <input type="radio" name="product-${ev.id}" value="${prod.trim()}" ${idx === 0 ? 'checked' : ''} style="margin-right: 8px;"> ${prod.trim()}
+                                    </label>
+                                `).join('') }
                             </div>
                             <div class="input-group">
                                 <input type="text" id="apt-${ev.id}" placeholder="[아파트 동/호수] 예: 101동 102호">

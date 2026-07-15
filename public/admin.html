@@ -53,6 +53,14 @@
                 <label>접수 기간 문구 (예: 접수기간: 2026. 06. 30(화) ~ 07. 06(월))</label>
                 <input type="text" id="new-period" placeholder="접수기간 전체 문구를 입력하세요">
             </div>
+            <div class="form-group">
+                <label>상담 희망 상품 (쉼표로 구분. 예: 복합환풍기(티오람미니),일반환풍기(냄새차단))</label>
+                <input type="text" id="new-consult-products" placeholder="상담 희망 상품 목록" value="복합환풍기(티오람미니),일반환풍기(냄새차단)">
+            </div>
+            <div class="form-group">
+                <label>설치 희망 상품 (쉼표로 구분. 예: 복합환풍기(티오람미니),하츠명품후드,사각씽크볼&폭포수전)</label>
+                <input type="text" id="new-install-products" placeholder="설치 희망 상품 목록" value="복합환풍기(티오람미니),일반환풍기(냄새차단),하츠명품후드,사각씽크볼&폭포수전">
+            </div>
             <button onclick="addNewEvent()">+ 신규 이벤트 리스트에 추가하기</button>
         </div>
 
@@ -84,9 +92,14 @@
                         <span class="badge ${isEnded ? 'ended' : 'active'}">${isEnded ? '종료됨' : '진행중'}</span>
                         <strong style="font-size: 16px;">${ev.title}</strong>
                         <div style="font-size: 13px; margin-top: 4px; color: ${isEnded ? '#999' : '#555'};">${ev.periodText}</div>
+                        <div style="font-size: 12px; margin-top: 4px; color: #666;">
+                            상담 상품: ${ev.consultProducts || '기본값'}<br>
+                            설치 상품: ${ev.installProducts || '기본값'}
+                        </div>
                     </div>
                     <div>
-                        ${!isEnded ? `<button class="btn-danger" onclick="endEvent(${index})">종료 처리하기</button>` : `<button class="btn-secondary" onclick="activateEvent(${index})">다시 진행중으로</button>`}
+                        <button class="btn-secondary" style="background-color:#f59e0b;" onclick="editEvent(${index})">수정</button>
+                        ${!isEnded ? `<button class="btn-danger" onclick="endEvent(${index})">종료</button>` : `<button class="btn-secondary" onclick="activateEvent(${index})">다시 진행</button>`}
                     </div>
                 `;
                 listDiv.appendChild(card);
@@ -107,10 +120,31 @@
             renderList();
         }
 
+        function editEvent(index) {
+            const ev = currentData[index];
+            const newTitle = prompt("현장명:", ev.title);
+            if(newTitle === null) return;
+            const newPrice = prompt("가격 표시 문구:", ev.priceText);
+            const newPeriod = prompt("접수 기간:", ev.periodText);
+            const newConsult = prompt("상담 희망 상품 (쉼표로 구분):", ev.consultProducts || "복합환풍기(티오람미니),일반환풍기(냄새차단)");
+            const newInstall = prompt("설치 희망 상품 (쉼표로 구분):", ev.installProducts || "복합환풍기(티오람미니),일반환풍기(냄새차단),하츠명품후드,사각씽크볼&폭포수전");
+
+            if(newTitle) {
+                currentData[index].title = newTitle;
+                currentData[index].priceText = newPrice || '';
+                currentData[index].periodText = newPeriod || '';
+                currentData[index].consultProducts = newConsult || '';
+                currentData[index].installProducts = newInstall || '';
+                renderList();
+            }
+        }
+
         function addNewEvent() {
             const title = document.getElementById('new-title').value;
             const priceText = document.getElementById('new-price').value;
             const periodText = document.getElementById('new-period').value;
+            const consultProducts = document.getElementById('new-consult-products').value;
+            const installProducts = document.getElementById('new-install-products').value;
 
             if(!title) { alert('현장명을 입력하세요.'); return; }
 
@@ -119,7 +153,9 @@
                 title: title,
                 priceText: priceText || '',
                 periodText: periodText || '',
-                status: 'active'
+                status: 'active',
+                consultProducts: consultProducts || '',
+                installProducts: installProducts || ''
             };
 
             // 맨 위에 추가

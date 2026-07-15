@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설치 예약 바로하기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        .form-container { background-color: var(--color-graphite-base); padding: 24px; border-radius: 8px; border: 1px solid #333; margin-top: 24px; }
+        .form-title { font-size: 20px; color: var(--color-pure-white); margin-bottom: 20px; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <div class="mobile-container" style="min-height: 100vh; display: flex; flex-direction: column;">
+        <nav class="sticky-nav">
+            <div class="nav-logo"><span>[공식]</span>하츠 충남대리점</div>
+            <a href="tel:010-2886-5086" class="btn btn-secondary">전화 문의</a>
+        </nav>
+
+        <div class="container" style="padding: 24px; flex: 1;">
+            <div id="event-title-display" style="font-size: 16px; color: var(--color-interactive-lime); font-weight: bold; margin-bottom: 8px;"></div>
+            <h1 style="color: var(--color-pure-white); font-size: 24px; margin: 0 0 8px 0;">설치 예약 신청서</h1>
+            <p style="color: var(--color-silver-mist); font-size: 14px; margin-bottom: 24px;">작성해주시면 담당자가 확인 후 연락드립니다.</p>
+
+            <div class="form-container">
+                <div style="margin-bottom: 20px;">
+                    <div style="color: var(--color-pure-white); font-size: 15px; font-weight: bold; margin-bottom: 12px;">설치 희망 상품 (선택)</div>
+                    <div id="products-container">
+                        <!-- JS로 렌더링 -->
+                    </div>
+                </div>
+
+                <div class="input-group" style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="text" id="apt-input" placeholder="[아파트 동/호수] 예: 101동 102호">
+                    <input type="text" id="phone-input" placeholder="[연락처] 010-0000-0000">
+                    
+                    <div style="position: relative;">
+                        <input type="date" id="date-input" style="width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #444; background-color: #222; color: white; font-size: 15px; box-sizing: border-box;" onchange="updateDateDisplay()">
+                        <div id="date-display" style="position: absolute; right: 14px; top: 14px; color: var(--color-interactive-lime); font-weight: bold; pointer-events: none;"></div>
+                    </div>
+                </div>
+
+                <button id="btn-submit" class="btn btn-primary" style="margin-top: 24px; width: 100%;" onclick="submitReservation()">설치 예약 접수하기</button>
+            </div>
+            
+            <a href="./index.html" class="btn btn-ghost" style="margin-top: 24px; display: block; text-align: center;">← 메인 화면으로 돌아가기</a>
+        </div>
+    </div>
+
+    <script src="./events.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('eventId');
+        let currentEvent = null;
+
+        if (eventId && typeof eventsData !== 'undefined') {
+            currentEvent = eventsData.find(ev => ev.id === eventId);
+        }
+
+        if (currentEvent) {
+            document.getElementById('event-title-display').innerText = currentEvent.title;
+            
+            const productsContainer = document.getElementById('products-container');
+            const productsList = currentEvent.installProducts ? currentEvent.installProducts.split(',') : ['복합환풍기(티오람미니)', '일반환풍기(냄새차단)', '하츠명품후드', '사각씽크볼&폭포수전'];
+            
+            let html = '';
+            productsList.forEach((prod, idx) => {
+                html += `
+                    <label style="display: block; color: var(--color-silver-mist); margin-bottom: 12px; font-size: 15px; cursor: pointer; padding: 8px; background-color: #2a2a2d; border-radius: 6px; border: 1px solid #444;">
+                        <input type="radio" name="install-product" value="${prod.trim()}" ${idx === 0 ? 'checked' : ''} style="margin-right: 12px; transform: scale(1.2);"> 
+                        ${prod.trim()}
+                    </label>
+                `;
+            });
+            productsContainer.innerHTML = html;
+        } else {
+            alert("잘못된 접근입니다. 메인 페이지로 이동합니다.");
+            window.location.href = "./index.html";
+        }
+
+        function updateDateDisplay() {
+            const dateInput = document.getElementById('date-input').value;
+            if (dateInput) {
+                const dateObj = new Date(dateInput);
+                const days = ['일', '월', '화', '수', '목', '금', '토'];
+                const dayName = days[dateObj.getDay()];
+                document.getElementById('date-display').innerText = `(${dayName})`;
+            } else {
+                document.getElementById('date-display').innerText = '';
+            }
+        }
+
+        function submitReservation() {
+            const apartment = document.getElementById('apt-input').value;
+            let phone = document.getElementById('phone-input').value;
+            const dateInput = document.getElementById('date-input').value;
+
+            phone = phone.replace(/[^0-9]/g, '');
+            if (phone.length === 11) {
+                phone = phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+            } else if (phone.length === 10) {
+                phone = phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+            }
+
+            if (!apartment || !phone || !dateInput) {
+                alert("동/호수, 연락처, 설치 희망일을 모두 입력해 주세요.");
+                return;
+            }
+
+            const dateObj = new Date(dateInput);
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayName = days[dateObj.getDay()];
+            const consultTime = `${dateInput} (${dayName})`;
+
+            const productSelect = document.querySelector('input[name="install-product"]:checked');
+            const product = productSelect ? productSelect.value : "미선택";
+
+            const payload = {
+                apartment: apartment,
+                phone: phone,
+                consultTime: consultTime,
+                eventName: \`[설치예약] \${currentEvent.title} - \${product}\`
+            };
+
+            const submitBtn = document.getElementById('btn-submit');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "접수 중... (잠시만 기다려주세요)";
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = "0.7";
+
+            const GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby4sFDQcQ8BWX0jLdKZq86Ob3z537xSaHZ7Xl2ecg1k4kLO9Qw0TtMPG8BgUIiiUfekRQ/exec";
+            fetch(GOOGLE_WEBAPP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+
+                alert(\`설치 예약이 완료되어 담당자가 곧 연락을 드리겠습니다. 감사합니다.\\n\\n이벤트명 : \${currentEvent.title}\`);
+                window.location.href = "./index.html";
+            }).catch(err => {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+
+                alert("접수 중 오류가 발생했습니다. 대표 번호로 전화 문의 부탁드립니다.");
+                console.error(err);
+            });
+        }
+    </script>
+</body>
+</html>

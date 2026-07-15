@@ -112,11 +112,16 @@
                             <div class="form-title">간편 상담 예약</div>
                             <div style="margin-bottom: 16px;">
                                 <div style="color: var(--color-pure-white); font-size: 14px; margin-bottom: 8px;">상담 희망 상품 (선택)</div>
-                                ${ (ev.consultProducts ? ev.consultProducts.split(',') : ['복합환풍기 (티오람 미니 / 195,000원)', '일반 환풍기 + 전동댐퍼 (12만~14만)']).map((prod, idx) => `
+                                ${ (ev.availableProducts || []).map((prod, idx) => {
+                                    const masterProd = typeof globalProducts !== 'undefined' ? globalProducts.find(p => p.id === prod.id) : null;
+                                    const prodName = masterProd ? masterProd.name : "상품";
+                                    const defaultPrice = masterProd ? masterProd.defaultPriceText : "";
+                                    const text = prod.customText ? `${prodName} (${prod.customText})` : `${prodName} (${defaultPrice})`;
+                                    return `
                                     <label style="display: block; color: var(--color-silver-mist); margin-bottom: 8px; font-size: 14px; cursor: pointer;">
-                                        <input type="radio" name="product-${ev.id}" value="${prod.trim()}" ${idx === 0 ? 'checked' : ''} style="margin-right: 8px;"> ${prod.trim()}
-                                    </label>
-                                `).join('') }
+                                        <input type="radio" name="product-${ev.id}" value="${text}" ${idx === 0 ? 'checked' : ''} style="margin-right: 8px;"> ${text}
+                                    </label>`;
+                                }).join('') }
                             </div>
                             <div class="input-group">
                                 <input type="text" id="apt-${ev.id}" placeholder="[아파트 동/호수] 예: 101동 102호">

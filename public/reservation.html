@@ -62,14 +62,19 @@
             document.getElementById('event-title-display').innerText = currentEvent.title;
             
             const productsContainer = document.getElementById('products-container');
-            const productsList = currentEvent.installProducts ? currentEvent.installProducts.split(',') : ['복합환풍기(티오람미니)', '일반환풍기(냄새차단)', '하츠명품후드', '사각씽크볼&폭포수전'];
+            const productsList = currentEvent.availableProducts || [];
             
             let html = '';
             productsList.forEach((prod, idx) => {
+                const masterProd = typeof globalProducts !== 'undefined' ? globalProducts.find(p => p.id === prod.id) : null;
+                const prodName = masterProd ? masterProd.name : "상품";
+                const defaultPrice = masterProd ? masterProd.defaultPriceText : "";
+                const text = prod.customText ? `${prodName} (${prod.customText})` : `${prodName} (${defaultPrice})`;
+                
                 html += `
-                    <label style="display: block; color: var(--color-silver-mist); margin-bottom: 12px; font-size: 15px; cursor: pointer; padding: 8px; background-color: #2a2a2d; border-radius: 6px; border: 1px solid #444;">
-                        <input type="radio" name="install-product" value="${prod.trim()}" ${idx === 0 ? 'checked' : ''} style="margin-right: 12px; transform: scale(1.2);"> 
-                        ${prod.trim()}
+                    <label style="display: block; color: var(--color-silver-mist); margin-bottom: 12px; font-size: 15px; cursor: pointer; padding: 12px; background-color: #2a2a2d; border-radius: 8px; border: 1px solid #444; transition: all 0.2s ease;">
+                        <input type="radio" name="install-product" value="${text}" ${idx === 0 ? 'checked' : ''} style="margin-right: 12px; transform: scale(1.3);"> 
+                        <span style="font-weight: 500; color: #fff;">${text}</span>
                     </label>
                 `;
             });

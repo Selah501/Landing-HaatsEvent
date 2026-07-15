@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f4f4f5; color: #111; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1, h2 { color: #222; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #222; }
         .card { border: 1px solid #ddd; padding: 16px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .card.ended { background-color: #f9f9f9; color: #888; }
         .badge { font-size: 12px; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-right: 8px; }
@@ -24,44 +24,44 @@
         button.btn-danger { background-color: #ef4444; }
         button.btn-danger:hover { background-color: #dc2828; }
         button.btn-secondary { background-color: #6b7280; }
+        button.btn-warning { background-color: #f59e0b; }
+        button.btn-warning:hover { background-color: #d97706; }
         
-        textarea { width: 100%; height: 300px; padding: 12px; font-family: monospace; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; resize: vertical; margin-top: 12px; }
+        textarea { width: 100%; height: 300px; padding: 12px; font-family: monospace; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; resize: vertical; margin-top: 12px; font-size: 13px; }
         
         .section { margin-top: 40px; border-top: 2px solid #eee; padding-top: 24px; }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 24px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .product-item { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; padding: 12px; border: 1px solid #eee; border-radius: 6px; background: #fafafa; }
+        .product-item input[type="checkbox"] { transform: scale(1.2); }
+        .product-item input[type="text"] { flex: 1; margin-left: 12px; padding: 6px; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>🛠 이벤트 관리자 폼</h1>
-        <p style="color: #666; margin-bottom: 24px;">이 페이지는 관리자 전용입니다. 여기서 현장을 추가하거나 종료한 뒤, <b>생성된 코드</b>를 <code>events.js</code> 파일에 덮어씌워 배포하세요.</p>
+        <p style="color: #666; margin-bottom: 24px;">여기서 현장을 추가하거나 종료한 뒤, <b>생성된 코드</b>를 <code>events.js</code> 파일에 덮어씌워 배포하세요.</p>
 
-        <h2>1. 현재 등록된 이벤트 목록</h2>
-        <div id="event-list"></div>
+        <!-- 1. 상품 마스터 관리 -->
+        <div class="section" style="margin-top: 0; border-top: none;">
+            <h2>1. 상품 마스터 관리 (공통)</h2>
+            <p style="font-size: 13px; color: #666;">랜딩 페이지에 노출될 전체 상품 목록입니다.</p>
+            <div id="master-product-list" style="margin-bottom: 12px;"></div>
+            
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="text" id="new-prod-name" placeholder="새 상품명 (예: 하츠 에어프라이어)" style="flex:2;">
+                <input type="text" id="new-prod-price" placeholder="기본 가격/문구" style="flex:1;">
+                <button onclick="addMasterProduct()">+ 상품 추가</button>
+            </div>
+        </div>
 
         <div class="section">
-            <h2>2. 신규 이벤트 추가</h2>
-            <div class="form-group">
-                <label>현장명 (예: 내포 롯데캐슬 핫썸머)</label>
-                <input type="text" id="new-title" placeholder="현장명을 입력하세요">
-            </div>
-            <div class="form-group">
-                <label>가격 표시 문구 (예: 하츠 복합환풍기 티오람미니 파격세일 195,000원)</label>
-                <input type="text" id="new-price" placeholder="금액이 포함된 전체 문구를 입력하세요">
-            </div>
-            <div class="form-group">
-                <label>접수 기간 문구 (예: 접수기간: 2026. 06. 30(화) ~ 07. 06(월))</label>
-                <input type="text" id="new-period" placeholder="접수기간 전체 문구를 입력하세요">
-            </div>
-            <div class="form-group">
-                <label>상담 희망 상품 (쉼표로 구분. 예: 복합환풍기(티오람미니),일반환풍기(냄새차단))</label>
-                <input type="text" id="new-consult-products" placeholder="상담 희망 상품 목록" value="복합환풍기(티오람미니),일반환풍기(냄새차단)">
-            </div>
-            <div class="form-group">
-                <label>설치 희망 상품 (쉼표로 구분. 예: 복합환풍기(티오람미니),하츠명품후드,사각씽크볼&폭포수전)</label>
-                <input type="text" id="new-install-products" placeholder="설치 희망 상품 목록" value="복합환풍기(티오람미니),일반환풍기(냄새차단),하츠명품후드,사각씽크볼&폭포수전">
-            </div>
-            <button onclick="addNewEvent()">+ 신규 이벤트 리스트에 추가하기</button>
+            <h2>2. 현장별 이벤트 관리</h2>
+            <button onclick="openEventModal()" style="margin-bottom: 16px;">+ 신규 현장 등록하기</button>
+            <div id="event-list"></div>
         </div>
 
         <div class="section" style="background-color: #eff6ff; padding: 24px; border-radius: 8px; border: none;">
@@ -72,105 +72,194 @@
         </div>
     </div>
 
-    <!-- 기존 데이터를 불러옵니다 -->
+    <!-- Event Modal -->
+    <div id="event-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="modal-title">현장 등록/수정</h2>
+            <input type="hidden" id="modal-index" value="">
+            
+            <div class="form-group">
+                <label>현장명 (예: 내포 롯데캐슬 핫썸머)</label>
+                <input type="text" id="ev-title">
+            </div>
+            <div class="form-group">
+                <label>가격 표시 문구</label>
+                <input type="text" id="ev-price">
+            </div>
+            <div class="form-group">
+                <label>접수 기간 문구</label>
+                <input type="text" id="ev-period">
+            </div>
+            
+            <h3 style="margin-top: 24px;">적용할 상품 선택 (체크박스)</h3>
+            <p style="font-size:12px; color:#666;">체크한 상품만 해당 현장의 예약 폼에 노출됩니다. 현장 특별 가격이 있다면 덮어쓰기 칸에 적어주세요.</p>
+            <div id="modal-products"></div>
+
+            <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn-secondary" onclick="closeModal()">취소</button>
+                <button onclick="saveEvent()">저장</button>
+            </div>
+        </div>
+    </div>
+
     <script src="./events.js"></script>
     <script>
-        // eventsData는 events.js에서 로드됨
-        let currentData = JSON.parse(JSON.stringify(eventsData || []));
+        let currentProducts = JSON.parse(JSON.stringify(typeof globalProducts !== 'undefined' ? globalProducts : []));
+        let currentData = JSON.parse(JSON.stringify(typeof eventsData !== 'undefined' ? eventsData : []));
 
-        function renderList() {
+        // --- 마스터 상품 관리 ---
+        function renderMasterProducts() {
+            const listDiv = document.getElementById('master-product-list');
+            listDiv.innerHTML = '';
+            
+            currentProducts.forEach((prod, index) => {
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <div style="flex:1; font-weight:bold;">\${prod.name}</div>
+                    <div style="width: 150px; color:#555;">\${prod.defaultPriceText}</div>
+                    <button class="btn-danger" style="padding: 6px 10px; font-size:12px;" onclick="deleteMasterProduct(\${index})">삭제</button>
+                `;
+                listDiv.appendChild(item);
+            });
+            generateCode();
+        }
+
+        function addMasterProduct() {
+            const name = document.getElementById('new-prod-name').value;
+            const price = document.getElementById('new-prod-price').value;
+            if(!name) { alert('상품명을 입력하세요.'); return; }
+
+            currentProducts.push({
+                id: 'p_' + Date.now(),
+                name: name,
+                defaultPriceText: price || ''
+            });
+
+            document.getElementById('new-prod-name').value = '';
+            document.getElementById('new-prod-price').value = '';
+            renderMasterProducts();
+        }
+
+        function deleteMasterProduct(index) {
+            if(confirm('이 상품을 삭제하시겠습니까? 기존 현장에 적용된 데이터가 깨질 수 있습니다.')) {
+                currentProducts.splice(index, 1);
+                renderMasterProducts();
+            }
+        }
+
+        // --- 이벤트 관리 ---
+        function renderEventList() {
             const listDiv = document.getElementById('event-list');
             listDiv.innerHTML = '';
             
             currentData.forEach((ev, index) => {
                 const isEnded = ev.status === 'ended';
                 const card = document.createElement('div');
-                card.className = `card ${isEnded ? 'ended' : ''}`;
+                card.className = \`card \${isEnded ? 'ended' : ''}\`;
                 
+                const prods = (ev.availableProducts || []).map(p => {
+                    const m = currentProducts.find(x => x.id === p.id);
+                    return m ? m.name : '알수없음';
+                }).join(', ');
+
                 card.innerHTML = `
                     <div>
-                        <span class="badge ${isEnded ? 'ended' : 'active'}">${isEnded ? '종료됨' : '진행중'}</span>
-                        <strong style="font-size: 16px;">${ev.title}</strong>
-                        <div style="font-size: 13px; margin-top: 4px; color: ${isEnded ? '#999' : '#555'};">${ev.periodText}</div>
-                        <div style="font-size: 12px; margin-top: 4px; color: #666;">
-                            상담 상품: ${ev.consultProducts || '기본값'}<br>
-                            설치 상품: ${ev.installProducts || '기본값'}
+                        <span class="badge \${isEnded ? 'ended' : 'active'}">\${isEnded ? '종료됨' : '진행중'}</span>
+                        <strong style="font-size: 16px;">\${ev.title}</strong>
+                        <div style="font-size: 13px; margin-top: 4px; color: \${isEnded ? '#999' : '#555'};">\${ev.periodText}</div>
+                        <div style="font-size: 12px; margin-top: 4px; color: #4f46e5; font-weight: 500;">
+                            적용 상품: \${prods || '없음'}
                         </div>
                     </div>
-                    <div>
-                        <button class="btn-secondary" style="background-color:#f59e0b;" onclick="editEvent(${index})">수정</button>
-                        ${!isEnded ? `<button class="btn-danger" onclick="endEvent(${index})">종료</button>` : `<button class="btn-secondary" onclick="activateEvent(${index})">다시 진행</button>`}
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-warning" onclick="openEventModal(\${index})">수정</button>
+                        \${!isEnded ? \`<button class="btn-danger" onclick="endEvent(\${index})">종료</button>\` : \`<button class="btn-secondary" onclick="activateEvent(\${index})">다시 진행</button>\`}
                     </div>
                 `;
                 listDiv.appendChild(card);
             });
-
             generateCode();
         }
 
-        function endEvent(index) {
-            currentData[index].status = 'ended';
-            // 종료시 가격 문구를 날리고, 기간을 짧게 바꾸는 등의 로직을 넣을 수도 있지만 단순 유지를 위해 status만 변경
-            // 요구사항에 맞춰 periodText를 간단히 '~종료일'로 바꾼다면 여기서 처리 가능
-            renderList();
+        function endEvent(index) { currentData[index].status = 'ended'; renderEventList(); }
+        function activateEvent(index) { currentData[index].status = 'active'; renderEventList(); }
+
+        // --- 모달 관리 ---
+        function openEventModal(index = -1) {
+            document.getElementById('event-modal').style.display = 'flex';
+            const isEdit = index >= 0;
+            document.getElementById('modal-title').innerText = isEdit ? '현장 수정' : '신규 현장 등록';
+            document.getElementById('modal-index').value = index;
+
+            const ev = isEdit ? currentData[index] : { title: '', priceText: '', periodText: '', availableProducts: [] };
+            
+            document.getElementById('ev-title').value = ev.title;
+            document.getElementById('ev-price').value = ev.priceText;
+            document.getElementById('ev-period').value = ev.periodText;
+
+            // 상품 체크박스 렌더링
+            const prodDiv = document.getElementById('modal-products');
+            prodDiv.innerHTML = '';
+            
+            currentProducts.forEach(prod => {
+                const checkedItem = (ev.availableProducts || []).find(p => p.id === prod.id);
+                const isChecked = !!checkedItem;
+                const customText = checkedItem ? checkedItem.customText : '';
+
+                prodDiv.innerHTML += `
+                    <div class="product-item">
+                        <input type="checkbox" id="chk-\${prod.id}" value="\${prod.id}" \${isChecked ? 'checked' : ''}>
+                        <label for="chk-\${prod.id}" style="margin: 0; font-weight: normal; cursor: pointer; flex: 1;">
+                            <strong>\${prod.name}</strong> <span style="color:#888; font-size:12px;">(\${prod.defaultPriceText})</span>
+                        </label>
+                        <input type="text" id="custom-\${prod.id}" placeholder="현장 전용 가격 덮어쓰기" value="\${customText}" style="width: 180px;">
+                    </div>
+                `;
+            });
         }
 
-        function activateEvent(index) {
-            currentData[index].status = 'active';
-            renderList();
+        function closeModal() {
+            document.getElementById('event-modal').style.display = 'none';
         }
 
-        function editEvent(index) {
-            const ev = currentData[index];
-            const newTitle = prompt("현장명:", ev.title);
-            if(newTitle === null) return;
-            const newPrice = prompt("가격 표시 문구:", ev.priceText);
-            const newPeriod = prompt("접수 기간:", ev.periodText);
-            const newConsult = prompt("상담 희망 상품 (쉼표로 구분):", ev.consultProducts || "복합환풍기(티오람미니),일반환풍기(냄새차단)");
-            const newInstall = prompt("설치 희망 상품 (쉼표로 구분):", ev.installProducts || "복합환풍기(티오람미니),일반환풍기(냄새차단),하츠명품후드,사각씽크볼&폭포수전");
-
-            if(newTitle) {
-                currentData[index].title = newTitle;
-                currentData[index].priceText = newPrice || '';
-                currentData[index].periodText = newPeriod || '';
-                currentData[index].consultProducts = newConsult || '';
-                currentData[index].installProducts = newInstall || '';
-                renderList();
-            }
-        }
-
-        function addNewEvent() {
-            const title = document.getElementById('new-title').value;
-            const priceText = document.getElementById('new-price').value;
-            const periodText = document.getElementById('new-period').value;
-            const consultProducts = document.getElementById('new-consult-products').value;
-            const installProducts = document.getElementById('new-install-products').value;
-
+        function saveEvent() {
+            const index = parseInt(document.getElementById('modal-index').value);
+            const title = document.getElementById('ev-title').value;
             if(!title) { alert('현장명을 입력하세요.'); return; }
 
-            const newEvent = {
-                id: 'ev_' + Date.now(), // 고유 ID 생성
+            // 체크된 상품 취합
+            const availableProducts = [];
+            currentProducts.forEach(prod => {
+                const chk = document.getElementById(\`chk-\${prod.id}\`);
+                if(chk && chk.checked) {
+                    const customText = document.getElementById(\`custom-\${prod.id}\`).value;
+                    availableProducts.push({ id: prod.id, customText: customText });
+                }
+            });
+
+            const evObj = {
+                id: index >= 0 ? currentData[index].id : 'ev_' + Date.now(),
                 title: title,
-                priceText: priceText || '',
-                periodText: periodText || '',
-                status: 'active',
-                consultProducts: consultProducts || '',
-                installProducts: installProducts || ''
+                priceText: document.getElementById('ev-price').value,
+                periodText: document.getElementById('ev-period').value,
+                status: index >= 0 ? currentData[index].status : 'active',
+                availableProducts: availableProducts
             };
 
-            // 맨 위에 추가
-            currentData.unshift(newEvent);
-            
-            // 폼 초기화
-            document.getElementById('new-title').value = '';
-            document.getElementById('new-price').value = '';
-            document.getElementById('new-period').value = '';
+            if(index >= 0) {
+                currentData[index] = evObj;
+            } else {
+                currentData.unshift(evObj);
+            }
 
-            renderList();
+            closeModal();
+            renderEventList();
         }
 
+        // --- 코드 생성 ---
         function generateCode() {
-            const code = `const eventsData = ${JSON.stringify(currentData, null, 4)};`;
+            const code = \`const globalProducts = \${JSON.stringify(currentProducts, null, 4)};\\n\\nconst eventsData = \${JSON.stringify(currentData, null, 4)};\`;
             document.getElementById('output-code').value = code;
         }
 
@@ -181,8 +270,9 @@
             alert('코드가 클립보드에 복사되었습니다! events.js 파일에 붙여넣기 하세요.');
         }
 
-        // 초기 렌더링
-        renderList();
+        // 초기화
+        renderMasterProducts();
+        renderEventList();
     </script>
 </body>
 </html>

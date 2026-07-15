@@ -79,13 +79,28 @@ const eventsData = [
         "periodText": "2026. 07/15(수) ~ 07/216(화)",
         "status": "active",
         "mainProducts": [
-            { "id": "p_tioram", "customText": "" },
-            { "id": "p_vent_medium", "customText": "" }
+            {
+                "id": "p_vent_medium",
+                "customText": ""
+            },
+            {
+                "id": "p_tioram",
+                "customText": ""
+            }
         ],
         "addonProducts": [
-            { "id": "p_terra", "customText": "" },
-            { "id": "p_hurricane", "customText": "" },
-            { "id": "p_sink", "customText": "" }
+            {
+                "id": "p_sink",
+                "customText": ""
+            },
+            {
+                "id": "p_hurricane",
+                "customText": ""
+            },
+            {
+                "id": "p_1784139265988",
+                "customText": ""
+            }
         ]
     },
     {
@@ -95,12 +110,32 @@ const eventsData = [
         "periodText": "접수기간: 2026. 07. 07(화) ~ 07. 20(월)",
         "status": "active",
         "mainProducts": [
-            { "id": "p_tioram", "customText": "" }
+            {
+                "id": "p_tioram",
+                "customText": ""
+            }
         ],
         "addonProducts": [
-            { "id": "p_terra", "customText": "" },
-            { "id": "p_hurricane", "customText": "" },
-            { "id": "p_sink", "customText": "" }
+            {
+                "id": "p_sink",
+                "customText": ""
+            },
+            {
+                "id": "p_terra",
+                "customText": ""
+            },
+            {
+                "id": "p_hurricane",
+                "customText": ""
+            },
+            {
+                "id": "p_1784139265988",
+                "customText": ""
+            },
+            {
+                "id": "p_vent_large",
+                "customText": ""
+            }
         ]
     },
     {
@@ -110,13 +145,24 @@ const eventsData = [
         "periodText": "접수기간: 2026. 07. 06(월) ~ 07. 20(월)",
         "status": "active",
         "mainProducts": [
-            { "id": "p_tioram", "customText": "" },
-            { "id": "p_vent_large", "customText": "" }
+            {
+                "id": "p_tioram",
+                "customText": ""
+            },
+            {
+                "id": "p_vent_large",
+                "customText": ""
+            }
         ],
         "addonProducts": [
-            { "id": "p_terra", "customText": "" },
-            { "id": "p_hurricane", "customText": "" },
-            { "id": "p_sink", "customText": "" }
+            {
+                "id": "p_sink",
+                "customText": ""
+            },
+            {
+                "id": "p_1784139265988",
+                "customText": ""
+            }
         ]
     },
     {
@@ -126,12 +172,20 @@ const eventsData = [
         "periodText": "접수기간: 2026. 06. 30(화) ~ 07. 06(월)",
         "status": "ended",
         "mainProducts": [
-            { "id": "p_tioram", "customText": "" }
+            {
+                "id": "p_tioram",
+                "customText": ""
+            }
         ],
         "addonProducts": [
-            { "id": "p_terra", "customText": "" },
-            { "id": "p_hurricane", "customText": "" },
-            { "id": "p_sink", "customText": "" }
+            {
+                "id": "p_sink",
+                "customText": ""
+            },
+            {
+                "id": "p_1784139265988",
+                "customText": ""
+            }
         ]
     },
     {
@@ -141,13 +195,32 @@ const eventsData = [
         "periodText": "접수기간: 2026. 06. 30(화) ~ 07. 06(월)",
         "status": "active",
         "mainProducts": [
-            { "id": "p_tioram", "customText": "" },
-            { "id": "p_vent_large", "customText": "" }
+            {
+                "id": "p_tioram",
+                "customText": ""
+            },
+            {
+                "id": "p_vent_large",
+                "customText": ""
+            }
         ],
         "addonProducts": [
-            { "id": "p_terra", "customText": "" },
-            { "id": "p_hurricane", "customText": "" },
-            { "id": "p_sink", "customText": "" }
+            {
+                "id": "p_sink",
+                "customText": ""
+            },
+            {
+                "id": "p_terra",
+                "customText": ""
+            },
+            {
+                "id": "p_hurricane",
+                "customText": ""
+            },
+            {
+                "id": "p_1784139265988",
+                "customText": ""
+            }
         ]
     },
     {
@@ -156,13 +229,28 @@ const eventsData = [
         "periodText": "~6/29",
         "status": "ended",
         "mainProducts": [
-            { "id": "p_tioram", "customText": "" },
-            { "id": "p_vent_medium", "customText": "" }
+            {
+                "id": "p_vent_medium",
+                "customText": ""
+            },
+            {
+                "id": "p_tioram",
+                "customText": ""
+            }
         ],
         "addonProducts": [
-            { "id": "p_terra", "customText": "" },
-            { "id": "p_hurricane", "customText": "" },
-            { "id": "p_sink", "customText": "" }
+            {
+                "id": "p_sink",
+                "customText": ""
+            },
+            {
+                "id": "p_hurricane",
+                "customText": ""
+            },
+            {
+                "id": "p_1784139265988",
+                "customText": ""
+            }
         ]
     },
     {
@@ -171,13 +259,28 @@ const eventsData = [
         "periodText": "~6/30",
         "status": "ended",
         "mainProducts": [
-            { "id": "p_tioram", "customText": "" },
-            { "id": "p_vent_medium", "customText": "" }
+            {
+                "id": "p_vent_medium",
+                "customText": ""
+            },
+            {
+                "id": "p_tioram",
+                "customText": ""
+            }
         ],
         "addonProducts": [
-            { "id": "p_terra", "customText": "" },
-            { "id": "p_hurricane", "customText": "" },
-            { "id": "p_sink", "customText": "" }
+            {
+                "id": "p_sink",
+                "customText": ""
+            },
+            {
+                "id": "p_hurricane",
+                "customText": ""
+            },
+            {
+                "id": "p_1784139265988",
+                "customText": ""
+            }
         ]
     }
 ];

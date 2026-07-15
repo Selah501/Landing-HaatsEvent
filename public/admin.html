@@ -475,10 +475,12 @@
         }
         generateCode();
         
-        const copyText = document.getElementById('output-code');
-        copyText.select();
-        document.execCommand('copy');
-        alert('최종 코드가 클립보드에 복사되었습니다!\\nevents.js 파일 전체를 선택하여 붙여넣기 하세요.');
+        const code = document.getElementById('output-code').value;
+        navigator.clipboard.writeText(code).then(() => {
+            alert('최종 코드가 클립보드에 복사되었습니다!\nevents.js 파일 전체를 선택하여 붙여넣기 하세요.');
+        }).catch(err => {
+            alert('복사 실패! [3. 코드 내보내기] 탭에서 직접 코드를 복사해주세요.');
+        });
     }
 
     renderMasterList();

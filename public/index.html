@@ -8,6 +8,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Oswald:wght@500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <style>
+        /* Custom Styles for Checkboxes in Form */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            color: var(--color-silver-mist);
+            margin-bottom: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .checkbox-label:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+        .checkbox-label input[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 12px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
@@ -27,34 +49,6 @@
             <!-- events.js 데이터를 기반으로 동적 렌더링 됩니다. -->
         </main>
 
-        <!-- 추가 상품 기획전 섹션 -->
-        <section style="padding: 0 24px 32px 24px;">
-            <div style="background: linear-gradient(135deg, #2a2a2d 0%, #1c1c1e 100%); border-radius: 12px; padding: 24px; border: 1px solid #333; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <span style="display: inline-block; background: var(--color-interactive-lime); color: var(--color-pitch-black); font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; margin-bottom: 8px;">함께 신청하면 혜택 UP!</span>
-                    <h2 style="color: var(--color-pure-white); font-size: 18px; line-height: 1.4; margin: 0;">환풍기 시공할 때 같이 바꾸면 좋은<br><span style="color: var(--color-interactive-lime);">프리미엄 주방 기기 특가</span></h2>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <a href="./products/hood.html" style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-graphite-base); padding: 16px; border-radius: 8px; text-decoration: none; border: 1px solid #444; transition: all 0.2s ease;">
-                        <div>
-                            <div style="color: var(--color-silver-mist); font-size: 13px; margin-bottom: 4px;">주방 공기를 쾌적하게</div>
-                            <div style="color: var(--color-pure-white); font-size: 16px; font-weight: bold;">하츠 명품 후드 알아보기</div>
-                        </div>
-                        <div style="color: var(--color-interactive-lime); font-size: 20px; font-weight: bold;">➔</div>
-                    </a>
-                    
-                    <a href="./products/sink-faucet.html" style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-graphite-base); padding: 16px; border-radius: 8px; text-decoration: none; border: 1px solid #444; transition: all 0.2s ease;">
-                        <div>
-                            <div style="color: var(--color-silver-mist); font-size: 13px; margin-bottom: 4px;">주방의 품격을 높이는</div>
-                            <div style="color: var(--color-pure-white); font-size: 16px; font-weight: bold;">사각씽크볼 & 폭포수전 알아보기</div>
-                        </div>
-                        <div style="color: var(--color-interactive-lime); font-size: 20px; font-weight: bold;">➔</div>
-                    </a>
-                </div>
-            </div>
-        </section>
-
         <footer class="footer-area">
             <div class="quick-links">
                 <a href="./products/tioram-mini.html">티오람 미니 제품상세</a>
@@ -70,12 +64,96 @@
         let currentEventName = "";
         const container = document.getElementById('events-container');
 
+        // 상품 표시 텍스트 조립 함수
+        function getProductText(prodObj) {
+            const masterProd = typeof globalProducts !== 'undefined' ? globalProducts.find(p => p.id === prodObj.id) : null;
+            const prodName = masterProd ? masterProd.name : "알 수 없는 상품";
+            const priceText = prodObj.customText ? prodObj.customText : (masterProd ? masterProd.defaultPriceText : "");
+            return priceText ? `${prodName} (${priceText})` : prodName;
+        }
+
         // 이벤트 렌더링 로직
         function renderEvents() {
             let html = '';
             // 진행중 이벤트 렌더링
             eventsData.forEach(ev => {
                 if (ev.status === 'active') {
+                    
+                    // 메인 상품 렌더링
+                    let mainProductsHtml = '';
+                    if (ev.mainProducts && ev.mainProducts.length > 0) {
+                        mainProductsHtml += '<div style="margin-bottom: 24px;">';
+                        mainProductsHtml += '<div style="font-size: 14px; color: var(--color-interactive-lime); font-weight: bold; margin-bottom: 12px;">이벤트 메인 상품</div>';
+                        ev.mainProducts.forEach(prod => {
+                            const mProd = globalProducts.find(p => p.id === prod.id);
+                            if(!mProd) return;
+                            const text = getProductText(prod);
+                            
+                            mainProductsHtml += `
+                                <div style="background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 8px;">
+                                    <div style="color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 4px;">${text}</div>
+                                    <div style="color: #aaa; font-size: 13px; margin-bottom: 12px;">${mProd.features || ''}</div>
+                                    ${mProd.detailLink ? `<a href="${mProd.detailLink}" style="display: inline-block; color: var(--color-interactive-lime); text-decoration: none; font-size: 13px; font-weight: bold;">👉 자세히 보기</a>` : ''}
+                                </div>
+                            `;
+                        });
+                        mainProductsHtml += '</div>';
+                    }
+
+                    // 같이 바꾸면 좋은 상품 렌더링
+                    let addonProductsHtml = '';
+                    if (ev.addonProducts && ev.addonProducts.length > 0) {
+                        addonProductsHtml += `
+                            <div style="background: linear-gradient(135deg, #2a2a2d 0%, #1c1c1e 100%); border-radius: 12px; padding: 20px; border: 1px solid #444; margin-bottom: 24px;">
+                                <div style="text-align: center; margin-bottom: 16px;">
+                                    <span style="display: inline-block; background: var(--color-interactive-lime); color: var(--color-pitch-black); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 20px; margin-bottom: 6px;">함께 신청하면 혜택 UP!</span>
+                                    <h3 style="color: var(--color-pure-white); font-size: 16px; margin: 0;">같이 바꾸면 좋은 프리미엄 특가</h3>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                        `;
+                        ev.addonProducts.forEach(prod => {
+                            const mProd = globalProducts.find(p => p.id === prod.id);
+                            if(!mProd) return;
+                            const text = getProductText(prod);
+                            
+                            if(mProd.detailLink) {
+                                addonProductsHtml += `
+                                    <a href="${mProd.detailLink}" style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-graphite-base); padding: 14px; border-radius: 8px; text-decoration: none; border: 1px solid #555;">
+                                        <div>
+                                            <div style="color: var(--color-silver-mist); font-size: 12px; margin-bottom: 4px;">${mProd.features || '프리미엄 상품'}</div>
+                                            <div style="color: #fff; font-size: 15px; font-weight: bold;">${text}</div>
+                                        </div>
+                                        <div style="color: var(--color-interactive-lime); font-size: 18px; font-weight: bold;">➔</div>
+                                    </a>
+                                `;
+                            } else {
+                                addonProductsHtml += `
+                                    <div style="background-color: var(--color-graphite-base); padding: 14px; border-radius: 8px; border: 1px solid #555;">
+                                        <div style="color: var(--color-silver-mist); font-size: 12px; margin-bottom: 4px;">${mProd.features || '프리미엄 상품'}</div>
+                                        <div style="color: #fff; font-size: 15px; font-weight: bold;">${text}</div>
+                                    </div>
+                                `;
+                            }
+                        });
+                        addonProductsHtml += `
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // 모든 선택 가능한 상품 (메인 + 부가)
+                    const allProducts = [...(ev.mainProducts || []), ...(ev.addonProducts || [])];
+                    let formProductsHtml = '';
+                    allProducts.forEach((prod, idx) => {
+                        const text = getProductText(prod);
+                        formProductsHtml += `
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="product-${ev.id}" value="${text}">
+                                <span>${text}</span>
+                            </label>
+                        `;
+                    });
+
                     html += `
                     <div id="card-${ev.id}" class="campaign-card active-card" onclick="toggleCampaign('${ev.id}', '${ev.title}')">
                         <div style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -88,22 +166,9 @@
                     </div>
 
                     <div id="content-${ev.id}" class="expanded-content">
-                        <div class="flyer-extract">
-                            <div class="flyer-tag">하츠 충남대리점 단독 기획 쿨세일</div>
-                            <div class="flyer-text">🔥 찜통욕실 ➔ <span>완전시원! (자연풍 드라이)</span></div>
-                            <div class="flyer-text">💧 뽀송욕실 ➔ <span>완전제습! (초강력 제습)</span></div>
-                            <div class="flyer-text">🚬 담배냄새 ➔ <span>완벽차단! (고성능 전동댐퍼)</span></div>
-                        </div>
-
-                        <div style="display: flex; gap: 8px; margin-bottom: 24px;">
-                            <a href="./products/tioram-mini.html" class="btn btn-outline">제품 상세 보기</a>
-                            <a href="./guide/work-and-payment.html" class="btn btn-outline">시공 안내 보기</a>
-                        </div>
-
-                        <div style="background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
-                            <div style="color: #ccc; font-size: 13px; margin-bottom: 8px;">온풍/제습 기능까진 필요 없으신가요?</div>
-                            <a href="./products/basic-vent.html" style="display: inline-block; color: var(--color-interactive-lime); font-weight: bold; text-decoration: none; font-size: 15px;">👉 [단순 교체/담배냄새 차단] 일반 환풍기 특가 보기</a>
-                        </div>
+                        
+                        ${mainProductsHtml}
+                        ${addonProductsHtml}
 
                         <button id="btn-show-form-${ev.id}" class="btn btn-primary" style="margin-bottom: 12px;" onclick="showForm('${ev.id}')">👉 무료 상담 예약하기</button>
                         <a href="./reservation.html?eventId=${ev.id}" class="btn btn-secondary" style="margin-bottom: 12px; display: block; text-align: center; background-color: #6366f1; border-color: #6366f1; color: white;">🛠️ 설치 예약 바로하기</a>
@@ -111,17 +176,8 @@
                         <div id="form-container-${ev.id}" style="display: none; background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333;">
                             <div class="form-title">간편 상담 예약</div>
                             <div style="margin-bottom: 16px;">
-                                <div style="color: var(--color-pure-white); font-size: 14px; margin-bottom: 8px;">상담 희망 상품 (선택)</div>
-                                ${ (ev.availableProducts || []).map((prod, idx) => {
-                                    const masterProd = typeof globalProducts !== 'undefined' ? globalProducts.find(p => p.id === prod.id) : null;
-                                    const prodName = masterProd ? masterProd.name : "상품";
-                                    const defaultPrice = masterProd ? masterProd.defaultPriceText : "";
-                                    const text = prod.customText ? `${prodName} (${prod.customText})` : `${prodName} (${defaultPrice})`;
-                                    return `
-                                    <label style="display: block; color: var(--color-silver-mist); margin-bottom: 8px; font-size: 14px; cursor: pointer;">
-                                        <input type="radio" name="product-${ev.id}" value="${text}" ${idx === 0 ? 'checked' : ''} style="margin-right: 8px;"> ${text}
-                                    </label>`;
-                                }).join('') }
+                                <div style="color: var(--color-pure-white); font-size: 14px; margin-bottom: 8px;">상담 희망 상품 (다중 선택 가능)</div>
+                                ${formProductsHtml}
                             </div>
                             <div class="input-group">
                                 <input type="text" id="apt-${ev.id}" placeholder="[아파트 동/호수] 예: 101동 102호">
@@ -254,14 +310,17 @@
                 return;
             }
 
-            const productSelect = document.querySelector(`input[name="product-${id}"]:checked`);
-            const product = productSelect ? productSelect.value : "미선택";
+            // 다중 선택(체크박스) 값 취합
+            const checkedBoxes = document.querySelectorAll(`input[name="product-${id}"]:checked`);
+            let selectedProducts = [];
+            checkedBoxes.forEach(box => selectedProducts.push(box.value));
+            const product = selectedProducts.length > 0 ? selectedProducts.join(' + ') : "미선택";
 
             const payload = {
                 apartment: apartment,
                 phone: phone,
                 consultTime: consultTime,
-                eventName: `${currentEventName} - ${product}`
+                eventName: `${currentEventName} - [${product}]`
             };
 
             // 제출 버튼 비활성화 및 텍스트 변경
@@ -279,7 +338,6 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             }).then(() => {
-                // 원상복구
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";
@@ -290,9 +348,10 @@
                 document.getElementById(`apt-${id}`).value = "";
                 document.getElementById(`phone-${id}`).value = "";
                 document.getElementById(`time-${id}`).value = "";
+                // 폼 체크박스 리셋
+                checkedBoxes.forEach(box => box.checked = false);
                 toggleCampaign(id, currentEventName);
             }).catch(err => {
-                // 원상복구
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";

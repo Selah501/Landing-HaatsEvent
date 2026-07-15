@@ -1,15 +1,64 @@
 const globalProducts = [
-    { id: 'p_tioram', name: '복합환풍기 (티오람 미니)', defaultPriceText: '195,000원' },
-    { id: 'p_basic', name: '일반 환풍기 + 전동댐퍼', defaultPriceText: '12만~14만' },
-    { id: 'p_terra', name: '하츠 테라 DTR-90-MSHZ', defaultPriceText: '350,000원' },
-    { id: 'p_hurricane', name: '하츠 허리케인 HRH90S', defaultPriceText: '350,000원' },
-    { id: 'p_sink', name: '사각씽크볼 & 폭포수전', defaultPriceText: '별도 문의' }
+    {
+        id: 'p_tioram',
+        name: '복합환풍기',
+        model: '티오람 미니',
+        features: '배기/냄새차단/제습/온풍/자연풍',
+        cost: '',
+        defaultPriceText: '195,000원',
+        detailLink: './products/tioram-mini.html',
+        remarks: ''
+    },
+    {
+        id: 'p_basic',
+        name: '일반 환풍기',
+        model: '냄새차단 전동댐퍼 일체형',
+        features: '단순 교체 / 담배냄새 완벽 차단',
+        cost: '',
+        defaultPriceText: '12만~14만',
+        detailLink: './products/basic-vent.html',
+        remarks: ''
+    },
+    {
+        id: 'p_terra',
+        name: '하츠 명품 후드',
+        model: '테라 DTR-90-MSHZ',
+        features: '주방 공기를 쾌적하게',
+        cost: '',
+        defaultPriceText: '350,000원',
+        detailLink: './products/hood.html',
+        remarks: ''
+    },
+    {
+        id: 'p_hurricane',
+        name: '하츠 명품 후드',
+        model: '허리케인 HRH90S',
+        features: '강력한 흡입력',
+        cost: '',
+        defaultPriceText: '350,000원',
+        detailLink: './products/hood.html',
+        remarks: ''
+    },
+    {
+        id: 'p_sink',
+        name: '사각씽크볼 & 폭포수전',
+        model: '프리미엄 세트',
+        features: '주방의 품격을 높이는 디자인',
+        cost: '',
+        defaultPriceText: '별도 문의',
+        detailLink: './products/sink-faucet.html',
+        remarks: ''
+    }
 ];
 
-const defaultAvailableProducts = [
+const defaultMainProducts = [
     { id: 'p_tioram', customText: '' },
-    { id: 'p_basic', customText: '' },
+    { id: 'p_basic', customText: '' }
+];
+
+const defaultAddonProducts = [
     { id: 'p_terra', customText: '' },
+    { id: 'p_hurricane', customText: '' },
     { id: 'p_sink', customText: '' }
 ];
 
@@ -20,7 +69,8 @@ const eventsData = [
         "priceText": "복합환풍기 티오람미니 세일 195,000원",
         "periodText": "2026. 07/15(수) ~ 07/216(화)",
         "status": "active",
-        "availableProducts": JSON.parse(JSON.stringify(defaultAvailableProducts))
+        "mainProducts": JSON.parse(JSON.stringify(defaultMainProducts)),
+        "addonProducts": JSON.parse(JSON.stringify(defaultAddonProducts))
     },
     {
         "id": "ev_1783340698960",
@@ -28,7 +78,8 @@ const eventsData = [
         "priceText": "하츠 복합환풍기 티오람미니 파격세일 195,000원",
         "periodText": "접수기간: 2026. 07. 07(화) ~ 07. 20(월)",
         "status": "active",
-        "availableProducts": JSON.parse(JSON.stringify(defaultAvailableProducts))
+        "mainProducts": JSON.parse(JSON.stringify(defaultMainProducts)),
+        "addonProducts": JSON.parse(JSON.stringify(defaultAddonProducts))
     },
     {
         "id": "ev_1783340698959",
@@ -36,7 +87,8 @@ const eventsData = [
         "priceText": "하츠 복합환풍기 파격세일 195,000원",
         "periodText": "접수기간: 2026. 07. 06(월) ~ 07. 20(월)",
         "status": "active",
-        "availableProducts": JSON.parse(JSON.stringify(defaultAvailableProducts))
+        "mainProducts": JSON.parse(JSON.stringify(defaultMainProducts)),
+        "addonProducts": JSON.parse(JSON.stringify(defaultAddonProducts))
     },
     {
         "id": "ev_lotte",
@@ -44,7 +96,8 @@ const eventsData = [
         "priceText": "하츠 복합환풍기 티오람미니 파격세일 195,000원",
         "periodText": "접수기간: 2026. 06. 30(화) ~ 07. 06(월)",
         "status": "ended",
-        "availableProducts": JSON.parse(JSON.stringify(defaultAvailableProducts))
+        "mainProducts": JSON.parse(JSON.stringify(defaultMainProducts)),
+        "addonProducts": JSON.parse(JSON.stringify(defaultAddonProducts))
     },
     {
         "id": "ev_moa",
@@ -52,20 +105,23 @@ const eventsData = [
         "priceText": "하츠 복합환풍기 티오람미니 파격세일 195,000원",
         "periodText": "접수기간: 2026. 06. 30(화) ~ 07. 06(월)",
         "status": "active",
-        "availableProducts": JSON.parse(JSON.stringify(defaultAvailableProducts))
+        "mainProducts": JSON.parse(JSON.stringify(defaultMainProducts)),
+        "addonProducts": JSON.parse(JSON.stringify(defaultAddonProducts))
     },
     {
         "id": "ev_eg1",
         "title": "내포 이지더원 1차 핫썸머 2026.6",
         "periodText": "~6/29",
         "status": "ended",
-        "availableProducts": JSON.parse(JSON.stringify(defaultAvailableProducts))
+        "mainProducts": JSON.parse(JSON.stringify(defaultMainProducts)),
+        "addonProducts": JSON.parse(JSON.stringify(defaultAddonProducts))
     },
     {
         "id": "ev_eg2",
         "title": "내포 이지더원 2차 핫썸머",
         "periodText": "~6/30",
         "status": "ended",
-        "availableProducts": JSON.parse(JSON.stringify(defaultAvailableProducts))
+        "mainProducts": JSON.parse(JSON.stringify(defaultMainProducts)),
+        "addonProducts": JSON.parse(JSON.stringify(defaultAddonProducts))
     }
 ];

@@ -9,6 +9,14 @@
     <style>
         .form-container { background-color: var(--color-graphite-base); padding: 24px; border-radius: 8px; border: 1px solid #333; margin-top: 24px; }
         .form-title { font-size: 20px; color: var(--color-pure-white); margin-bottom: 20px; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 12px; }
+        
+        .checkbox-label {
+            display: flex; align-items: center; color: var(--color-silver-mist); margin-bottom: 12px;
+            font-size: 15px; cursor: pointer; padding: 12px; background-color: #2a2a2d;
+            border-radius: 8px; border: 1px solid #444; transition: all 0.2s ease;
+        }
+        .checkbox-label:hover { background-color: #333; }
+        .checkbox-label input[type="checkbox"] { transform: scale(1.3); margin-right: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -25,7 +33,7 @@
 
             <div class="form-container">
                 <div style="margin-bottom: 20px;">
-                    <div style="color: var(--color-pure-white); font-size: 15px; font-weight: bold; margin-bottom: 12px;">설치 희망 상품 (선택)</div>
+                    <div style="color: var(--color-pure-white); font-size: 15px; font-weight: bold; margin-bottom: 12px;">설치 희망 상품 (다중 선택 가능)</div>
                     <div id="products-container">
                         <!-- JS로 렌더링 -->
                     </div>
@@ -58,22 +66,26 @@
             currentEvent = eventsData.find(ev => ev.id === eventId);
         }
 
+        // 상품 표시 텍스트 조립 함수
+        function getProductText(prodObj) {
+            const masterProd = typeof globalProducts !== 'undefined' ? globalProducts.find(p => p.id === prodObj.id) : null;
+            const prodName = masterProd ? masterProd.name : "알 수 없는 상품";
+            const priceText = prodObj.customText ? prodObj.customText : (masterProd ? masterProd.defaultPriceText : "");
+            return priceText ? `${prodName} (${priceText})` : prodName;
+        }
+
         if (currentEvent) {
             document.getElementById('event-title-display').innerText = currentEvent.title;
             
             const productsContainer = document.getElementById('products-container');
-            const productsList = currentEvent.availableProducts || [];
+            const allProducts = [...(currentEvent.mainProducts || []), ...(currentEvent.addonProducts || [])];
             
             let html = '';
-            productsList.forEach((prod, idx) => {
-                const masterProd = typeof globalProducts !== 'undefined' ? globalProducts.find(p => p.id === prod.id) : null;
-                const prodName = masterProd ? masterProd.name : "상품";
-                const defaultPrice = masterProd ? masterProd.defaultPriceText : "";
-                const text = prod.customText ? `${prodName} (${prod.customText})` : `${prodName} (${defaultPrice})`;
-                
+            allProducts.forEach((prod, idx) => {
+                const text = getProductText(prod);
                 html += `
-                    <label style="display: block; color: var(--color-silver-mist); margin-bottom: 12px; font-size: 15px; cursor: pointer; padding: 12px; background-color: #2a2a2d; border-radius: 8px; border: 1px solid #444; transition: all 0.2s ease;">
-                        <input type="radio" name="install-product" value="${text}" ${idx === 0 ? 'checked' : ''} style="margin-right: 12px; transform: scale(1.3);"> 
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="install-product" value="${text}"> 
                         <span style="font-weight: 500; color: #fff;">${text}</span>
                     </label>
                 `;
@@ -118,14 +130,16 @@
             const dayName = days[dateObj.getDay()];
             const consultTime = `${dateInput} (${dayName})`;
 
-            const productSelect = document.querySelector('input[name="install-product"]:checked');
-            const product = productSelect ? productSelect.value : "미선택";
+            const checkedBoxes = document.querySelectorAll('input[name="install-product"]:checked');
+            let selectedProducts = [];
+            checkedBoxes.forEach(box => selectedProducts.push(box.value));
+            const product = selectedProducts.length > 0 ? selectedProducts.join(' + ') : "미선택";
 
             const payload = {
                 apartment: apartment,
                 phone: phone,
                 consultTime: consultTime,
-                eventName: \`[설치예약] \${currentEvent.title} - \${product}\`
+                eventName: `[설치예약] ${currentEvent.title} - [${product}]`
             };
 
             const submitBtn = document.getElementById('btn-submit');
@@ -145,7 +159,7 @@
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";
 
-                alert(\`설치 예약이 완료되어 담당자가 곧 연락을 드리겠습니다. 감사합니다.\\n\\n이벤트명 : \${currentEvent.title}\`);
+                alert(`설치 예약이 완료되어 담당자가 곧 연락을 드리겠습니다. 감사합니다.\n\n이벤트명 : ${currentEvent.title}`);
                 window.location.href = "./index.html";
             }).catch(err => {
                 submitBtn.innerText = originalText;

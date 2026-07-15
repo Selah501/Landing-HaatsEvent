@@ -1,5 +1,12 @@
 const eventsData = [
     {
+        "id": "ev_1784129533077",
+        "title": "내포 이지더원 2차 핫썸머 스멜",
+        "priceText": "복합환풍기 티오람미니 세일 195,000원",
+        "periodText": "2026. 07/15(수) ~ 07/216(화)",
+        "status": "active"
+    },
+    {
         "id": "ev_1783340698960",
         "title": "전원주택 빌라 핫썸머",
         "priceText": "하츠 복합환풍기 티오람미니 파격세일 195,000원",
@@ -18,7 +25,7 @@ const eventsData = [
         "title": "내포 롯데캐슬 핫썸머",
         "priceText": "하츠 복합환풍기 티오람미니 파격세일 195,000원",
         "periodText": "접수기간: 2026. 06. 30(화) ~ 07. 06(월)",
-        "status": "active"
+        "status": "ended"
     },
     {
         "id": "ev_moa",

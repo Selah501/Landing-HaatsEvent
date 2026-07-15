@@ -59,7 +59,7 @@
     </div>
 
     <!-- 이벤트 데이터 불러오기 -->
-    <script src="./events.js"></script>
+    <script src="./events.js?v=2"></script>
     <script>
         let currentEventName = "";
         const container = document.getElementById('events-container');
@@ -183,7 +183,7 @@
                         ${addonProductsHtml}
 
                         <button id="btn-show-form-${ev.id}" class="btn btn-primary" style="margin-bottom: 12px;" onclick="showForm('${ev.id}')">👉 무료 상담 예약하기</button>
-                        <a href="./reservation.html?eventId=${ev.id}" class="btn btn-secondary" style="margin-bottom: 12px; display: block; text-align: center; background-color: #6366f1; border-color: #6366f1; color: white;">🛠️ 설치 예약 바로하기</a>
+                        <a href="./reservation.html?eventId=${ev.id}&v=2" class="btn btn-secondary" style="margin-bottom: 12px; display: block; text-align: center; background-color: #6366f1; border-color: #6366f1; color: white;">🛠️ 설치 예약 바로하기</a>
 
                         <div id="form-container-${ev.id}" style="display: none; background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333;">
                             <div class="form-title">간편 상담 예약</div>

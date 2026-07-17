@@ -7,9 +7,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 20px; margin: 0; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: none; }
         h1 { margin-top: 0; color: #111827; }
         
+        /* Login Overlay */
+        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #e5e7eb; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        .login-box input { padding: 12px; font-size: 18px; text-align: center; border: 2px solid #d1d5db; border-radius: 8px; width: 200px; margin-bottom: 20px; }
+        .login-box button { padding: 12px 24px; font-size: 16px; width: 100%; }
+
         /* Tabs */
         .tabs { display: flex; border-bottom: 2px solid #e5e7eb; margin-bottom: 24px; }
         .tab { padding: 12px 24px; cursor: pointer; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -2px; }
@@ -43,8 +49,6 @@
         button.btn-info { background-color: #8b5cf6; }
         button.btn-info:hover { background-color: #7c3aed; }
         
-        textarea { width: 100%; height: 200px; padding: 12px; font-family: monospace; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; resize: vertical; font-size: 13px; }
-        
         /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto; }
@@ -68,24 +72,32 @@
 </head>
 <body>
 
-<div class="container">
+<div id="login-overlay">
+    <div class="login-box">
+        <h2 style="margin-top:0; color:#111827; margin-bottom: 24px;">관리자 로그인</h2>
+        <input type="password" id="admin-pw" placeholder="비밀번호 입력" onkeypress="if(event.key === 'Enter') checkPw()">
+        <br>
+        <button class="btn-success" onclick="checkPw()">접속하기</button>
+    </div>
+</div>
+
+<div class="container" id="main-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <h1>🛠 이벤트 관리자 폼 (PC 최적화)</h1>
+        <h1>🛠 이벤트 관리자 폼 (실시간 DB 연동 완료)</h1>
         <div>
-            <button class="btn-success" onclick="copyCode()" style="font-size: 16px; padding: 10px 20px;">📋 최종 코드 복사하기</button>
+            <span style="color:#10b981; font-weight:bold; margin-right: 12px;" id="db-status">🟡 연결 중...</span>
         </div>
     </div>
 
     <div class="tabs">
         <div class="tab active" onclick="switchTab('tab-master', this)">1. 상품 마스터 관리</div>
         <div class="tab" onclick="switchTab('tab-events', this)">2. 현장별 이벤트 관리</div>
-        <div class="tab" onclick="switchTab('tab-code', this)">3. 코드 내보내기</div>
     </div>
 
     <!-- 탭 1: 상품 마스터 -->
     <div id="tab-master" class="tab-content active">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <p style="margin: 0; color: #6b7280;">랜딩 페이지에 노출될 전체 상품의 마스터 목록입니다. <span style="color:red; font-weight:bold;">수정 후 반드시 하단의 [저장] 버튼을 누르세요.</span></p>
+            <p style="margin: 0; color: #6b7280;">랜딩 페이지에 노출될 전체 상품의 마스터 목록입니다. <span style="color:red; font-weight:bold;">저장 시 실시간으로 앱에 반영됩니다.</span></p>
             <button onclick="addMasterRow()">+ 새 상품 추가</button>
         </div>
         
@@ -107,7 +119,7 @@
             </tbody>
         </table>
         <div style="text-align: right;">
-            <button class="btn-success" onclick="saveMasterList()">✅ 마스터 목록 임시 저장</button>
+            <button class="btn-success" onclick="saveMasterList()">✅ 서버에 즉시 저장</button>
         </div>
     </div>
 
@@ -133,12 +145,6 @@
                 <!-- JS 렌더링 -->
             </tbody>
         </table>
-    </div>
-
-    <!-- 탭 3: 코드 출력 -->
-    <div id="tab-code" class="tab-content">
-        <p>위에서 수정한 결과가 아래 코드에 실시간으로 반영됩니다. 복사해서 <code>public/events.js</code> 파일 내용 전체를 지우고 붙여넣으세요.</p>
-        <textarea id="output-code" readonly></textarea>
     </div>
 
 </div>
@@ -182,7 +188,7 @@
 
         <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
             <button class="btn-secondary" onclick="closeEventModal()">취소</button>
-            <button class="btn-success" onclick="saveEvent()">저장</button>
+            <button class="btn-success" onclick="saveEvent()">서버에 저장</button>
         </div>
     </div>
 </div>
@@ -205,24 +211,82 @@
     </div>
 </div>
 
-<script src="./events.js"></script>
-<script>
-    let currentProducts = JSON.parse(JSON.stringify(typeof globalProducts !== 'undefined' ? globalProducts : []));
-    let currentData = JSON.parse(JSON.stringify(typeof eventsData !== 'undefined' ? eventsData : []));
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    function switchTab(tabId, element) {
+    const firebaseConfig = {
+        databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+        projectId: "flyer-event-page-2026"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // 전역 변수
+    window.currentProducts = [];
+    window.currentData = [];
+
+    // 로그인 확인
+    window.checkPw = function() {
+        const pw = document.getElementById('admin-pw').value;
+        if(pw === '5096') {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-container').style.display = 'block';
+            
+            // 데이터베이스 연동 시작
+            const dbRef = ref(db, '/');
+            onValue(dbRef, (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    window.currentProducts = data.products || [];
+                    window.currentData = data.events || [];
+                    
+                    document.getElementById('db-status').innerHTML = '🟢 실시간 연동 중';
+                    
+                    if(document.getElementById('tab-master').classList.contains('active')) {
+                        renderMasterList();
+                    } else {
+                        renderEventList();
+                    }
+                } else {
+                    document.getElementById('db-status').innerHTML = '🔴 데이터가 없습니다.';
+                }
+            }, (error) => {
+                console.error("Firebase read failed: " + error.code);
+                document.getElementById('db-status').innerHTML = '🔴 데이터베이스 오류';
+            });
+            
+        } else {
+            alert('비밀번호가 일치하지 않습니다.');
+        }
+    }
+
+    // 서버 저장 함수
+    window.syncToServer = function() {
+        document.getElementById('db-status').innerHTML = '🟡 저장 중...';
+        set(ref(db, '/'), {
+            products: window.currentProducts,
+            events: window.currentData
+        }).then(() => {
+            document.getElementById('db-status').innerHTML = '🟢 실시간 연동 중';
+        }).catch((error) => {
+            alert('저장에 실패했습니다: ' + error);
+        });
+    }
+
+    window.switchTab = function(tabId, element) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         element.classList.add('active');
         document.getElementById(tabId).classList.add('active');
         if(tabId === 'tab-master') renderMasterList();
         if(tabId === 'tab-events') renderEventList();
-        generateCode();
     }
 
     function getApplicableSites(prodId) {
         let sites = [];
-        currentData.forEach(ev => {
+        window.currentData.forEach(ev => {
             const inMain = (ev.mainProducts || []).some(p => p.id === prodId);
             const inAddon = (ev.addonProducts || []).some(p => p.id === prodId);
             if(inMain || inAddon) sites.push(ev.title);
@@ -230,10 +294,10 @@
         return sites;
     }
 
-    function renderMasterList() {
+    window.renderMasterList = function() {
         const tbody = document.getElementById('master-tbody');
         tbody.innerHTML = '';
-        currentProducts.forEach((prod, idx) => {
+        window.currentProducts.forEach((prod, idx) => {
             const sites = getApplicableSites(prod.id);
             const sitesHtml = sites.map(s => `<span class="site-badge">${s}</span>`).join('') || '<span style="color:#999;font-size:12px;">적용없음</span>';
             
@@ -255,54 +319,49 @@
         });
     }
 
-    function addMasterRow() {
-        currentProducts.push({
+    window.addMasterRow = function() {
+        window.currentProducts.push({
             id: 'p_' + Date.now(),
             name: '', model: '', features: '', remarks: '', defaultPriceText: '', detailLink: ''
         });
         renderMasterList();
     }
 
-    function deleteMasterRow(idx) {
+    window.deleteMasterRow = function(idx) {
         if(confirm("정말 삭제하시겠습니까? (이 상품을 사용하는 현장이 있다면 그곳에서도 사라집니다)")) {
-            const id = currentProducts[idx].id;
-            currentData.forEach(ev => {
+            const id = window.currentProducts[idx].id;
+            window.currentData.forEach(ev => {
                 if(ev.mainProducts) ev.mainProducts = ev.mainProducts.filter(p => p.id !== id);
                 if(ev.addonProducts) ev.addonProducts = ev.addonProducts.filter(p => p.id !== id);
             });
-            currentProducts.splice(idx, 1);
-            renderMasterList();
+            window.currentProducts.splice(idx, 1);
+            window.syncToServer();
         }
     }
 
-    function saveMasterList() {
+    window.saveMasterList = function() {
         const rows = document.querySelectorAll('#master-tbody tr');
         rows.forEach((row, idx) => {
-            currentProducts[idx].name = row.querySelector('.m-name').value;
-            currentProducts[idx].model = row.querySelector('.m-model').value;
-            currentProducts[idx].features = row.querySelector('.m-features').value;
-            currentProducts[idx].remarks = row.querySelector('.m-remarks').value;
-            currentProducts[idx].defaultPriceText = row.querySelector('.m-defaultPrice').value;
-            currentProducts[idx].detailLink = row.querySelector('.m-link').value;
+            window.currentProducts[idx].name = row.querySelector('.m-name').value;
+            window.currentProducts[idx].model = row.querySelector('.m-model').value;
+            window.currentProducts[idx].features = row.querySelector('.m-features').value;
+            window.currentProducts[idx].remarks = row.querySelector('.m-remarks').value;
+            window.currentProducts[idx].defaultPriceText = row.querySelector('.m-defaultPrice').value;
+            window.currentProducts[idx].detailLink = row.querySelector('.m-link').value;
         });
-        alert('마스터 목록이 임시 저장되었습니다.');
-        renderMasterList();
-        generateCode();
+        window.syncToServer();
+        alert('서버에 저장되었습니다.');
     }
 
-    // --- 현장 일괄 배정 모달 ---
-    function openAssignModal(prodId) {
-        // 현재 목록 저장부터 수행
-        saveMasterList();
-
+    window.openAssignModal = function(prodId) {
         document.getElementById('assign-modal').style.display = 'flex';
         document.getElementById('assign-prod-id').value = prodId;
-        const prod = currentProducts.find(p => p.id === prodId);
+        const prod = window.currentProducts.find(p => p.id === prodId);
         document.getElementById('assign-modal-title').innerText = `[${prod.name}] 현장 일괄 배정`;
 
         const listDiv = document.getElementById('assign-list');
         listDiv.innerHTML = '';
-        currentData.forEach((ev, evIdx) => {
+        window.currentData.forEach((ev, evIdx) => {
             const inMain = (ev.mainProducts || []).some(p => p.id === prodId);
             const inAddon = (ev.addonProducts || []).some(p => p.id === prodId);
             
@@ -319,17 +378,16 @@
         });
     }
 
-    function closeAssignModal() {
+    window.closeAssignModal = function() {
         document.getElementById('assign-modal').style.display = 'none';
     }
 
-    function saveAssignments() {
+    window.saveAssignments = function() {
         const prodId = document.getElementById('assign-prod-id').value;
         
-        currentData.forEach((ev, evIdx) => {
+        window.currentData.forEach((ev, evIdx) => {
             const val = document.querySelector(`input[name="assign-${evIdx}"]:checked`).value;
             
-            // 기존 배정 모두 삭제 (중복 방지)
             if(ev.mainProducts) ev.mainProducts = ev.mainProducts.filter(p => p.id !== prodId);
             if(ev.addonProducts) ev.addonProducts = ev.addonProducts.filter(p => p.id !== prodId);
 
@@ -340,26 +398,24 @@
             }
         });
 
-        closeAssignModal();
-        renderMasterList();
-        generateCode();
-        alert('배정이 완료되었습니다.');
+        window.closeAssignModal();
+        window.syncToServer();
+        alert('배정이 서버에 저장되었습니다.');
     }
 
-    // --- 탭 2: 현장별 이벤트 ---
-    function renderEventList() {
+    window.renderEventList = function() {
         const tbody = document.getElementById('event-tbody');
         tbody.innerHTML = '';
-        currentData.forEach((ev, idx) => {
+        window.currentData.forEach((ev, idx) => {
             const isEnded = ev.status === 'ended';
             
             const mainNames = (ev.mainProducts || []).map(p => {
-                const m = currentProducts.find(x => x.id === p.id);
+                const m = window.currentProducts.find(x => x.id === p.id);
                 return m ? m.name : '알수없음';
             }).join(', ');
 
             const addonNames = (ev.addonProducts || []).map(p => {
-                const m = currentProducts.find(x => x.id === p.id);
+                const m = window.currentProducts.find(x => x.id === p.id);
                 return m ? m.name : '알수없음';
             }).join(', ');
 
@@ -379,16 +435,16 @@
         });
     }
 
-    function endEvent(index) { currentData[index].status = 'ended'; renderEventList(); generateCode(); }
-    function activateEvent(index) { currentData[index].status = 'active'; renderEventList(); generateCode(); }
+    window.endEvent = function(index) { window.currentData[index].status = 'ended'; window.syncToServer(); }
+    window.activateEvent = function(index) { window.currentData[index].status = 'active'; window.syncToServer(); }
 
-    function openEventModal(index = -1) {
+    window.openEventModal = function(index = -1) {
         document.getElementById('event-modal').style.display = 'flex';
         const isEdit = index >= 0;
         document.getElementById('modal-title').innerText = isEdit ? '현장 수정' : '신규 현장 등록';
         document.getElementById('modal-index').value = index;
 
-        const ev = isEdit ? currentData[index] : { title: '', priceText: '', periodText: '', mainProducts: [], addonProducts: [] };
+        const ev = isEdit ? window.currentData[index] : { title: '', priceText: '', periodText: '', mainProducts: [], addonProducts: [] };
         
         document.getElementById('ev-title').value = ev.title;
         document.getElementById('ev-price').value = ev.priceText || '';
@@ -398,7 +454,7 @@
         const addonDiv = document.getElementById('modal-addon-prods');
         mainDiv.innerHTML = ''; addonDiv.innerHTML = '';
 
-        currentProducts.forEach(prod => {
+        window.currentProducts.forEach(prod => {
             const checkedMain = (ev.mainProducts || []).find(p => p.id === prod.id);
             mainDiv.innerHTML += `
                 <div class="product-item">
@@ -419,11 +475,11 @@
         });
     }
 
-    function closeEventModal() {
+    window.closeEventModal = function() {
         document.getElementById('event-modal').style.display = 'none';
     }
 
-    function saveEvent() {
+    window.saveEvent = function() {
         const index = parseInt(document.getElementById('modal-index').value);
         const title = document.getElementById('ev-title').value;
         if(!title) { alert('현장명을 입력하세요.'); return; }
@@ -431,7 +487,7 @@
         const mainProducts = [];
         const addonProducts = [];
 
-        currentProducts.forEach(prod => {
+        window.currentProducts.forEach(prod => {
             const chkMain = document.getElementById(`chk-main-${prod.id}`);
             if(chkMain && chkMain.checked) {
                 mainProducts.push({ id: prod.id, customText: document.getElementById(`price-main-${prod.id}`).value });
@@ -444,48 +500,25 @@
         });
 
         const evObj = {
-            id: index >= 0 ? currentData[index].id : 'ev_' + Date.now(),
+            id: index >= 0 ? window.currentData[index].id : 'ev_' + Date.now(),
             title: title,
             priceText: document.getElementById('ev-price').value,
             periodText: document.getElementById('ev-period').value,
-            status: index >= 0 ? currentData[index].status : 'active',
+            status: index >= 0 ? window.currentData[index].status : 'active',
             mainProducts: mainProducts,
             addonProducts: addonProducts
         };
 
         if(index >= 0) {
-            currentData[index] = evObj;
+            window.currentData[index] = evObj;
         } else {
-            currentData.unshift(evObj);
+            window.currentData.unshift(evObj);
         }
 
-        closeEventModal();
-        renderEventList();
-        generateCode();
+        window.closeEventModal();
+        window.syncToServer();
+        alert('서버에 저장되었습니다.');
     }
-
-    function generateCode() {
-        const code = `const globalProducts = ${JSON.stringify(currentProducts, null, 4)};\n\nconst eventsData = ${JSON.stringify(currentData, null, 4)};`;
-        document.getElementById('output-code').value = code;
-    }
-
-    function copyCode() {
-        if(document.getElementById('tab-master').classList.contains('active')) {
-             saveMasterList();
-        }
-        generateCode();
-        
-        const code = document.getElementById('output-code').value;
-        navigator.clipboard.writeText(code).then(() => {
-            alert('최종 코드가 클립보드에 복사되었습니다!\nevents.js 파일 전체를 선택하여 붙여넣기 하세요.');
-        }).catch(err => {
-            alert('복사 실패! [3. 코드 내보내기] 탭에서 직접 코드를 복사해주세요.');
-        });
-    }
-
-    renderMasterList();
-    renderEventList();
-    generateCode();
 </script>
 </body>
 </html>

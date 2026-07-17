@@ -58,8 +58,34 @@
         </footer>
     </div>
 
-    <!-- 이벤트 데이터 불러오기 -->
-    <script src="./events.js?v=2"></script>
+    <!-- Firebase SDK (모듈식) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+            projectId: "flyer-event-page-2026"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Firebase에서 실시간 데이터 불러오기
+        const dbRef = ref(db, '/');
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                window.globalProducts = data.products || [];
+                window.eventsData = data.events || [];
+                if (typeof window.renderEvents === 'function') {
+                    window.renderEvents();
+                }
+            } else {
+                console.error("데이터베이스가 비어있습니다.");
+            }
+        });
+    </script>
     <script>
         let currentEventName = "";
         const container = document.getElementById('events-container');
@@ -73,7 +99,8 @@
         }
 
         // 이벤트 렌더링 로직
-        function renderEvents() {
+        window.renderEvents = function() {
+            if (!window.eventsData || !window.globalProducts) return;
             let html = '';
             // 진행중 이벤트 렌더링
             eventsData.forEach(ev => {
@@ -224,9 +251,8 @@
             container.innerHTML = html;
         }
 
-        // 초기 렌더링 실행
-        renderEvents();
-
+        // 초기 렌더링은 Firebase onValue 콜백에서 비동기로 실행됩니다.
+        // renderEvents();
         // 폼 열기/닫기 로직
         function showForm(id) {
             document.getElementById(`form-container-${id}`).style.display = "block";

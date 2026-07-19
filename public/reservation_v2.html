@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상담 및 시공 예약 V2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        .page-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background-color: var(--color-pitch-black);
+            min-height: 100vh;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: var(--color-graphite-base);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+
+        .content-area {
+            padding: 0 20px 60px 20px;
+        }
+
+        /* Calendar */
+        .calendar-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+        .cal-header {
+            font-size: 12px;
+            color: var(--color-silver-mist);
+            padding-bottom: 8px;
+        }
+        .cal-day {
+            padding: 16px 0;
+            border-radius: 8px;
+            background-color: var(--color-deep-slate);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+        .cal-day:hover:not(.disabled) {
+            border-color: var(--color-interactive-lime);
+        }
+        .cal-day.selected {
+            background-color: var(--color-interactive-lime);
+            color: var(--color-pitch-black);
+            font-weight: bold;
+        }
+        .cal-day.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background-color: #111;
+        }
+        .cal-date-num {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .cal-month-badge {
+            font-size: 10px;
+            margin-bottom: 2px;
+            opacity: 0.8;
+        }
+
+        /* Time Slots */
+        .time-section {
+            margin-top: 32px;
+            display: none;
+        }
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .time-slot {
+            padding: 16px;
+            text-align: center;
+            border-radius: 8px;
+            background-color: var(--color-graphite-base);
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .time-slot:hover:not(.disabled) {
+            border-color: var(--color-interactive-lime);
+        }
+        .time-slot.selected {
+            background-color: var(--color-interactive-lime);
+            color: var(--color-pitch-black);
+            border-color: var(--color-interactive-lime);
+        }
+        
+        /* Status Colors */
+        .time-slot.disabled {
+            cursor: not-allowed;
+        }
+        .time-slot.confirmed {
+            background-color: #111;
+            color: #555;
+            text-decoration: line-through;
+            border-color: #222;
+        }
+        .time-slot.pending {
+            background-color: rgba(238, 211, 127, 0.1);
+            color: var(--color-highlight-gold);
+            border-color: rgba(238, 211, 127, 0.3);
+        }
+        .time-slot.blocked {
+            background-color: rgba(227, 38, 82, 0.1);
+            color: var(--color-action-raspberry);
+            border-color: rgba(227, 38, 82, 0.3);
+            text-decoration: line-through;
+        }
+        .status-badge {
+            font-size: 11px;
+            font-weight: normal;
+        }
+
+        /* Form */
+        .form-section {
+            background-color: var(--color-graphite-base);
+            padding: 24px;
+            border-radius: 8px;
+            margin-top: 32px;
+            display: none;
+            border: 1px solid #333;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Admin Controls */
+        .admin-panel {
+            background-color: #2a1118;
+            border: 1px solid var(--color-action-raspberry);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            color: var(--color-silver-mist);
+            margin-bottom: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 6px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+        }
+        .checkbox-label input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-right: 12px;
+        }
+        .checkbox-label.selected-prod {
+            border-color: var(--color-interactive-lime);
+            color: var(--color-pure-white);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <nav class="header-actions">
+            <a href="./index.html" class="btn btn-ghost" style="width: auto; padding: 8px 12px;">← 뒤로</a>
+            <div style="font-weight: bold;">예약 시스템 (V2)</div>
+            <button class="btn btn-secondary" onclick="loginAdmin()">관리자</button>
+        </nav>
+
+        <div class="content-area">
+            
+            <div id="admin-panel" class="admin-panel">
+                <div style="color: var(--color-action-raspberry); font-weight: bold; margin-bottom: 8px;">👑 관리자 모드 활성화됨</div>
+                <p style="font-size: 13px; color: #ccc;">대기(Pending) 상태의 예약을 클릭하여 확정하거나, 빈 슬롯을 클릭하여 강제 차단할 수 있습니다.</p>
+            </div>
+
+            <!-- 1. 날짜 선택 -->
+            <div class="section-title">🗓 날짜를 선택해 주세요</div>
+            <div class="calendar-header" id="current-month-label">2026.07</div>
+            <div class="calendar-grid">
+                <div class="cal-header">일</div>
+                <div class="cal-header">월</div>
+                <div class="cal-header">화</div>
+                <div class="cal-header">수</div>
+                <div class="cal-header">목</div>
+                <div class="cal-header">금</div>
+                <div class="cal-header">토</div>
+            </div>
+            <div class="calendar-grid" id="calendar-body">
+                <!-- 달력 렌더링 -->
+            </div>
+
+            <!-- 2. 시간 선택 -->
+            <div class="time-section" id="time-section">
+                <div class="section-title">⏰ 시간을 선택해 주세요</div>
+                <div style="font-size: 12px; color: var(--color-silver-mist); margin-bottom: 8px;">
+                    <span style="color:var(--color-highlight-gold)">■ 대기중</span> | <span style="color:#555">■ 확정완료</span>
+                </div>
+                <div class="time-grid" id="time-grid">
+                    <!-- 시간 슬롯 렌더링 -->
+                </div>
+            </div>
+
+            <!-- 3. 상품 및 정보 입력 폼 -->
+            <div class="form-section" id="form-section">
+                <div class="section-title">📦 제품 및 연락처 입력</div>
+                <div style="color: var(--color-silver-mist); font-size: 13px; margin-bottom: 20px;">
+                    확정된 일정이 아닙니다. 담당자와 확인 후 최종 확정됩니다.
+                </div>
+                
+                <div id="product-list" style="margin-bottom: 8px;">
+                    <!-- JS로 동적 렌더링 됩니다 -->
+                </div>
+                <div id="duration-info" style="color: var(--color-interactive-lime); font-size: 14px; font-weight: bold; margin-bottom: 24px; display: none;">
+                    작업은 총 <span id="duration-hours">0</span>시간 소요됩니다.
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="customer-name" placeholder="[성함] 예: 홍길동">
+                    <input type="text" id="customer-phone" placeholder="[연락처] 010-0000-0000">
+                    <input type="text" id="customer-apt" placeholder="[아파트 동/호수] 예: 101동 102호">
+                </div>
+
+                <button id="btn-submit" class="btn btn-primary" style="margin-top: 16px;" onclick="submitReservation()">예약 신청하기</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+            projectId: "flyer-event-page-2026"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Global State
+        window.reservationsDB = {};
+        window.globalProducts = [];
+        window.selectedDate = null;
+        window.selectedTime = null;
+        window.isAdmin = false;
+        
+        // 날짜 관련 유틸
+        const today = new Date();
+        // V2 요구사항: 14일 달력
+        const displayDays = 14; 
+        
+        // 시간 계산 유틸 (예: "09:00", 2 -> "11:00")
+        function addHoursToTimeString(timeStr, hoursToAdd) {
+            const hour = parseInt(timeStr.split(':')[0]);
+            return String(hour + hoursToAdd).padStart(2, '0') + ":00";
+        }
+        
+        function renderCalendar() {
+            const calBody = document.getElementById('calendar-body');
+            calBody.innerHTML = '';
+            
+            // 오늘 날짜의 요일을 구해서 앞에 빈 칸 채우기 (일요일이 0)
+            const startDayOfWeek = today.getDay();
+            for(let i=0; i<startDayOfWeek; i++) {
+                calBody.innerHTML += `<div></div>`;
+            }
+
+            for(let i=0; i<displayDays; i++) {
+                let d = new Date(today);
+                d.setDate(today.getDate() + i);
+                
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${yyyy}-${mm}-${dd}`;
+                
+                // 오늘 표시
+                let classNames = "cal-day";
+                if(i === 0) classNames += " today";
+
+                calBody.innerHTML += `
+                    <div class="${classNames}" id="cal-${dateStr}" onclick="selectDate('${dateStr}')">
+                        <div class="cal-month-badge">${d.getMonth() + 1}월</div>
+                        <div class="cal-date-num">${d.getDate()}</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('current-month-label').innerText = `${today.getFullYear()}.${today.getMonth() + 1}`;
+        }
+
+        window.selectDate = function(dateStr) {
+            // UI 업데이트
+            document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
+            document.getElementById(`cal-${dateStr}`).classList.add('selected');
+            
+            window.selectedDate = dateStr;
+            window.selectedTime = null; // 초기화
+            
+            // 폼 닫기
+            document.getElementById('form-section').style.display = 'none';
+            
+            // 시간표 렌더링
+            renderTimeSlots(dateStr);
+            document.getElementById('time-section').style.display = 'block';
+        }
+
+        function renderTimeSlots(dateStr) {
+            const timeGrid = document.getElementById('time-grid');
+            timeGrid.innerHTML = '';
+            
+            // 09:00 ~ 18:00 (1시간 단위)
+            const times = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+            const dayReservations = window.reservationsDB[dateStr] || {};
+
+            times.forEach(time => {
+                const res = dayReservations[time];
+                let status = "available"; // available, pending, confirmed, blocked
+                if(res) status = res.status;
+
+                let classNames = "time-slot";
+                let statusText = "예약가능";
+                let isDisabled = false;
+
+                if (status === "confirmed") {
+                    classNames += " disabled confirmed";
+                    statusText = "확정완료";
+                    isDisabled = true;
+                } else if (status === "pending") {
+                    classNames += " pending";
+                    statusText = "예약대기";
+                    // 고객 모드에서는 클릭 불가, 관리자 모드에서는 클릭 가능
+                    if (!window.isAdmin) {
+                        classNames += " disabled";
+                        isDisabled = true;
+                    }
+                } else if (status === "blocked") {
+                    classNames += " disabled blocked";
+                    statusText = "차단됨";
+                    isDisabled = true;
+                }
+
+                // 관리자는 blocked 상태도 클릭해서 해제할 수 있게 만들 수 있지만, 현재는 pending 확정/빈칸 차단에 집중
+                let onClickStr = `onclick="selectTime('${time}', '${status}')"`;
+                if(isDisabled && !window.isAdmin) onClickStr = "";
+
+                timeGrid.innerHTML += `
+                    <div class="${classNames}" id="time-${time.replace(':','')}" ${onClickStr}>
+                        <div>${time}</div>
+                        <div class="status-badge">${statusText}</div>
+                    </div>
+                `;
+            });
+        }
+
+        window.selectTime = function(time, currentStatus) {
+            if (window.isAdmin) {
+                adminHandleTimeClick(time, currentStatus);
+                return;
+            }
+
+            // 일반 고객 모드
+            if (currentStatus !== "available") return;
+
+            // UI 업데이트
+            document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+            document.getElementById(`time-${time.replace(':','')}`).classList.add('selected');
+            
+            window.selectedTime = time;
+            
+            // 폼 열기
+            document.getElementById('form-section').style.display = 'block';
+            document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- 관리자 기능 ---
+        window.loginAdmin = function() {
+            if (window.isAdmin) {
+                alert("이미 관리자 모드입니다.");
+                return;
+            }
+            const pwd = prompt("관리자 비밀번호를 입력하세요:");
+            if (pwd === "5096") {
+                window.isAdmin = true;
+                document.getElementById('admin-panel').style.display = "block";
+                if(window.selectedDate) {
+                    renderTimeSlots(window.selectedDate); // 리렌더링하여 클릭 활성화
+                }
+                alert("관리자 모드로 전환되었습니다.");
+            } else {
+                alert("비밀번호가 틀렸습니다.");
+            }
+        }
+
+        window.adminHandleTimeClick = function(time, currentStatus) {
+            const dateStr = window.selectedDate;
+            const dayReservations = window.reservationsDB[dateStr] || {};
+            const slotData = dayReservations[time];
+            
+            // 그룹핑된 예약일 경우 (reservationId 확인)
+            let slotsToProcess = [time];
+            if (slotData && slotData.reservationId) {
+                const rId = slotData.reservationId;
+                slotsToProcess = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
+            }
+            
+            const slotsText = slotsToProcess.join(', ');
+            
+            if (currentStatus === "pending") {
+                if (confirm(`[${slotsText}] 예약을 최종 확정하시겠습니까?`)) {
+                    let updates = {};
+                    slotsToProcess.forEach(t => { updates[`reservations/${dateStr}/${t}/status`] = "confirmed"; });
+                    update(ref(db), updates);
+                }
+            } else if (currentStatus === "available") {
+                if (confirm(`${time} 슬롯을 차단하시겠습니까? (개인 용무 등)`)) {
+                    set(ref(db, `reservations/${dateStr}/${time}`), {
+                        status: "blocked",
+                        type: "admin",
+                        timestamp: Date.now()
+                    });
+                }
+            } else if (currentStatus === "blocked" || currentStatus === "confirmed") {
+                if (confirm(`선택된 슬롯: [${slotsText}]\n현재 상태: ${currentStatus}\n해당 시간대의 상태를 초기화(예약가능) 하시겠습니까?`)) {
+                    let updates = {};
+                    slotsToProcess.forEach(t => { updates[`reservations/${dateStr}/${t}`] = null; });
+                    update(ref(db), updates);
+                }
+            }
+        }
+        // -------------------
+
+        window.submitReservation = function() {
+            if (!window.selectedDate || !window.selectedTime) {
+                alert("날짜와 시간을 선택해주세요.");
+                return;
+            }
+
+            const name = document.getElementById('customer-name').value;
+            const phone = document.getElementById('customer-phone').value;
+            const apt = document.getElementById('customer-apt').value;
+            
+            const checkedBoxes = document.querySelectorAll('input[name="v2-prod"]:checked');
+            let selectedProducts = [];
+            let totalDuration = 0;
+            
+            checkedBoxes.forEach(box => {
+                selectedProducts.push(box.value);
+                totalDuration += parseInt(box.getAttribute('data-time') || '0');
+            });
+
+            if (!name || !phone || !apt) {
+                alert("성함, 연락처, 아파트 동/호수를 모두 입력해주세요.");
+                return;
+            }
+
+            if (selectedProducts.length === 0) {
+                alert("최소 1개의 제품을 선택해주세요.");
+                return;
+            }
+
+            const hoursNeeded = Math.max(1, Math.ceil(totalDuration / 60));
+            const dayReservations = window.reservationsDB[window.selectedDate] || {};
+            
+            // 다중 슬롯 검증 로직
+            const slotsToBook = [];
+            for (let i = 0; i < hoursNeeded; i++) {
+                const targetTime = addHoursToTimeString(window.selectedTime, i);
+                
+                // 18시 이후거나 유효하지 않은 시간일 때 (예: 19:00)
+                if (targetTime > "18:00") {
+                    alert(`시공 시간이 총 ${hoursNeeded}시간 소요됩니다. 18:00 영업 종료 시간을 초과하여 예약할 수 없습니다. 더 이른 시간을 선택해주세요.`);
+                    return;
+                }
+                
+                // 이미 예약된 슬롯인지 확인
+                const slot = dayReservations[targetTime];
+                if (slot && slot.status && slot.status !== 'available') {
+                    alert(`시공 시간이 총 ${hoursNeeded}시간 소요됩니다. ${targetTime}에 이미 다른 예약이나 차단된 일정이 있어 예약할 수 없습니다.`);
+                    return;
+                }
+                
+                slotsToBook.push(targetTime);
+            }
+
+            const btn = document.getElementById('btn-submit');
+            btn.innerText = "처리 중...";
+            btn.disabled = true;
+            
+            const reservationId = 'res_' + Date.now();
+            let updates = {};
+
+            slotsToBook.forEach(timeStr => {
+                updates[`reservations/${window.selectedDate}/${timeStr}`] = {
+                    status: "pending",
+                    reservationId: reservationId,
+                    type: "customer",
+                    timestamp: Date.now(),
+                    customerInfo: {
+                        name: name,
+                        phone: phone,
+                        apt: apt,
+                        items: selectedProducts,
+                        totalDuration: totalDuration,
+                        hoursNeeded: hoursNeeded,
+                        parentTime: window.selectedTime
+                    }
+                };
+            });
+
+            update(ref(db), updates).then(() => {
+                alert("고객님의 상담/예약 신청이 접수되었습니다!\n\n※ 관리자 최종 확정 후 확인 문자를 발송해 드립니다.");
+                
+                // 리셋
+                document.getElementById('customer-name').value = "";
+                document.getElementById('customer-phone').value = "";
+                document.getElementById('customer-apt').value = "";
+                checkedBoxes.forEach(box => {
+                    box.checked = false;
+                    box.parentElement.classList.remove('selected-prod');
+                });
+                
+                document.getElementById('form-section').style.display = "none";
+                document.getElementById('duration-info').style.display = "none";
+                btn.innerText = "예약 신청하기";
+                btn.disabled = false;
+                
+            }).catch(err => {
+                alert("오류가 발생했습니다.");
+                console.error(err);
+                btn.innerText = "예약 신청하기";
+                btn.disabled = false;
+            });
+        }
+
+        // DB에서 불러온 상품을 화면에 렌더링 (현장 이벤트에 할당된 상품만)
+        function renderProducts() {
+            const listDiv = document.getElementById('product-list');
+            listDiv.innerHTML = '';
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId');
+            
+            let productsToRender = window.globalProducts;
+
+            // URL에 eventId가 있고, eventsData가 로드되었다면 해당 현장에 속한 상품만 필터링
+            if (eventId && window.eventsData) {
+                const currentEvent = window.eventsData.find(ev => ev.id === eventId);
+                if (currentEvent) {
+                    const eventProducts = [...(currentEvent.mainProducts || []), ...(currentEvent.addonProducts || [])];
+                    const prodIds = eventProducts.map(p => p.id);
+                    productsToRender = window.globalProducts.filter(p => prodIds.includes(p.id));
+                }
+            }
+            
+            if (productsToRender.length === 0) {
+                listDiv.innerHTML = '<div style="color:var(--color-silver-mist); font-size:13px;">선택할 수 있는 제품이 없습니다.</div>';
+                return;
+            }
+            
+            productsToRender.forEach(prod => {
+                const duration = prod.duration || 60; // 값이 없으면 기본 60분
+                listDiv.innerHTML += `
+                    <label class="checkbox-label" onclick="toggleProdStyle(this)">
+                        <input type="checkbox" name="v2-prod" value="${prod.name}" data-time="${duration}">
+                        ${prod.name} <span style="font-size: 11px; margin-left: 6px; color:#aaa;">(${duration}분)</span>
+                    </label>
+                `;
+            });
+        }
+
+        // 전체 데이터 리스너 (루트에서 한번에 불러오기)
+        onValue(ref(db, '/'), (snapshot) => {
+            const data = snapshot.val() || {};
+            window.reservationsDB = data.reservations || {};
+            window.globalProducts = data.products || [];
+            window.eventsData = data.events || [];
+            
+            // 처음 데이터를 불러왔을 때 상품 렌더링
+            if (document.getElementById('product-list').innerHTML.trim() === '<!-- JS로 동적 렌더링 됩니다 -->') {
+                renderProducts();
+            }
+            
+            // 날짜가 선택되어 있으면 시간표 리렌더링
+            if (window.selectedDate) {
+                renderTimeSlots(window.selectedDate);
+            }
+        });
+
+        // 초기 실행
+        renderCalendar();
+    </script>
+    <script>
+        // UI Interaction
+        window.toggleProdStyle = function(labelEl) {
+            const checkbox = labelEl.querySelector('input[type="checkbox"]');
+            
+            // setTimeout으로 틱 이후 체크 상태 반영된걸 읽음
+            setTimeout(() => {
+                if(checkbox.checked) {
+                    labelEl.classList.add('selected-prod');
+                } else {
+                    labelEl.classList.remove('selected-prod');
+                }
+                
+                // 총 시간 재계산
+                let totalDuration = 0;
+                document.querySelectorAll('input[name="v2-prod"]:checked').forEach(box => {
+                    totalDuration += parseInt(box.getAttribute('data-time') || '0');
+                });
+                
+                const durationInfo = document.getElementById('duration-info');
+                if (totalDuration > 0) {
+                    const hoursNeeded = Math.max(1, Math.ceil(totalDuration / 60));
+                    document.getElementById('duration-hours').innerText = hoursNeeded;
+                    durationInfo.style.display = 'block';
+                } else {
+                    durationInfo.style.display = 'none';
+                }
+                
+            }, 10);
+        }
+    </script>
+</body>
+</html>

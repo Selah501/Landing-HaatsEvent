@@ -82,10 +82,14 @@
 </div>
 
 <div class="container" id="main-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <h1>🛠 이벤트 관리자 폼 (실시간 DB 연동 완료)</h1>
-        <div>
-            <span style="color:#10b981; font-weight:bold; margin-right: 12px;" id="db-status">🟡 연결 중...</span>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
+        <h1 style="margin:0;">🛠 이벤트 관리자 폼</h1>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <span style="color:#10b981; font-weight:bold;" id="db-status">🟡 연결 중...</span>
+            <div style="display:flex; background:#e5e7eb; border-radius:6px; overflow:hidden; border:1px solid #d1d5db;">
+                <button id="btn-pc-view" onclick="setView('pc')" style="background-color:#2563eb; color:white; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold;">💻 PC</button>
+                <button id="btn-mobile-view" onclick="setView('mobile')" style="background-color:transparent; color:#4b5563; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold;">📱 모바일</button>
+            </div>
         </div>
     </div>
 
@@ -101,23 +105,26 @@
             <button onclick="addMasterRow()">+ 새 상품 추가</button>
         </div>
         
-        <table>
-            <thead>
-                <tr>
-                    <th width="12%">상품명</th>
-                    <th width="12%">모델/유형</th>
-                    <th width="15%">기능/특징</th>
-                    <th width="10%">비고(비공개)</th>
-                    <th width="10%">기본 표시가</th>
-                    <th width="12%">상세 링크(.html)</th>
-                    <th width="14%">적용 현장</th>
-                    <th width="15%">관리</th>
-                </tr>
-            </thead>
-            <tbody id="master-tbody">
-                <!-- JS 렌더링 -->
-            </tbody>
-        </table>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="12%">상품명</th>
+                        <th width="12%">모델/유형</th>
+                        <th width="15%">기능/특징</th>
+                        <th width="8%">소요시간(분)</th>
+                        <th width="10%">비고(비공개)</th>
+                        <th width="10%">기본 표시가</th>
+                        <th width="10%">상세 링크</th>
+                        <th width="12%">적용 현장</th>
+                        <th width="11%">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="master-tbody">
+                    <!-- JS 렌더링 -->
+                </tbody>
+            </table>
+        </div>
         <div style="text-align: right;">
             <button class="btn-success" onclick="saveMasterList()">✅ 서버에 즉시 저장</button>
         </div>
@@ -130,21 +137,23 @@
             <button onclick="openEventModal()">+ 신규 현장 등록</button>
         </div>
         
-        <table>
-            <thead>
-                <tr>
-                    <th width="8%">상태</th>
-                    <th width="22%">현장명</th>
-                    <th width="20%">이벤트 기간</th>
-                    <th width="20%">메인 상품</th>
-                    <th width="20%">같이 바꾸면 좋은 상품</th>
-                    <th width="10%">관리</th>
-                </tr>
-            </thead>
-            <tbody id="event-tbody">
-                <!-- JS 렌더링 -->
-            </tbody>
-        </table>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="8%">상태</th>
+                        <th width="22%">현장명</th>
+                        <th width="20%">이벤트 기간</th>
+                        <th width="20%">메인 상품</th>
+                        <th width="20%">같이 바꾸면 좋은 상품</th>
+                        <th width="10%">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="event-tbody">
+                    <!-- JS 렌더링 -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
@@ -262,6 +271,27 @@
         }
     }
 
+    // PC / 모바일 뷰 토글
+    window.setView = function(view) {
+        const container = document.getElementById('main-container');
+        const btnPc = document.getElementById('btn-pc-view');
+        const btnMobile = document.getElementById('btn-mobile-view');
+        
+        if (view === 'pc') {
+            container.style.maxWidth = '1400px';
+            btnPc.style.backgroundColor = '#2563eb';
+            btnPc.style.color = 'white';
+            btnMobile.style.backgroundColor = 'transparent';
+            btnMobile.style.color = '#4b5563';
+        } else {
+            container.style.maxWidth = '480px';
+            btnMobile.style.backgroundColor = '#2563eb';
+            btnMobile.style.color = 'white';
+            btnPc.style.backgroundColor = 'transparent';
+            btnPc.style.color = '#4b5563';
+        }
+    }
+
     // 서버 저장 함수
     window.syncToServer = function() {
         document.getElementById('db-status').innerHTML = '🟡 저장 중...';
@@ -306,6 +336,7 @@
                     <td><input type="text" class="m-name" value="${prod.name}"></td>
                     <td><input type="text" class="m-model" value="${prod.model || ''}"></td>
                     <td><input type="text" class="m-features" value="${prod.features || ''}"></td>
+                    <td><input type="number" class="m-duration" value="${prod.duration || ''}" placeholder="예: 120" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px;"></td>
                     <td><input type="text" class="m-remarks" value="${prod.remarks || ''}" placeholder="비공개 메모"></td>
                     <td><input type="text" class="m-defaultPrice" value="${prod.defaultPriceText || ''}"></td>
                     <td><input type="text" class="m-link" value="${prod.detailLink || ''}" placeholder="./products/xxx.html"></td>
@@ -322,7 +353,7 @@
     window.addMasterRow = function() {
         window.currentProducts.push({
             id: 'p_' + Date.now(),
-            name: '', model: '', features: '', remarks: '', defaultPriceText: '', detailLink: ''
+            name: '', model: '', features: '', duration: '', remarks: '', defaultPriceText: '', detailLink: ''
         });
         renderMasterList();
     }
@@ -345,6 +376,8 @@
             window.currentProducts[idx].name = row.querySelector('.m-name').value;
             window.currentProducts[idx].model = row.querySelector('.m-model').value;
             window.currentProducts[idx].features = row.querySelector('.m-features').value;
+            const durVal = parseInt(row.querySelector('.m-duration').value);
+            window.currentProducts[idx].duration = isNaN(durVal) ? 0 : durVal;
             window.currentProducts[idx].remarks = row.querySelector('.m-remarks').value;
             window.currentProducts[idx].defaultPriceText = row.querySelector('.m-defaultPrice').value;
             window.currentProducts[idx].detailLink = row.querySelector('.m-link').value;

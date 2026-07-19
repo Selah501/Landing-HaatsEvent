@@ -57,10 +57,7 @@
     - 새로운 아파트 현장을 등록하고, 현장별 전용 가격이나 행사 기간을 자유롭게 설정.
   - 관리자가 입력 후 **[서버에 즉시 저장]** 버튼을 누르면 Firebase RTDB에 JSON 트리 형태로 덮어써지며, 사용자 페이지(index.html)에서는 `onValue` 리스너를 통해 새로고침만으로 최신 데이터가 반영됨.
 
----
-
-## 4. 데이터 구조 (Firebase RTDB JSON Tree)
-- 데이터베이스 루트(`/`) 아래에 `products`와 `events` 배열이 저장됩니다.
+- 데이터베이스 루트(`/`) 아래에 `products`, `events`, `reservations` 노드가 저장됩니다.
 ```json
 {
   "products": [
@@ -72,25 +69,32 @@
       "defaultPriceText": "195,000원",
       "detailLink": "./products/tioram-mini.html"
     }
-    // ... 추가 상품들
   ],
   "events": [
     {
       "id": "ev_12345",
       "title": "내포 이지더원 1차 핫썸머",
-      "status": "active", // 또는 "ended"
-      "periodText": "~7/31까지",
-      "priceText": "특가 진행중",
-      "mainProducts": [ { "id": "p_tioram", "customText": "현장할인가 18만" } ],
-      "addonProducts": [ { "id": "p_terra", "customText": "" } ]
+      "status": "active"
     }
-  ]
+  ],
+  "reservations": {
+    "2026-07-20": {
+      "09:00": { "status": "confirmed", "type": "customer", "customerInfo": {} },
+      "14:00": { "status": "blocked", "type": "admin", "reason": "개인 용무" }
+    }
+  }
 }
 ```
+
+---
+
+## 5. 향후 로드맵 (Master Plan)
+- 1인 기업 업무 효율화를 위한 5단계 마스터 플랜이 진행 중입니다.
+- 전체 로드맵과 현재 진행 단계는 프로젝트 루트에 있는 `MASTER_PLAN.md` 파일에 상세히 기록되어 있습니다. 구조나 UI(다크 테마 등)를 변경할 때는 항상 이 마스터 플랜을 참고하여 확장성 있게 논의해 주세요.
 
 ---
 
 ## 💡 [오늘의 논의 목표 / 질문 사항]
 (Gemini 님, 위 내용을 바탕으로 현재 이 프로젝트의 구조를 이해하신 후, 아래의 질문에 답변하거나 코드를 제시해 주세요.)
 
-👉 **여기에 오늘의 요청사항을 적어주세요. (예: "결제 안내 페이지를 하나 추가하려고 하는데, 메인 디자인 톤앤매너에 맞게 HTML/CSS 구조를 짜줘")**
+👉 **여기에 오늘의 요청사항을 적어주세요. (예: "새로운 V2 예약 페이지를 만들려고 하는데, PC/모바일 반응형 토글 버튼 디자인을 추천해 줘")**

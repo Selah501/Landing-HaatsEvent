@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일일 작업지시서 (Admin V2)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-pitch-black: #0a0a0a;
+            --color-deep-slate: #1c1c1e;
+            --color-graphite-base: #2c2c2e;
+            --color-interactive-lime: #c9ff00;
+            --color-pure-white: #ffffff;
+            --color-silver-mist: #8e8e93;
+            --color-highlight-gold: #eed37f;
+            --color-action-raspberry: #e32652;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-pitch-black);
+            color: var(--color-pure-white);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Container & Layout */
+        .page-container {
+            width: 100%;
+            margin: 0 auto;
+            transition: max-width 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* PC / Mobile Toggle */
+        .page-container.view-pc {
+            max-width: 1200px;
+        }
+        .page-container.view-mobile {
+            max-width: 480px;
+            background-color: #000;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: var(--color-graphite-base);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+
+        .toggle-group {
+            display: flex;
+            background-color: var(--color-deep-slate);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--color-silver-mist);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .toggle-btn.active {
+            background-color: var(--color-interactive-lime);
+            color: var(--color-pitch-black);
+        }
+
+        .content-area {
+            padding: 24px;
+        }
+
+        /* Dashboard specific */
+        .date-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .date-picker {
+            background: var(--color-graphite-base);
+            color: var(--color-pure-white);
+            border: 1px solid #555;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: inherit;
+            color-scheme: dark;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            color: var(--color-silver-mist);
+            font-size: 14px;
+        }
+        .stats-bar span { font-weight: bold; color: var(--color-pure-white); }
+
+        /* Schedule Grid */
+        .schedule-grid {
+            display: grid;
+            gap: 16px;
+        }
+        
+        .view-pc .schedule-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+
+        .view-mobile .schedule-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            background-color: var(--color-graphite-base);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid #444;
+            padding-bottom: 12px;
+        }
+        
+        .time-badge {
+            background-color: var(--color-deep-slate);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--color-interactive-lime);
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-confirmed { background-color: rgba(201, 255, 0, 0.2); color: var(--color-interactive-lime); }
+        .status-pending { background-color: rgba(238, 211, 127, 0.2); color: var(--color-highlight-gold); }
+        .status-completed { background-color: rgba(255, 255, 255, 0.1); color: var(--color-silver-mist); border: 1px solid #555; }
+
+        .card-body {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 4px;
+        }
+        .info-label {
+            color: var(--color-silver-mist);
+            width: 70px;
+            flex-shrink: 0;
+        }
+
+        .card-actions {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid #444;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary {
+            background-color: var(--color-interactive-lime);
+            color: var(--color-pitch-black);
+        }
+        .btn-secondary {
+            background-color: #444;
+            color: white;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: var(--color-deep-slate);
+            width: 90%;
+            max-width: 400px;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #444;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--color-silver-mist);
+            font-size: 13px;
+        }
+        .form-control {
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--color-graphite-base);
+            border: 1px solid #555;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        
+        /* Utility */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--color-silver-mist);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="page-container view-pc">
+        
+        <nav class="header-actions">
+            <div style="font-weight: bold; font-size: 18px;">📋 현장 작업지시서</div>
+            <div class="toggle-group">
+                <button class="toggle-btn active" id="btn-pc-view" onclick="setView('pc')">💻 PC</button>
+                <button class="toggle-btn" id="btn-mobile-view" onclick="setView('mobile')">📱 모바일</button>
+            </div>
+        </nav>
+
+        <div class="content-area">
+            <div class="date-header">
+                <input type="date" id="date-picker" class="date-picker" onchange="loadData()">
+                <span id="date-display"></span>
+            </div>
+            
+            <div class="stats-bar">
+                <div>총 일정: <span id="stat-total">0</span>건</div>
+                <div>작업 대기: <span id="stat-pending">0</span>건</div>
+                <div>작업 완료: <span id="stat-completed">0</span>건</div>
+            </div>
+
+            <div id="schedule-grid" class="schedule-grid">
+                <!-- JS Rendering -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="modal-overlay">
+        <div class="modal">
+            <h3 style="margin-top: 0; margin-bottom: 20px;">작업 결과 보고서</h3>
+            <input type="hidden" id="modal-res-id">
+            
+            <div class="form-group">
+                <label>특이사항 / 현장 메모</label>
+                <textarea id="modal-notes" class="form-control" rows="4" placeholder="추가 설치 부품, 특이사항 등 입력..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>결제 수단</label>
+                <select id="modal-pay-method" class="form-control">
+                    <option value="계좌이체">계좌이체</option>
+                    <option value="현금">현금</option>
+                    <option value="카드">카드결제 (현장)</option>
+                    <option value="선결제">선결제 완료</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>결제 금액(원)</label>
+                <input type="number" id="modal-pay-amount" class="form-control" placeholder="예: 150000">
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveReport()">보고서 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+            projectId: "flyer-event-page-2026"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        // Global
+        window.currentData = {};
+        window.groupedTasks = [];
+
+        // View Toggle
+        window.setView = function(view) {
+            const container = document.getElementById('app');
+            const btnPc = document.getElementById('btn-pc-view');
+            const btnMobile = document.getElementById('btn-mobile-view');
+            
+            if (view === 'pc') {
+                container.classList.remove('view-mobile');
+                container.classList.add('view-pc');
+                btnPc.classList.add('active');
+                btnMobile.classList.remove('active');
+            } else {
+                container.classList.remove('view-pc');
+                container.classList.add('view-mobile');
+                btnMobile.classList.add('active');
+                btnPc.classList.remove('active');
+            }
+        };
+
+        // Initialize Date
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+        
+        document.getElementById('date-picker').value = dateStr;
+        document.getElementById('date-display').innerText = `(${today.getDay() === 0 ? '일' : today.getDay() === 1 ? '월' : today.getDay() === 2 ? '화' : today.getDay() === 3 ? '수' : today.getDay() === 4 ? '목' : today.getDay() === 5 ? '금' : '토'})`;
+
+        // Data Loader
+        window.loadData = function() {
+            const selectedDate = document.getElementById('date-picker').value;
+            const d = new Date(selectedDate);
+            const days = ['일','월','화','수','목','금','토'];
+            document.getElementById('date-display').innerText = `(${days[d.getDay()]})`;
+
+            const resRef = ref(db, `reservations/${selectedDate}`);
+            onValue(resRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                processData(data);
+                renderGrid();
+            });
+        };
+
+        function processData(dayData) {
+            window.groupedTasks = [];
+            let map = new Map();
+
+            // Group by reservationId
+            Object.keys(dayData).forEach(time => {
+                const slot = dayData[time];
+                if (slot.type === 'admin') return; // 차단된 슬롯 무시
+                
+                const rId = slot.reservationId || time; // id가 없으면 시간으로 대체
+                if (!map.has(rId)) {
+                    map.set(rId, {
+                        rId: rId,
+                        times: [time],
+                        data: slot
+                    });
+                } else {
+                    map.get(rId).times.push(time);
+                }
+            });
+
+            // Convert map to array and sort by first time
+            window.groupedTasks = Array.from(map.values()).sort((a, b) => {
+                return a.times[0].localeCompare(b.times[0]);
+            });
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('schedule-grid');
+            grid.innerHTML = '';
+            
+            let statCompleted = 0;
+            let statPending = 0;
+
+            if (window.groupedTasks.length === 0) {
+                grid.innerHTML = `<div class="empty-state">해당 날짜에 접수된 일정이 없습니다.</div>`;
+                document.getElementById('stat-total').innerText = 0;
+                document.getElementById('stat-completed').innerText = 0;
+                document.getElementById('stat-pending').innerText = 0;
+                return;
+            }
+
+            window.groupedTasks.forEach(task => {
+                // 시간 포맷 (예: 09:00 ~ 11:00)
+                task.times.sort();
+                let timeStr = task.times[0];
+                if (task.times.length > 1) {
+                    // 끝나는 시간 계산 (마지막 슬롯 + 1시간)
+                    const lastTime = task.times[task.times.length - 1];
+                    const hour = parseInt(lastTime.split(':')[0]) + 1;
+                    timeStr = `${task.times[0]} ~ ${String(hour).padStart(2, '0')}:00`;
+                }
+
+                const cInfo = task.data.customerInfo || {};
+                const itemsStr = cInfo.items ? cInfo.items.join(', ') : '-';
+                
+                // 상태 결정 (단일 카드로 관리)
+                // 만약 report 객체가 있다면 completed로 간주
+                const isCompleted = !!task.data.report;
+                const isConfirmed = task.data.status === 'confirmed';
+                
+                let badgeClass = 'status-pending';
+                let badgeText = '예약 대기 (미확정)';
+                
+                if (isCompleted) {
+                    badgeClass = 'status-completed';
+                    badgeText = '✅ 작업 보고 완료';
+                    statCompleted++;
+                } else if (isConfirmed) {
+                    badgeClass = 'status-confirmed';
+                    badgeText = '📍 확정 (진행 예정)';
+                    statPending++;
+                } else {
+                    statPending++;
+                }
+
+                let reportHtml = '';
+                if (isCompleted) {
+                    const r = task.data.report;
+                    reportHtml = `
+                        <div style="margin-top: 12px; padding: 12px; background: #111; border-radius: 6px; font-size: 13px; color: #ccc;">
+                            <div style="font-weight:bold; color:var(--color-pure-white); margin-bottom:4px;">[보고 내역]</div>
+                            <div>💰 결제: ${r.payMethod} / ${parseInt(r.payAmount).toLocaleString()}원</div>
+                            ${r.notes ? `<div style="margin-top:4px;">📝 메모: ${r.notes.replace(/\n/g, '<br>')}</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                grid.innerHTML += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="time-badge">${timeStr}</div>
+                            <div class="status-badge ${badgeClass}">${badgeText}</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row"><div class="info-label">고객명</div><div>${cInfo.name || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">연락처</div><div>${cInfo.phone || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">동/호수</div><div>${cInfo.apt || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">시공품목</div><div style="color:var(--color-interactive-lime); font-weight:bold;">${itemsStr}</div></div>
+                            
+                            ${reportHtml}
+                        </div>
+                        
+                        <div class="card-actions">
+                            ${isCompleted ? 
+                                `<button class="btn btn-secondary" onclick="openModal('${task.rId}')">보고서 수정하기</button>` :
+                                `<button class="btn btn-primary" onclick="openModal('${task.rId}')">작업 완료 및 보고서 작성</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('stat-total').innerText = window.groupedTasks.length;
+            document.getElementById('stat-completed').innerText = statCompleted;
+            document.getElementById('stat-pending').innerText = statPending;
+        }
+
+        // Modal Logic
+        window.openModal = function(rId) {
+            document.getElementById('report-modal').style.display = 'flex';
+            document.getElementById('modal-res-id').value = rId;
+            
+            const task = window.groupedTasks.find(t => t.rId === rId);
+            if (task && task.data.report) {
+                document.getElementById('modal-notes').value = task.data.report.notes || '';
+                document.getElementById('modal-pay-method').value = task.data.report.payMethod || '계좌이체';
+                document.getElementById('modal-pay-amount').value = task.data.report.payAmount || '';
+            } else {
+                document.getElementById('modal-notes').value = '';
+                document.getElementById('modal-pay-amount').value = '';
+            }
+        };
+
+        window.closeModal = function() {
+            document.getElementById('report-modal').style.display = 'none';
+        };
+
+        window.saveReport = function() {
+            const rId = document.getElementById('modal-res-id').value;
+            const selectedDate = document.getElementById('date-picker').value;
+            const task = window.groupedTasks.find(t => t.rId === rId);
+            
+            if (!task) return;
+
+            const reportObj = {
+                notes: document.getElementById('modal-notes').value,
+                payMethod: document.getElementById('modal-pay-method').value,
+                payAmount: document.getElementById('modal-pay-amount').value,
+                timestamp: Date.now()
+            };
+
+            // 동일한 rId를 가진 모든 슬롯에 report를 업데이트
+            let updates = {};
+            task.times.forEach(t => {
+                updates[`reservations/${selectedDate}/${t}/report`] = reportObj;
+            });
+
+            update(ref(db), updates).then(() => {
+                alert('보고서가 저장되었습니다.');
+                closeModal();
+            }).catch(err => {
+                alert('저장에 실패했습니다.');
+                console.error(err);
+            });
+        };
+
+        // 초기 실행
+        loadData();
+
+    </script>
+</body>
+</html>

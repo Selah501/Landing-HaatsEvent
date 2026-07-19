@@ -588,9 +588,10 @@
             if (eventId && window.eventsData) {
                 const currentEvent = window.eventsData.find(ev => ev.id === eventId);
                 if (currentEvent) {
-                    // 아파트 디폴트 값 설정
+                    // 아파트 디폴트 값 설정 (정규식으로 '차', '아파트' 앞부분까지 추출)
                     const aptInput = document.getElementById('customer-apt');
-                    const defaultApt = currentEvent.title.split(' ')[0];
+                    const match = currentEvent.title.match(/^.*?(차|아파트|마을|단지|오피스텔)/);
+                    const defaultApt = match ? match[0] : currentEvent.title.split(' ')[0];
                     aptInput.value = defaultApt + " ";
                     aptInput.setAttribute('data-default', defaultApt + " ");
 

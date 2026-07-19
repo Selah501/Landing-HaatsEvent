@@ -255,9 +255,9 @@
                 </div>
 
                 <div class="input-group">
-                    <input type="text" id="customer-name" placeholder="[성함] 예: 홍길동">
-                    <input type="text" id="customer-phone" placeholder="[연락처] 010-0000-0000">
+                    <input type="text" id="customer-phone" value="010-" placeholder="[연락처] 010-0000-0000">
                     <input type="text" id="customer-apt" placeholder="[아파트 동/호수] 예: 101동 102호">
+                    <input type="text" id="customer-notes" placeholder="기타 자유 기재 (30자 이내)" maxlength="30">
                 </div>
 
                 <button id="btn-submit" class="btn btn-primary" style="margin-top: 16px;" onclick="submitReservation()">예약 신청하기</button>
@@ -478,9 +478,9 @@
                 return;
             }
 
-            const name = document.getElementById('customer-name').value;
             const phone = document.getElementById('customer-phone').value;
             const apt = document.getElementById('customer-apt').value;
+            const notes = document.getElementById('customer-notes').value;
             
             const checkedBoxes = document.querySelectorAll('input[name="v2-prod"]:checked');
             let selectedProducts = [];
@@ -491,8 +491,8 @@
                 totalDuration += parseInt(box.getAttribute('data-time') || '0');
             });
 
-            if (!name || !phone || !apt) {
-                alert("성함, 연락처, 아파트 동/호수를 모두 입력해주세요.");
+            if (!phone || !apt || phone === "010-") {
+                alert("연락처와 아파트 동/호수를 모두 입력해주세요.");
                 return;
             }
 
@@ -539,9 +539,9 @@
                     type: "customer",
                     timestamp: Date.now(),
                     customerInfo: {
-                        name: name,
                         phone: phone,
                         apt: apt,
+                        notes: notes,
                         items: selectedProducts,
                         totalDuration: totalDuration,
                         hoursNeeded: hoursNeeded,
@@ -554,9 +554,9 @@
                 alert("고객님의 상담/예약 신청이 접수되었습니다!\n\n※ 관리자 최종 확정 후 확인 문자를 발송해 드립니다.");
                 
                 // 리셋
-                document.getElementById('customer-name').value = "";
-                document.getElementById('customer-phone').value = "";
-                document.getElementById('customer-apt').value = "";
+                document.getElementById('customer-phone').value = "010-";
+                document.getElementById('customer-apt').value = document.getElementById('customer-apt').getAttribute('data-default') || "";
+                document.getElementById('customer-notes').value = "";
                 checkedBoxes.forEach(box => {
                     box.checked = false;
                     box.parentElement.classList.remove('selected-prod');
@@ -585,10 +585,15 @@
             
             let productsToRender = window.globalProducts;
 
-            // URL에 eventId가 있고, eventsData가 로드되었다면 해당 현장에 속한 상품만 필터링
             if (eventId && window.eventsData) {
                 const currentEvent = window.eventsData.find(ev => ev.id === eventId);
                 if (currentEvent) {
+                    // 아파트 디폴트 값 설정
+                    const aptInput = document.getElementById('customer-apt');
+                    const defaultApt = currentEvent.title.split(' ')[0];
+                    aptInput.value = defaultApt + " ";
+                    aptInput.setAttribute('data-default', defaultApt + " ");
+
                     const eventProducts = [...(currentEvent.mainProducts || []), ...(currentEvent.addonProducts || [])];
                     const prodIds = eventProducts.map(p => p.id);
                     productsToRender = window.globalProducts.filter(p => prodIds.includes(p.id));

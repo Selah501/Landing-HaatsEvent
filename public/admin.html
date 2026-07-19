@@ -68,6 +68,38 @@
         .assignment-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
         .assignment-row:last-child { border-bottom: none; }
         .radio-group label { margin-right: 12px; font-weight: normal; font-size: 13px; cursor: pointer; }
+
+        /* Mobile Card Layout for Tables */
+        .view-mobile table, .view-mobile thead, .view-mobile tbody, .view-mobile th, .view-mobile td, .view-mobile tr { 
+            display: block; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .view-mobile thead { display: none; }
+        .view-mobile tr { 
+            margin-bottom: 24px; 
+            border: 1px solid #d1d5db; 
+            border-radius: 8px; 
+            padding: 16px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .view-mobile td { 
+            border: none; 
+            padding: 8px 0; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px;
+            text-align: left !important;
+        }
+        .view-mobile td::before { 
+            content: attr(data-label); 
+            font-weight: bold; 
+            color: #4b5563; 
+            font-size: 13px;
+            border-bottom: 1px dashed #e5e7eb;
+            padding-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -333,17 +365,17 @@
             
             tbody.innerHTML += `
                 <tr id="m-row-${idx}">
-                    <td><input type="text" class="m-name" value="${prod.name}"></td>
-                    <td><input type="text" class="m-model" value="${prod.model || ''}"></td>
-                    <td><input type="text" class="m-features" value="${prod.features || ''}"></td>
-                    <td><input type="number" class="m-duration" value="${prod.duration || ''}" placeholder="예: 120" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px;"></td>
-                    <td><input type="text" class="m-remarks" value="${prod.remarks || ''}" placeholder="비공개 메모"></td>
-                    <td><input type="text" class="m-defaultPrice" value="${prod.defaultPriceText || ''}"></td>
-                    <td><input type="text" class="m-link" value="${prod.detailLink || ''}" placeholder="./products/xxx.html"></td>
-                    <td>${sitesHtml}</td>
-                    <td style="text-align:center;">
-                        <button class="btn-info" style="padding: 6px 8px; font-size:12px; margin-bottom: 4px; display:block; width:100%;" onclick="openAssignModal('${prod.id}')">현장 배정</button>
-                        <button class="btn-danger" style="padding: 6px 8px; font-size:12px; display:block; width:100%;" onclick="deleteMasterRow(${idx})">삭제</button>
+                    <td data-label="상품명"><input type="text" class="m-name" value="${prod.name}"></td>
+                    <td data-label="모델/유형"><input type="text" class="m-model" value="${prod.model || ''}"></td>
+                    <td data-label="기능/특징"><input type="text" class="m-features" value="${prod.features || ''}"></td>
+                    <td data-label="소요시간(분)"><input type="number" class="m-duration" value="${prod.duration || ''}" placeholder="예: 120" style="width:100%; padding:10px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"></td>
+                    <td data-label="비고(비공개)"><input type="text" class="m-remarks" value="${prod.remarks || ''}" placeholder="비공개 메모"></td>
+                    <td data-label="기본 표시가"><input type="text" class="m-defaultPrice" value="${prod.defaultPriceText || ''}"></td>
+                    <td data-label="상세 링크"><input type="text" class="m-link" value="${prod.detailLink || ''}" placeholder="./products/xxx.html"></td>
+                    <td data-label="적용 현장">${sitesHtml}</td>
+                    <td data-label="관리" style="text-align:center;">
+                        <button class="btn-info" style="padding: 10px; font-size:14px; margin-bottom: 8px; display:block; width:100%;" onclick="openAssignModal('${prod.id}')">현장 배정</button>
+                        <button class="btn-danger" style="padding: 10px; font-size:14px; display:block; width:100%;" onclick="deleteMasterRow(${idx})">삭제</button>
                     </td>
                 </tr>
             `;
@@ -454,14 +486,16 @@
 
             tbody.innerHTML += `
                 <tr style="${isEnded ? 'background-color: #f9fafb; color: #9ca3af;' : ''}">
-                    <td><span class="badge ${isEnded ? 'ended' : 'active'}">${isEnded ? '종료됨' : '진행중'}</span></td>
-                    <td><strong>${ev.title}</strong></td>
-                    <td>${ev.periodText}</td>
-                    <td style="font-size: 13px;">${mainNames || '-'}</td>
-                    <td style="font-size: 13px; color: #6b7280;">${addonNames || '-'}</td>
-                    <td>
-                        <button class="btn-warning" style="padding: 6px 10px;" onclick="openEventModal(${idx})">수정</button>
-                        ${!isEnded ? `<button class="btn-danger" style="padding: 6px 10px;" onclick="endEvent(${idx})">종료</button>` : `<button class="btn-secondary" style="padding: 6px 10px;" onclick="activateEvent(${idx})">진행</button>`}
+                    <td data-label="상태"><span class="badge ${isEnded ? 'ended' : 'active'}">${isEnded ? '종료됨' : '진행중'}</span></td>
+                    <td data-label="현장명"><strong>${ev.title}</strong></td>
+                    <td data-label="이벤트 기간">${ev.periodText}</td>
+                    <td data-label="메인 상품" style="font-size: 13px;">${mainNames || '-'}</td>
+                    <td data-label="부가 상품" style="font-size: 13px; color: #6b7280;">${addonNames || '-'}</td>
+                    <td data-label="관리">
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-warning" style="flex:1; padding: 10px;" onclick="openEventModal(${idx})">수정</button>
+                            ${!isEnded ? `<button class="btn-danger" style="flex:1; padding: 10px;" onclick="endEvent(${idx})">종료</button>` : `<button class="btn-secondary" style="flex:1; padding: 10px;" onclick="activateEvent(${idx})">진행</button>`}
+                        </div>
                     </td>
                 </tr>
             `;

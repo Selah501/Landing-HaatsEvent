@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>재무/장부 ERP (Admin)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-pitch-black: #0a0a0a;
+            --color-deep-slate: #1c1c1e;
+            --color-graphite-base: #2c2c2e;
+            --color-interactive-lime: #c9ff00;
+            --color-pure-white: #ffffff;
+            --color-silver-mist: #8e8e93;
+            --color-highlight-gold: #eed37f;
+            --color-action-raspberry: #e32652;
+            --color-success: #10b981;
+            --color-info: #3b82f6;
+            --color-danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-pitch-black);
+            color: var(--color-pure-white);
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-container {
+            width: 100%;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: max-width 0.3s ease;
+        }
+
+        .page-container.view-pc {
+            max-width: 1200px;
+        }
+        
+        .page-container.view-mobile {
+            max-width: 480px;
+            background-color: #000;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: var(--color-graphite-base);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            background: #4b5563;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        .content-area {
+            padding: 24px;
+        }
+
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 24px; overflow-x: auto; }
+        .tab { padding: 12px 24px; cursor: pointer; font-weight: 600; color: var(--color-silver-mist); border-bottom: 2px solid transparent; white-space: nowrap; }
+        .tab.active { color: var(--color-interactive-lime); border-bottom-color: var(--color-interactive-lime); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--color-deep-slate);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: var(--color-silver-mist);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            background: var(--color-deep-slate);
+            border-radius: 12px;
+            border: 1px solid #333;
+            margin-bottom: 24px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
+        }
+        th {
+            background: var(--color-graphite-base);
+            color: var(--color-silver-mist);
+            font-weight: 600;
+        }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge.income { background: rgba(16, 185, 129, 0.2); color: var(--color-success); }
+        .badge.expense { background: rgba(239, 68, 68, 0.2); color: var(--color-danger); }
+
+        .btn {
+            background: var(--color-interactive-lime);
+            color: var(--color-pitch-black);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--color-silver-mist); font-size: 13px; }
+        .form-control {
+            width: 100%; box-sizing: border-box; background: var(--color-graphite-base);
+            border: 1px solid #555; color: white; padding: 10px; border-radius: 6px; font-family: inherit;
+        }
+
+        .report-section {
+            background: var(--color-deep-slate);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .report-list-item {
+            padding: 12px; border-bottom: 1px dashed #444; font-size: 14px;
+        }
+        .report-list-item:last-child { border-bottom: none; }
+
+        /* Mobile specific */
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .view-mobile table, .view-mobile thead, .view-mobile tbody, .view-mobile th, .view-mobile td, .view-mobile tr { display: block; }
+            .view-mobile thead { display: none; }
+            .view-mobile tr { margin-bottom: 12px; border: 1px solid #444; border-radius: 8px; padding: 12px; }
+            .view-mobile td { border: none; padding: 6px 0; display: flex; justify-content: space-between; align-items: center; }
+            .view-mobile td::before { content: attr(data-label); font-weight: bold; color: var(--color-silver-mist); font-size: 12px; }
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal { background: var(--color-deep-slate); width: 90%; max-width: 400px; padding: 24px; border-radius: 12px; border: 1px solid #444; }
+    </style>
+</head>
+<body>
+    <div class="page-container view-pc" id="app">
+        <nav class="header-actions">
+            <div style="font-weight: bold; font-size: 18px;">📊 종합 ERP 시스템</div>
+            <div class="nav-links">
+                <a href="./admin.html">기본관리자</a>
+                <a href="./admin_v2.html">작업지시서</a>
+                <button onclick="document.getElementById('app').classList.toggle('view-mobile')" style="background:none; border:1px solid #666; color:white; padding:4px 8px; border-radius:4px; cursor:pointer;">PC/모바일 전환</button>
+            </div>
+        </nav>
+
+        <div class="content-area">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('tab-dashboard', this)">📈 일일 보고서 & 대시보드</div>
+                <div class="tab" onclick="switchTab('tab-ledger', this)">💳 매입/경비 장부</div>
+                <div class="tab" onclick="switchTab('tab-sales-ledger', this)">🚚 출고(매출) 장부</div>
+                <div class="tab" onclick="switchTab('tab-products', this)">📦 상품/재고 마스터</div>
+                <div class="tab" onclick="switchTab('tab-vendor-ledger', this)">🏢 거래처 원장</div>
+            </div>
+
+            <!-- TAB 1: 대시보드 & 일일 보고서 -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">월 누적 총 매출</div>
+                        <div class="stat-value" id="stat-income" style="color: var(--color-info);">0 원</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">월 누적 총 매입(자재)</div>
+                        <div class="stat-value" id="stat-purchase" style="color: var(--color-danger);">0 원</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">월 누적 총 경비</div>
+                        <div class="stat-value" id="stat-expense" style="color: var(--color-action-raspberry);">0 원</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">월 누적 순 이익</div>
+                        <div class="stat-value" id="stat-profit" style="color: var(--color-success);">0 원</div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+                        <h2 style="margin:0;">📝 현장 일일 보고서</h2>
+                        <input type="date" id="report-date" class="form-control" style="width: auto;" onchange="loadDailyReport()">
+                    </div>
+
+                    <div style="background: var(--color-graphite-base); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4 style="margin-top:0; color:var(--color-silver-mist);">해당일 시공/매출 내역 (작업지시서 자동 연동)</h4>
+                        <div id="daily-tasks-list" style="max-height:200px; overflow-y:auto;">
+                            <!-- JS Rendering -->
+                        </div>
+                        <div style="margin-top:12px; padding-top:12px; border-top:1px solid #444; font-size:16px; display:flex; justify-content:space-between;">
+                            <span>일일 총 매출 (시공완료액):</span>
+                            <span id="daily-total-sales" style="color:var(--color-info); font-weight:bold;">0 원</span>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--color-graphite-base); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h4 style="margin:0; color:var(--color-silver-mist);">해당일 지출/매입 내역 (장부 자동 연동)</h4>
+                            <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="openTxModal()">+ 금일 지출 등록</button>
+                        </div>
+                        <div id="daily-expense-list" style="max-height:200px; overflow-y:auto; border-bottom:1px solid #444; padding-bottom:12px;">
+                            <!-- JS Rendering -->
+                        </div>
+                        <div style="margin-top:12px; font-size:16px; display:flex; justify-content:space-between;">
+                            <span>일일 총 지출액 (매입+경비):</span>
+                            <span id="daily-total-expense" style="color:var(--color-danger); font-weight:bold;">0 원</span>
+                        </div>
+                        <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #444; font-size:18px; display:flex; justify-content:space-between; color:var(--color-interactive-lime);">
+                            <span>💰 일일 순수익 (매출 - 지출):</span>
+                            <span id="daily-net-profit" style="font-weight:bold;">0 원</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>오늘의 특기사항 (이슈, 민원, 참고사항)</label>
+                        <textarea id="daily-notes" class="form-control" rows="4" placeholder="작업이 없는 날에도 금일 특이사항을 기록해주세요."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>개선 요구사항</label>
+                        <textarea id="daily-improvements" class="form-control" rows="3" placeholder="자재 부족, 공구 수리 등 개선이 필요한 사항 기재"></textarea>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 24px;">
+                        <button class="btn" style="padding: 12px 24px;" onclick="saveDailyReport()">일일 보고서 결재(저장)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: 장부 원장 -->
+            <div id="tab-ledger" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <select id="filter-account" class="form-control" style="width: auto;" onchange="renderLedger()">
+                            <option value="ALL">모든 계좌 보기</option>
+                            <option value="현금">현금</option>
+                            <option value="카드(대리점)">카드 (대리점)</option>
+                            <option value="이체(우리은행)">계좌이체 (우리은행)</option>
+                            <option value="이체(대리점)">계좌이체 (대리점)</option>
+                        </select>
+                        <span id="ledger-filter-sum" style="color:var(--color-highlight-gold); font-weight:bold;"></span>
+                    </div>
+                    <button class="btn" onclick="openTxModal()">+ 장부 수동 등록</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>유형</th>
+                                <th>항목(분류)</th>
+                                <th>계좌</th>
+                                <th>금액</th>
+                                <th>적요(메모)</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-tbody">
+                            <tr><td colspan="7" style="text-align:center; padding: 40px; color:#666;">데이터 로딩중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: 출고(매출) 장부 -->
+            <div id="tab-sales-ledger" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <input type="month" id="filter-sales-month" class="form-control" style="width:auto;" onchange="renderSalesLedger()">
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>현장명 (동호수)</th>
+                                <th>제품명</th>
+                                <th>수량(대)</th>
+                                <th>결제액</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-ledger-tbody">
+                            <tr><td colspan="5" style="text-align:center; padding: 40px; color:#666;">데이터 로딩중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: 상품 마스터 -->
+            <div id="tab-products" class="tab-content">
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--color-info); padding: 16px; border-radius: 8px; margin-bottom: 24px; color: #93c5fd; font-size: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <strong>ℹ️ 상품 DB 조회 및 재고 관리</strong><br>
+                        상품 추가/단가 변경은 구글 시트에서 진행하세요. 현재고는 여기서 수동 조정이 가능합니다.
+                        <div style="margin-top:12px; display:flex; align-items:center; gap:8px;">
+                            <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+                                <input type="checkbox" id="filter-in-stock" onchange="renderProducts()" style="transform:scale(1.2);"> 
+                                <span style="color:var(--color-interactive-lime); font-weight:bold;">현재고 1 이상인 제품만 보기</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="btn-edit-stock" class="btn btn-secondary" onclick="toggleEditStock()">현재고 수동 조정</button>
+                        <button id="btn-save-stock" class="btn btn-primary" style="display:none;" onclick="saveEditedStock()">조정된 재고 저장</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>브랜드 분류</th>
+                                <th>브랜드/모델명</th>
+                                <th>상품명</th>
+                                <th>매입가(도매)</th>
+                                <th>매출가(판매)</th>
+                                <th style="color:var(--color-interactive-lime);">현재고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-tbody">
+                            <tr><td colspan="6" style="text-align:center; padding: 40px; color:#666;">데이터 로딩중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- TAB 5: 거래처 원장 -->
+            <div id="tab-vendor-ledger" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <select id="vl-vendor-select" class="form-control" style="width: 200px;" onchange="renderVendorLedger()">
+                            <option value="">-- 거래처 선택 --</option>
+                        </select>
+                        <select id="vl-year-select" class="form-control" style="width: 120px;" onchange="renderVendorLedger()">
+                            <!-- JS Rendering -->
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn" style="background:var(--color-info);" onclick="openVendorModal()">+ 거래처 관리 (등록/수정)</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">전기 이월액 (미지급)</div>
+                        <div class="stat-value" id="vl-carryover" style="color: var(--color-silver-mist);">0 원</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">당기 총 매입 발생</div>
+                        <div class="stat-value" id="vl-purchase" style="color: var(--color-danger);">0 원</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">당기 총 지급액</div>
+                        <div class="stat-value" id="vl-paid" style="color: var(--color-info);">0 원</div>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--color-interactive-lime);">
+                        <div class="stat-title">최종 기말 잔액 (외상)</div>
+                        <div class="stat-value" id="vl-balance" style="color: var(--color-interactive-lime);">0 원</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>유형</th>
+                                <th>항목(분류)</th>
+                                <th>계좌</th>
+                                <th>금액</th>
+                                <th>적요(메모)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vl-tbody">
+                            <tr><td colspan="6" style="text-align:center; padding: 40px; color:#666;">거래처와 연도를 선택해주세요.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="tx-modal" class="modal-overlay">
+        <div class="modal">
+            <h3 style="margin-top:0; margin-bottom: 20px;" id="tx-modal-title">장부 수동 등록</h3>
+            <input type="hidden" id="tx-id">
+            
+            <div class="form-group">
+                <label>거래 날짜</label>
+                <input type="date" id="tx-date" class="form-control">
+            </div>
+
+            <div class="form-group" style="display:flex; gap:12px;">
+                <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <input type="radio" name="tx-type" value="income" checked onchange="updateCategories()"> <span>수입(매출)</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <input type="radio" name="tx-type" value="expense" onchange="updateCategories()"> <span style="color:#ef4444;">지출(매입)</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>항목 분류</label>
+                <select id="tx-category" class="form-control" onchange="toggleProductSelect()">
+                    <!-- JS rendering -->
+                </select>
+            </div>
+
+            <div class="form-group" id="tx-product-group" style="display:none; background:rgba(239, 68, 68, 0.1); padding:12px; border-radius:8px;">
+                <label style="color:var(--color-danger);">매입 상품 장바구니</label>
+                
+                <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+                    <select id="tx-brand-cat" class="form-control" style="flex:1; min-width:120px;" onchange="updateTxProductList()">
+                        <option value="">-- 브랜드 분류 --</option>
+                    </select>
+                    <select id="tx-product" class="form-control" style="flex:2; min-width:150px;">
+                        <option value="">-- 먼저 분류를 선택 --</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <div style="flex:1; display:flex; align-items:center; gap:8px;">
+                        <span style="color:#aaa; font-size:13px;">수량:</span>
+                        <input type="number" id="tx-qty" class="form-control" style="width:80px;" value="1" min="1">
+                    </div>
+                    <button class="btn btn-secondary" style="width:auto; padding:0 16px; background:#444;" onclick="addTxProduct()">추가</button>
+                </div>
+                
+                <div id="tx-added-products" style="margin-top:12px; max-height:120px; overflow-y:auto;">
+                    <!-- Added Products -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>거래처 (예: 하츠본사, 식당 등)</label>
+                <input type="text" id="tx-vendor" class="form-control" placeholder="거래처명 입력" list="vendor-datalist">
+                <datalist id="vendor-datalist"></datalist>
+            </div>
+
+            <div class="form-group" style="background:#222; padding:12px; border-radius:6px; border:1px solid #444;">
+                <label style="color:var(--color-interactive-lime);">결제/수금 계좌 및 금액 분할</label>
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <select id="tx-account-1" class="form-control" style="flex:1;">
+                        <option value="현금">현금</option>
+                        <option value="이체(우리은행)">계좌이체 (우리은행)</option>
+                        <option value="카드(대리점)">법인 카드</option>
+                        <option value="외상매입금">외상매입금 (미수금)</option>
+                    </select>
+                    <input type="number" id="tx-amount-1" class="form-control" style="flex:1;" placeholder="결제액 (원)">
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <select id="tx-account-2" class="form-control" style="flex:1;">
+                        <option value="">-- 분할결제 시 계좌 선택 --</option>
+                        <option value="현금">현금</option>
+                        <option value="이체(우리은행)">계좌이체 (우리은행)</option>
+                        <option value="카드(대리점)">법인 카드</option>
+                        <option value="외상매입금">외상매입금 (미수금)</option>
+                    </select>
+                    <input type="number" id="tx-amount-2" class="form-control" style="flex:1;" placeholder="추가 결제액 (원)">
+                </div>
+                <div style="margin-top:8px; font-size:12px; color:#888;">* 한 번에 전액 결제시 위 칸만 입력하세요. 외상 매입시 외상매입금을 선택하세요.</div>
+            </div>
+
+            <div class="form-group">
+                <label>적요 (메모)</label>
+                <input type="text" id="tx-memo" class="form-control" placeholder="간단한 메모 (선택)">
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn" style="background:#444; color:white; flex:1;" onclick="closeTxModal()">취소</button>
+                <button class="btn" style="flex:1;" onclick="saveTx()">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Management Modal -->
+    <div id="vendor-modal" class="modal-overlay">
+        <div class="modal" style="max-width: 600px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h3 style="margin:0;">거래처 마스터 관리</h3>
+                <button class="btn" style="padding:6px 12px; font-size:12px; background:#444;" onclick="closeVendorModal()">닫기 X</button>
+            </div>
+            
+            <div style="display:flex; gap:16px; margin-bottom: 20px; flex-wrap:wrap;">
+                <div style="flex:1; min-width: 200px;">
+                    <div class="form-group">
+                        <label>상호명 (식별자)</label>
+                        <input type="text" id="vm-name" class="form-control" placeholder="예: 하츠본사, XX상사">
+                    </div>
+                    <div class="form-group">
+                        <label>연락처 (전화/팩스)</label>
+                        <input type="text" id="vm-phone" class="form-control" placeholder="02-123-4567">
+                    </div>
+                    <div class="form-group">
+                        <label>이메일</label>
+                        <input type="email" id="vm-email" class="form-control" placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>메모 / 기타정보</label>
+                        <textarea id="vm-memo" class="form-control" rows="2" placeholder="담당자, 계좌번호 등"></textarea>
+                    </div>
+                    <button class="btn" style="width:100%; margin-top:12px;" onclick="saveVendor()">신규 등록 / 수정 저장</button>
+                </div>
+                
+                <div style="flex:1; min-width: 250px; background:var(--color-graphite-base); padding:12px; border-radius:8px; border:1px solid #444;">
+                    <h4 style="margin-top:0; color:var(--color-silver-mist);">등록된 거래처 목록</h4>
+                    <div id="vm-list" style="max-height: 250px; overflow-y: auto;">
+                        <!-- JS Rendering -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, push, update, remove, set, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+            projectId: "flyer-event-page-2026"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.currentLedger = [];
+        window.masterProducts = [];
+        window.allReservations = {};
+        window.allDailyReports = {};
+        window.inventoryCounts = {};
+        window.masterVendors = {};
+        window.currentTxProducts = [];
+
+        // Tab Switching Logic
+        window.switchTab = function(tabId, el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        };
+
+        // ----------------------------------------------------
+        // 데이터 로드 파트
+        // ----------------------------------------------------
+
+        // 1. Ledger 로드
+        onValue(ref(db, 'ledger'), (snapshot) => {
+            const data = snapshot.val();
+            window.currentLedger = [];
+            if(data) {
+                for (let key in data) {
+                    window.currentLedger.push({ id: key, ...data[key] });
+                }
+            }
+            window.currentLedger.sort((a,b) => new Date(b.date) - new Date(a.date));
+            renderLedger();
+            updateDashboardStats();
+            if(document.getElementById('tab-vendor-ledger').classList.contains('active')) {
+                renderVendorLedger();
+            }
+        });
+
+        // 2. Products 로드
+        onValue(ref(db, 'master_products'), (snapshot) => {
+            const data = snapshot.val();
+            window.masterProducts = [];
+            if(data) {
+                window.masterProducts = Array.isArray(data) ? data : Object.values(data);
+            }
+            renderProducts();
+        });
+
+        // 3. Reservations 로드 (일일 보고서용)
+        onValue(ref(db, 'reservations'), (snapshot) => {
+            window.allReservations = snapshot.val() || {};
+            if(document.getElementById('report-date').value) {
+                window.loadDailyReport();
+            }
+            if(document.getElementById('tab-sales-ledger').classList.contains('active')) {
+                window.renderSalesLedger();
+            }
+        });
+
+        // 4. Daily Reports 로드
+        onValue(ref(db, 'daily_reports'), (snapshot) => {
+            window.allDailyReports = snapshot.val() || {};
+            if(document.getElementById('report-date').value) {
+                window.loadDailyReport();
+            }
+        });
+
+        // 5. Inventory Counts 로드
+        onValue(ref(db, 'inventory_counts'), (snapshot) => {
+            window.inventoryCounts = snapshot.val() || {};
+            if(document.getElementById('tab-products').classList.contains('active')) {
+                window.renderProducts();
+            }
+        });
+
+        // 6. Vendors 로드
+        onValue(ref(db, 'vendors'), (snapshot) => {
+            window.masterVendors = snapshot.val() || {};
+            
+            // Datalist 갱신
+            const dl = document.getElementById('vendor-datalist');
+            if (dl) {
+                dl.innerHTML = '';
+                Object.keys(window.masterVendors).sort().forEach(v => {
+                    dl.innerHTML += `<option value="${v}">`;
+                });
+            }
+
+            // 원장 select 갱신
+            const vSelect = document.getElementById('vl-vendor-select');
+            const prevVal = vSelect.value;
+            vSelect.innerHTML = '<option value="">-- 거래처 선택 --</option>';
+            Object.keys(window.masterVendors).sort().forEach(v => {
+                vSelect.innerHTML += `<option value="${v}">${v}</option>`;
+            });
+            if(window.masterVendors[prevVal]) {
+                vSelect.value = prevVal;
+            }
+
+            // 모달 내 리스트 갱신
+            if (document.getElementById('vendor-modal').style.display === 'flex') {
+                renderVendorListInModal();
+            }
+        });
+
+        // ----------------------------------------------------
+        // 탭 A: 대시보드 & 일일 보고서
+        // ----------------------------------------------------
+        
+        // 날짜 디폴트 오늘
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('report-date').value = todayStr;
+
+        function updateDashboardStats() {
+            let totalInc = 0;
+            let totalPurchase = 0;
+            let totalExp = 0;
+            
+            window.currentLedger.forEach(item => {
+                const isInc = item.type === 'income';
+                const amt = Number(item.amount) || 0;
+                if (isInc) {
+                    totalInc += amt;
+                } else {
+                    if (item.category === '현금매입(재고)' || item.category === '외상매입') {
+                        totalPurchase += amt;
+                    } else {
+                        totalExp += amt;
+                    }
+                }
+            });
+
+            document.getElementById('stat-income').innerText = totalInc.toLocaleString() + ' 원';
+            document.getElementById('stat-purchase').innerText = totalPurchase.toLocaleString() + ' 원';
+            document.getElementById('stat-expense').innerText = totalExp.toLocaleString() + ' 원';
+            document.getElementById('stat-profit').innerText = (totalInc - totalPurchase - totalExp).toLocaleString() + ' 원';
+        }
+
+        window.loadDailyReport = function() {
+            const dateStr = document.getElementById('report-date').value;
+            const resData = window.allReservations[dateStr] || {};
+            
+            let dailySales = 0;
+            let taskListHtml = '';
+
+            // 1. 해당 날짜 예약 중 완료된 항목 추리기
+            const tasksMap = new Map();
+            Object.keys(resData).forEach(time => {
+                const slot = resData[time];
+                if(slot.status === 'completed' && slot.report) {
+                    const rId = slot.reservationId || time;
+                    if(!tasksMap.has(rId)) {
+                        tasksMap.set(rId, slot);
+                    }
+                }
+            });
+
+            const completedTasks = Array.from(tasksMap.values());
+            
+            if(completedTasks.length === 0) {
+                taskListHtml = '<div style="color:#888;">해당일에 보고된 시공/완료 내역이 없습니다.</div>';
+            } else {
+                completedTasks.forEach(task => {
+                    const r = task.report;
+                    const cInfo = task.customerInfo || {};
+                    const amt = parseInt(r.payAmount) || 0;
+                    dailySales += amt;
+                    
+                    taskListHtml += `
+                        <div class="report-list-item">
+                            <span style="color:var(--color-info); font-weight:bold;">[${r.payMethod}]</span> 
+                            <span style="color:#eed37f;">${cInfo.apt || '주소불명'}</span> / 
+                            시공품: ${(r.usedProducts||[]).join(',')} / 
+                            결제액: <strong>${amt.toLocaleString()}원</strong>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('daily-tasks-list').innerHTML = taskListHtml;
+            document.getElementById('daily-total-sales').innerText = dailySales.toLocaleString() + ' 원';
+
+            // 1.5 해당 날짜 지출 내역 장부에서 추리기
+            let dailyExpense = 0;
+            let expListHtml = '';
+            const dayTxs = window.currentLedger.filter(item => item.date === dateStr && item.type === 'expense');
+            
+            if(dayTxs.length === 0) {
+                expListHtml = '<div style="color:#888;">해당일에 등록된 지출/매입 내역이 없습니다.</div>';
+            } else {
+                dayTxs.forEach(tx => {
+                    const amt = Number(tx.amount) || 0;
+                    dailyExpense += amt;
+                    
+                    let pInfo = '';
+                    if (tx.purchasedProducts && tx.purchasedProducts.length > 0) {
+                        pInfo = ` [매입: ${tx.purchasedProducts.map(p => `${p.name} ${p.qty}개`).join(', ')}]`;
+                    } else if (tx.productName) {
+                        pInfo = ` [${tx.productName} ${tx.productQty}개]`; // 구버전 호환
+                    }
+                    
+                    expListHtml += `
+                        <div class="report-list-item">
+                            <span style="color:var(--color-danger); font-weight:bold;">[${tx.account}]</span> 
+                            <span style="color:#eed37f;">${tx.category}</span> ${pInfo} / 
+                            메모: ${tx.memo || '-'} / 
+                            지출액: <strong>${amt.toLocaleString()}원</strong>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('daily-expense-list').innerHTML = expListHtml;
+            document.getElementById('daily-total-expense').innerText = dailyExpense.toLocaleString() + ' 원';
+            document.getElementById('daily-net-profit').innerText = (dailySales - dailyExpense).toLocaleString() + ' 원';
+
+            // 2. 이미 작성된 보고서 내용 불러오기
+            const existingReport = window.allDailyReports[dateStr];
+            if(existingReport) {
+                document.getElementById('daily-notes').value = existingReport.notes || '';
+                document.getElementById('daily-improvements').value = existingReport.improvements || '';
+            } else {
+                document.getElementById('daily-notes').value = '';
+                document.getElementById('daily-improvements').value = '';
+            }
+        };
+
+        window.saveDailyReport = function() {
+            const dateStr = document.getElementById('report-date').value;
+            const notes = document.getElementById('daily-notes').value;
+            const improvements = document.getElementById('daily-improvements').value;
+
+            set(ref(db, `daily_reports/${dateStr}`), {
+                notes,
+                improvements,
+                timestamp: Date.now()
+            }).then(() => {
+                alert(`${dateStr} 일일 보고서가 결재(저장)되었습니다.`);
+            }).catch(e => alert('저장 실패: ' + e.message));
+        };
+
+        // 초기 데이터 로드를 위해 타임아웃
+        setTimeout(() => { if(window.allReservations) window.loadDailyReport(); }, 1500);
+
+        // ----------------------------------------------------
+        // 탭 B: 장부 원장
+        // ----------------------------------------------------
+
+        window.renderLedger = function() {
+            const tbody = document.getElementById('ledger-tbody');
+            const filterAcc = document.getElementById('filter-account').value;
+            tbody.innerHTML = '';
+            
+            let filteredSum = 0;
+            
+            const list = window.currentLedger.filter(item => {
+                if(filterAcc === 'ALL') return true;
+                return item.account === filterAcc;
+            });
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color:#666;">조회된 거래 내역이 없습니다.</td></tr>';
+                document.getElementById('ledger-filter-sum').innerText = '';
+                return;
+            }
+
+            list.forEach(item => {
+                const isInc = item.type === 'income';
+                const amt = Number(item.amount) || 0;
+                
+                if(filterAcc !== 'ALL') {
+                    if(isInc) filteredSum += amt;
+                    else filteredSum -= amt;
+                }
+
+                let pInfo = '';
+                if (item.purchasedProducts && item.purchasedProducts.length > 0) {
+                    pInfo = `<br><span style="color:#eed37f; font-size:11px;">[매입: ${item.purchasedProducts.map(p => `${p.name} ${p.qty}개`).join(', ')}]</span>`;
+                } else if (item.productName) {
+                    pInfo = `<br><span style="color:#eed37f; font-size:11px;">[매입: ${item.productName} ${item.productQty}개]</span>`;
+                }
+
+                let vendorInfo = item.vendor ? `<span style="color:#aaa; font-size:12px;">(${item.vendor})</span> ` : '';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td data-label="날짜">${item.date}</td>
+                        <td data-label="유형"><span class="badge ${isInc ? 'income' : 'expense'}">${isInc ? '수입' : '지출'}</span></td>
+                        <td data-label="항목">${item.category}${pInfo}</td>
+                        <td data-label="계좌">${item.account}</td>
+                        <td data-label="금액" style="font-weight:bold; color:${isInc ? 'var(--color-info)' : 'var(--color-danger)'};">${amt.toLocaleString()} 원</td>
+                        <td data-label="적요(메모)">${vendorInfo}${item.memo || '-'}</td>
+                        <td data-label="관리">
+                            <button onclick="editTx('${item.id}')" style="background:#3b82f6; border:none; color:white; padding:4px 8px; border-radius:4px; cursor:pointer; margin-right:4px;">수정</button>
+                            <button onclick="deleteTx('${item.id}')" style="background:#444; border:none; color:white; padding:4px 8px; border-radius:4px; cursor:pointer;">삭제</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            if(filterAcc !== 'ALL') {
+                document.getElementById('ledger-filter-sum').innerText = `[해당 계좌 잔고 증감액: ${filteredSum.toLocaleString()} 원]`;
+            } else {
+                document.getElementById('ledger-filter-sum').innerText = '';
+            }
+        }
+
+        window.openTxModal = function() {
+            document.getElementById('tx-modal').style.display = 'flex';
+            document.getElementById('tx-modal-title').innerText = '장부 수동 등록';
+            document.getElementById('tx-id').value = '';
+            document.getElementById('tx-date').value = todayStr;
+            document.querySelector('input[name="tx-type"][value="income"]').checked = true;
+            document.getElementById('tx-account-1').value = '현금';
+            document.getElementById('tx-amount-1').value = '';
+            document.getElementById('tx-account-2').value = '';
+            document.getElementById('tx-amount-2').value = '';
+            document.getElementById('tx-memo').value = '';
+            document.getElementById('tx-vendor').value = '';
+            window.currentTxProducts = [];
+            window.updateCategories();
+            window.toggleProductSelect();
+            window.renderTxAddedProducts();
+        }
+
+        window.editTx = function(id) {
+            const tx = window.currentLedger.find(item => item.id === id);
+            if(!tx) return;
+            
+            document.getElementById('tx-modal').style.display = 'flex';
+            document.getElementById('tx-modal-title').innerText = '장부 내역 수정';
+            document.getElementById('tx-id').value = id;
+            document.getElementById('tx-date').value = tx.date;
+            document.querySelector(`input[name="tx-type"][value="${tx.type}"]`).checked = true;
+            window.updateCategories();
+            
+            setTimeout(() => {
+                document.getElementById('tx-category').value = tx.category;
+                window.toggleProductSelect();
+            }, 50);
+            
+            // 기존 단일 결제 계좌를 계좌 1번에 맵핑. 다중결제 수정은 신규 등록 시에만 100% 지원.
+            document.getElementById('tx-account-1').value = tx.account;
+            document.getElementById('tx-amount-1').value = tx.amount;
+            document.getElementById('tx-account-2').value = '';
+            document.getElementById('tx-amount-2').value = '';
+            document.getElementById('tx-memo').value = tx.memo || '';
+            document.getElementById('tx-vendor').value = tx.vendor || '';
+            
+            if (tx.purchasedProducts) {
+                window.currentTxProducts = JSON.parse(JSON.stringify(tx.purchasedProducts));
+            } else if (tx.productName) {
+                window.currentTxProducts = [{name: tx.productName, qty: tx.productQty||1}];
+            } else {
+                window.currentTxProducts = [];
+            }
+            window.renderTxAddedProducts();
+        }
+
+        window.closeTxModal = function() {
+            document.getElementById('tx-modal').style.display = 'none';
+        }
+
+        window.updateCategories = function() {
+            const isInc = document.querySelector('input[name="tx-type"]:checked').value === 'income';
+            const catSelect = document.getElementById('tx-category');
+            catSelect.innerHTML = '';
+            
+            const incOpts = ['제품 판매', '시공 수입', '기타 수입'];
+            const expOpts = ['현금매입(재고)', '외상매입', '외상대금 결제', '경비(식대/유류비 등)', '잡지출'];
+            
+            const opts = isInc ? incOpts : expOpts;
+            opts.forEach(opt => {
+                catSelect.innerHTML += `<option value="${opt}">${opt}</option>`;
+            });
+
+            // 매입 모달 장바구니용 2단 드롭다운 세팅
+            const bCat = document.getElementById('tx-brand-cat');
+            bCat.innerHTML = '<option value="">-- 브랜드 분류 --</option>';
+            const brands = new Set();
+            window.masterProducts.forEach(p => {
+                const bc = p.brandCategory || p.category;
+                if(bc) brands.add(bc);
+            });
+            Array.from(brands).sort().forEach(b => {
+                bCat.innerHTML += `<option value="${b}">${b}</option>`;
+            });
+            document.getElementById('tx-product').innerHTML = '<option value="">-- 먼저 분류를 선택 --</option>';
+
+            window.toggleProductSelect();
+        }
+
+        window.updateTxProductList = function() {
+            const cat = document.getElementById('tx-brand-cat').value;
+            const pSelect = document.getElementById('tx-product');
+            pSelect.innerHTML = '<option value="">-- 제품 선택 --</option>';
+            if(!cat) return;
+            window.masterProducts.forEach(p => {
+                const bc = p.brandCategory || p.category;
+                if(bc === cat && p.name) {
+                    pSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.model||''})</option>`;
+                }
+            });
+        };
+
+        window.addTxProduct = function() {
+            const name = document.getElementById('tx-product').value;
+            const qty = parseInt(document.getElementById('tx-qty').value);
+            if(!name || isNaN(qty) || qty < 1) { alert('제품과 올바른 수량을 선택해주세요.'); return; }
+            
+            const mp = window.masterProducts.find(m => m.name === name);
+            const cost = mp ? (Number(mp.costPrice) || 0) : 0;
+            
+            const existing = window.currentTxProducts.find(p => p.name === name);
+            if(existing) {
+                existing.qty += qty;
+                existing.cost = cost;
+            } else {
+                window.currentTxProducts.push({ name, qty, cost });
+            }
+            
+            document.getElementById('tx-qty').value = 1;
+            window.renderTxAddedProducts();
+            window.autoCalculateTxAmount();
+        };
+
+        window.removeTxProduct = function(idx) {
+            window.currentTxProducts.splice(idx, 1);
+            window.renderTxAddedProducts();
+            window.autoCalculateTxAmount();
+        };
+
+        window.autoCalculateTxAmount = function() {
+            const cat = document.getElementById('tx-category').value;
+            const isPurchase = (!document.querySelector('input[name="tx-type"][value="income"]').checked) 
+                               && (cat === '현금매입(재고)' || cat === '외상매입');
+                               
+            if (isPurchase) {
+                let totalCost = 0;
+                window.currentTxProducts.forEach(p => {
+                    totalCost += (p.cost || 0) * p.qty;
+                });
+                
+                const amt2 = Number(document.getElementById('tx-amount-2').value) || 0;
+                if (amt2 === 0) {
+                    document.getElementById('tx-amount-1').value = totalCost > 0 ? totalCost : '';
+                }
+            }
+        };
+
+        window.renderTxAddedProducts = function() {
+            const list = document.getElementById('tx-added-products');
+            list.innerHTML = '';
+            if(window.currentTxProducts.length === 0) {
+                list.innerHTML = '<div style="color:#666; font-size:13px; text-align:center;">추가된 매입 상품이 없습니다.</div>';
+                return;
+            }
+            window.currentTxProducts.forEach((p, idx) => {
+                list.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; background:#111; margin-bottom:4px; border-radius:4px; border:1px solid #333;">
+                        <div><span style="color:#eed37f;">${p.name}</span> <span style="color:#aaa; font-size:13px; margin-left:8px;">${p.qty}개</span></div>
+                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="removeTxProduct(${idx})">삭제</button>
+                    </div>
+                `;
+            });
+        };
+
+        window.toggleProductSelect = function() {
+            const cat = document.getElementById('tx-category').value;
+            const isInc = document.querySelector('input[name="tx-type"]:checked').value === 'income';
+            
+            if (!isInc && (cat === '현금매입(재고)' || cat === '외상매입')) {
+                document.getElementById('tx-product-group').style.display = 'block';
+            } else {
+                document.getElementById('tx-product-group').style.display = 'none';
+            }
+        }
+
+        window.saveTx = function() {
+            const id = document.getElementById('tx-id').value;
+            const date = document.getElementById('tx-date').value;
+            const type = document.querySelector('input[name="tx-type"]:checked').value;
+            const category = document.getElementById('tx-category').value;
+            const memo = document.getElementById('tx-memo').value;
+            const vendor = document.getElementById('tx-vendor').value;
+            
+            const acc1 = document.getElementById('tx-account-1').value;
+            const amt1 = Number(document.getElementById('tx-amount-1').value) || 0;
+            const acc2 = document.getElementById('tx-account-2').value;
+            const amt2 = Number(document.getElementById('tx-amount-2').value) || 0;
+
+            if(!date || (amt1 === 0 && amt2 === 0)) {
+                alert('날짜와 결제 금액은 필수입니다.');
+                return;
+            }
+
+            const isPurchase = (!document.querySelector('input[name="tx-type"][value="income"]').checked) 
+                               && (category === '현금매입(재고)' || category === '외상매입');
+
+            if (isPurchase && window.currentTxProducts.length === 0) {
+                if(!confirm("매입 상품이 하나도 없습니다. 이대로 저장하시겠습니까? (재고 미반영)")) return;
+            }
+
+            const updates = {};
+            
+            // 1. 기존 트랜잭션이 매입이었다면 재고(inventory_counts) 롤백 (간단히 구현)
+            if (id) {
+                const oldTx = window.currentLedger.find(item => item.id === id);
+                if (oldTx && (oldTx.category === '현금매입(재고)' || oldTx.category === '외상매입')) {
+                    if (oldTx.purchasedProducts) {
+                        oldTx.purchasedProducts.forEach(p => {
+                            updates[`inventory_counts/${p.name}`] = increment(-p.qty);
+                        });
+                    } else if (oldTx.productName) {
+                        updates[`inventory_counts/${oldTx.productName}`] = increment(-oldTx.productQty);
+                    }
+                }
+            }
+
+            // 2. 새 결제 내역 저장
+            // 복합 결제인 경우, 원장을 2개로 나누거나 텍스트로 합치는 방식 중, 장부 계산을 위해 2개의 node로 쪼개는 것이 좋음.
+            // 하지만 수정을 원활히 하기 위해 본 시스템에서는 분할 입력 시 2개의 독립된 원장으로 저장합니다.
+            
+            let payloads = [];
+            if (amt1 > 0) {
+                payloads.push({
+                    date, type, category, account: acc1, amount: amt1, memo, vendor,
+                    purchasedProducts: isPurchase ? window.currentTxProducts : [],
+                    timestamp: Date.now()
+                });
+            }
+            if (amt2 > 0 && acc2) {
+                payloads.push({
+                    date, type, category, account: acc2, amount: amt2, memo: memo + ' (분할결제)', vendor,
+                    purchasedProducts: isPurchase ? window.currentTxProducts : [],
+                    timestamp: Date.now() + 1 // ID 충돌 방지
+                });
+            }
+
+            if (id) {
+                // 수정의 경우 분할결제를 단일로 합치거나 덮어쓰기 복잡하므로, 단일 덮어쓰기만 허용
+                if (payloads.length > 1) {
+                    alert('수정 시에는 분할 결제를 나눌 수 없습니다. 하나로 통일해주세요.');
+                    return;
+                }
+                updates[`ledger/${id}`] = payloads[0];
+                
+                // 새 재고 증감
+                if (isPurchase) {
+                    window.currentTxProducts.forEach(p => {
+                        updates[`inventory_counts/${p.name}`] = increment(p.qty);
+                    });
+                }
+                
+                update(ref(db), updates).then(() => closeTxModal()).catch(e => alert(e.message));
+                
+            } else {
+                // 신규
+                payloads.forEach(payload => {
+                    const newId = push(ref(db, 'ledger')).key;
+                    updates[`ledger/${newId}`] = payload;
+                });
+                
+                if (isPurchase) {
+                    window.currentTxProducts.forEach(p => {
+                        updates[`inventory_counts/${p.name}`] = increment(p.qty);
+                    });
+                }
+                
+                update(ref(db), updates).then(() => closeTxModal()).catch(e => alert(e.message));
+            }
+        }
+
+        window.deleteTx = function(id) {
+            if(confirm('정말 삭제하시겠습니까?')) {
+                remove(ref(db, 'ledger/' + id));
+            }
+        }
+
+        // ----------------------------------------------------
+        // 탭 C: 상품 마스터 및 재고 현황
+        // ----------------------------------------------------
+
+        window.isEditingStock = false;
+        
+        window.toggleEditStock = function() {
+            window.isEditingStock = !window.isEditingStock;
+            document.getElementById('btn-edit-stock').style.display = window.isEditingStock ? 'none' : 'inline-block';
+            document.getElementById('btn-save-stock').style.display = window.isEditingStock ? 'inline-block' : 'none';
+            document.getElementById('filter-in-stock').disabled = window.isEditingStock;
+            renderProducts();
+        };
+
+        window.saveEditedStock = function() {
+            const updates = {};
+            const inputs = document.querySelectorAll('.stock-input');
+            let changed = false;
+            
+            inputs.forEach(input => {
+                const pName = input.dataset.name;
+                const newStock = parseInt(input.value) || 0;
+                const oldStock = window.inventoryCounts[pName] || 0;
+                
+                if (newStock !== oldStock) {
+                    updates[`inventory_counts/${pName}`] = newStock;
+                    changed = true;
+                }
+            });
+            
+            if (!changed) {
+                alert('변경된 재고가 없습니다.');
+                window.toggleEditStock();
+                return;
+            }
+            
+            if (confirm('수정한 재고를 저장하시겠습니까?')) {
+                update(ref(db), updates).then(() => {
+                    alert('재고가 수정되었습니다.');
+                    window.toggleEditStock();
+                }).catch(e => alert(e.message));
+            }
+        };
+
+        window.renderProducts = function() {
+            const tbody = document.getElementById('products-tbody');
+            const onlyInStock = document.getElementById('filter-in-stock').checked;
+            tbody.innerHTML = '';
+
+            if (window.masterProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:#666;">데이터가 없습니다. 구글 시트 연동을 확인하세요.</td></tr>';
+                return;
+            }
+
+            let renderedCount = 0;
+            window.masterProducts.forEach(p => {
+                if(!p || !p.name) return;
+                
+                const currentStock = window.inventoryCounts[p.name] || 0;
+                
+                if (!window.isEditingStock && onlyInStock && currentStock < 1) return;
+                
+                let stockHtml = `<span style="color:var(--color-interactive-lime); font-weight:bold; font-size:16px;">${currentStock} 개</span>`;
+                if (window.isEditingStock) {
+                    stockHtml = `<input type="number" class="form-control stock-input" data-name="${p.name}" value="${currentStock}" style="width:80px; padding:4px;">`;
+                }
+
+                renderedCount++;
+                tbody.innerHTML += `
+                    <tr>
+                        <td data-label="브랜드 분류"><span style="color:#eed37f;">[${p.brandCategory || p.category || '-'}]</span></td>
+                        <td data-label="브랜드/모델">${p.brand || '-'} / ${p.model || '-'}</td>
+                        <td data-label="상품명" style="font-weight:bold;">${p.name}</td>
+                        <td data-label="매입가(도매)" style="color:var(--color-danger);">${Number(p.costPrice||0).toLocaleString()} 원</td>
+                        <td data-label="매출가(판매)" style="color:var(--color-info); font-weight:bold;">${Number(p.sellPrice||0).toLocaleString()} 원</td>
+                        <td data-label="현재고">${stockHtml}</td>
+                    </tr>
+                `;
+            });
+
+            if (renderedCount === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:#666;">조건에 맞는 제품이 없습니다.</td></tr>';
+            }
+        }
+
+        // ----------------------------------------------------
+        // 탭 D: 출고(매출) 장부
+        // ----------------------------------------------------
+        
+        // 당월 기본 세팅
+        document.getElementById('filter-sales-month').value = todayStr.substring(0, 7);
+
+        window.renderSalesLedger = function() {
+            const tbody = document.getElementById('sales-ledger-tbody');
+            const monthFilter = document.getElementById('filter-sales-month').value; // YYYY-MM
+            tbody.innerHTML = '';
+            
+            let salesItems = [];
+            
+            // 모든 예약 중 완료된 내역에서 출고 상품 추출
+            for (const date in window.allReservations) {
+                if (monthFilter && !date.startsWith(monthFilter)) continue;
+                
+                const dayData = window.allReservations[date];
+                for (const time in dayData) {
+                    const slot = dayData[time];
+                    if (slot.status === 'completed' && slot.report) {
+                        const aptInfo = (slot.customerInfo && slot.customerInfo.apt) ? slot.customerInfo.apt : '주소/동호수 불명';
+                        const report = slot.report;
+                        
+                        let products = [];
+                        if (report.usedProducts) {
+                            products = report.usedProducts.map(p => {
+                                if (typeof p === 'string') return { name: p, qty: 1 };
+                                return p;
+                            });
+                        }
+                        
+                        products.forEach(p => {
+                            salesItems.push({
+                                date: date,
+                                time: time,
+                                apt: aptInfo,
+                                productName: p.name,
+                                qty: p.qty,
+                                amount: (p.qty * p.sell) || 0,
+                                totalPay: report.payAmount || 0 // 전체 결제액 참고용
+                            });
+                        });
+                    }
+                }
+            }
+
+            salesItems.sort((a,b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+
+            if (salesItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color:#666;">조회된 출고 내역이 없습니다.</td></tr>';
+                return;
+            }
+
+            salesItems.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td data-label="날짜">${item.date}</td>
+                        <td data-label="현장명" style="color:#eed37f;">${item.apt}</td>
+                        <td data-label="제품명" style="font-weight:bold;">${item.productName}</td>
+                        <td data-label="수량(대)" style="color:var(--color-interactive-lime); font-weight:bold;">${item.qty} 대</td>
+                        <td data-label="결제액(참고)">${item.amount ? item.amount.toLocaleString() + ' 원' : '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ----------------------------------------------------
+        // 탭 E: 거래처 원장 (Vendor Ledger) & 거래처 관리
+        // ----------------------------------------------------
+
+        // 연도 세팅
+        const currentYear = new Date().getFullYear();
+        const yearSelect = document.getElementById('vl-year-select');
+        for (let y = currentYear - 3; y <= currentYear + 2; y++) {
+            yearSelect.innerHTML += `<option value="${y}">${y}년</option>`;
+        }
+        yearSelect.value = currentYear;
+
+        window.renderVendorLedger = function() {
+            const tbody = document.getElementById('vl-tbody');
+            const vName = document.getElementById('vl-vendor-select').value;
+            const yTarget = parseInt(document.getElementById('vl-year-select').value);
+
+            if(!vName) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:#666;">조회할 거래처를 선택하세요.</td></tr>';
+                document.getElementById('vl-carryover').innerText = '0 원';
+                document.getElementById('vl-purchase').innerText = '0 원';
+                document.getElementById('vl-paid').innerText = '0 원';
+                document.getElementById('vl-balance').innerText = '0 원';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            
+            let carryoverBalance = 0; // 전기 이월액
+            let curPurchase = 0; // 당기 매입
+            let curPaid = 0; // 당기 지급
+
+            // 오름차순으로 거래 내역 필터 (계산을 위해)
+            const vTxs = window.currentLedger.filter(tx => tx.vendor === vName).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            const listHtml = [];
+
+            vTxs.forEach(tx => {
+                const txYear = parseInt(tx.date.substring(0, 4));
+                const amt = Number(tx.amount) || 0;
+                
+                // 로직:
+                // type === 'expense' (지출 항목들)
+                // "외상대금 결제"가 아닌 지출은 매입(발생)으로 간주.
+                // account !== "외상매입금" 인 지출은 지급액으로 간주.
+
+                let isPurchaseEvent = false;
+                let isPaymentEvent = false;
+
+                if (tx.type === 'expense') {
+                    if (tx.category !== '외상대금 결제') isPurchaseEvent = true;
+                    if (tx.account !== '외상매입금') isPaymentEvent = true;
+                }
+
+                if (txYear < yTarget) {
+                    // 전기 계산
+                    if (isPurchaseEvent) carryoverBalance += amt;
+                    if (isPaymentEvent) carryoverBalance -= amt;
+                } else if (txYear === yTarget) {
+                    // 당기 계산
+                    if (isPurchaseEvent) curPurchase += amt;
+                    if (isPaymentEvent) curPaid += amt;
+
+                    // UI 렌더링 준비
+                    const isInc = tx.type === 'income';
+                    let pInfo = '';
+                    if (tx.purchasedProducts && tx.purchasedProducts.length > 0) {
+                        pInfo = `<br><span style="color:#eed37f; font-size:11px;">[${tx.purchasedProducts.map(p => `${p.name} ${p.qty}개`).join(', ')}]</span>`;
+                    }
+                    
+                    let rowColor = "";
+                    if (tx.category === '외상매입') rowColor = "color: #ef4444;"; // 붉은색
+                    else if (tx.category === '외상대금 결제') rowColor = "color: #10b981;"; // 녹색
+                    // 현금매입은 일반 색상(색 없음)
+                    
+                    listHtml.unshift(`
+                        <tr style="${rowColor}">
+                            <td data-label="날짜">${tx.date}</td>
+                            <td data-label="유형"><span class="badge ${isInc ? 'income' : 'expense'}">${isInc ? '수입' : '지출'}</span></td>
+                            <td data-label="항목">${tx.category}${pInfo}</td>
+                            <td data-label="계좌">${tx.account}</td>
+                            <td data-label="금액" style="font-weight:bold;">${amt.toLocaleString()} 원</td>
+                            <td data-label="적요(메모)">${tx.memo || '-'}</td>
+                        </tr>
+                    `);
+                }
+            });
+
+            // 결과 바인딩
+            document.getElementById('vl-carryover').innerText = carryoverBalance.toLocaleString() + ' 원';
+            document.getElementById('vl-purchase').innerText = curPurchase.toLocaleString() + ' 원';
+            document.getElementById('vl-paid').innerText = curPaid.toLocaleString() + ' 원';
+            const finalBalance = carryoverBalance + curPurchase - curPaid;
+            document.getElementById('vl-balance').innerText = finalBalance.toLocaleString() + ' 원';
+
+            if (listHtml.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color:#666;">${yTarget}년에 발생한 거래가 없습니다.</td></tr>`;
+            } else {
+                tbody.innerHTML = listHtml.join('');
+            }
+        };
+
+        // 모달 관리
+        window.openVendorModal = function() {
+            document.getElementById('vendor-modal').style.display = 'flex';
+            document.getElementById('vm-name').value = '';
+            document.getElementById('vm-name').disabled = false;
+            document.getElementById('vm-phone').value = '';
+            document.getElementById('vm-email').value = '';
+            document.getElementById('vm-memo').value = '';
+            renderVendorListInModal();
+        }
+
+        window.closeVendorModal = function() {
+            document.getElementById('vendor-modal').style.display = 'none';
+        }
+
+        window.renderVendorListInModal = function() {
+            const list = document.getElementById('vm-list');
+            list.innerHTML = '';
+            const vendors = Object.keys(window.masterVendors).sort();
+            
+            if(vendors.length === 0) {
+                list.innerHTML = '<div style="color:#666; font-size:13px; text-align:center;">등록된 거래처가 없습니다.</div>';
+                return;
+            }
+            
+            vendors.forEach(v => {
+                list.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; background:#1c1c1e; margin-bottom:4px; border-radius:4px; border:1px solid #333; cursor:pointer;" onclick="editVendor('${v}')">
+                        <span style="color:#fff;">${v}</span>
+                        <span style="color:#888; font-size:12px;">수정</span>
+                    </div>
+                `;
+            });
+        }
+
+        window.editVendor = function(name) {
+            const vInfo = window.masterVendors[name];
+            if(vInfo) {
+                document.getElementById('vm-name').value = name;
+                document.getElementById('vm-name').disabled = true; // Key 변경 불가
+                document.getElementById('vm-phone').value = vInfo.phone || '';
+                document.getElementById('vm-email').value = vInfo.email || '';
+                document.getElementById('vm-memo').value = vInfo.memo || '';
+            }
+        }
+
+        window.saveVendor = function() {
+            const name = document.getElementById('vm-name').value.trim();
+            const phone = document.getElementById('vm-phone').value.trim();
+            const email = document.getElementById('vm-email').value.trim();
+            const memo = document.getElementById('vm-memo').value.trim();
+
+            if(!name) { alert('상호명을 입력해주세요.'); return; }
+
+            const payload = { phone, email, memo, updatedAt: Date.now() };
+            
+            update(ref(db, `vendors/${name}`), payload).then(() => {
+                alert(`'${name}' 정보가 저장되었습니다.`);
+                document.getElementById('vm-name').value = '';
+                document.getElementById('vm-name').disabled = false;
+                document.getElementById('vm-phone').value = '';
+                document.getElementById('vm-email').value = '';
+                document.getElementById('vm-memo').value = '';
+            }).catch(e => alert(e.message));
+        }
+    </script>
+</body>
+</html>

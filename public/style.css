@@ -262,6 +262,99 @@ body {
     color: #596170;
 }
 
+/* --- 모바일 폼 행동 유도성(Affordance) 극대화 UX 디자인 시스템 --- */
+.form-field-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    background-color: #1a1c20;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #33363d;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease;
+}
+
+.form-field-item:focus-within {
+    border-color: var(--color-interactive-lime);
+    background-color: #202329;
+    box-shadow: 0 0 0 3px rgba(220, 255, 0, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.form-field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-field-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-pure-white);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-field-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-pitch-black);
+    background-color: var(--color-interactive-lime);
+    padding: 3px 8px;
+    border-radius: 12px;
+    letter-spacing: -0.02em;
+    box-shadow: 0 2px 6px rgba(220, 255, 0, 0.3);
+    animation: pulse-soft 2s infinite;
+}
+
+@keyframes pulse-soft {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(0.97); }
+}
+
+.form-field-input-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.form-field-input-box input {
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+    color: #a0a6b2 !important; /* 기본 상태에서는 부드럽고 은은한 색상으로 디폴트 값 표시 */
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    padding: 4px 0 !important;
+    outline: none !important;
+    caret-color: var(--color-interactive-lime);
+}
+
+.form-field-input-box input:focus {
+    color: var(--color-pure-white) !important; /* 클릭하여 입력할 때는 밝고 선명한 색상으로 전환 */
+}
+
+.form-field-input-box input::placeholder {
+    color: #636b78 !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+}
+
+.form-field-hint {
+    font-size: 12px;
+    color: #8a93a5;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.form-field-hint span {
+    color: var(--color-interactive-lime);
+    font-weight: 600;
+}
+
 /* 버튼 디자인 시스템 교체 완료 */
 
 .footer-area {

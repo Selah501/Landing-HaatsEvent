@@ -37,7 +37,6 @@
     <div class="mobile-container">
         <nav class="sticky-nav">
             <div class="nav-logo"><span>[공식]</span>하츠 충남대리점</div>
-            <a href="tel:010-2886-5086" class="btn btn-secondary">전화 문의</a>
         </nav>
 
         <header class="hero-section">
@@ -61,7 +60,7 @@
     <!-- Firebase SDK (모듈식) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         const firebaseConfig = {
             databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
@@ -70,6 +69,11 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
+        window.firebaseDB = db;
+        window.firebasePush = push;
+        window.firebaseSet = set;
+        window.firebaseRef = ref;
 
         // Firebase에서 실시간 데이터 불러오기
         const dbRef = ref(db, '/');
@@ -78,6 +82,7 @@
             if (data) {
                 window.globalProducts = data.products || [];
                 window.eventsData = data.events || [];
+                window.globalManagers = data.managers || [];
                 if (typeof window.renderEvents === 'function') {
                     window.renderEvents();
                 }
@@ -106,6 +111,12 @@
             eventsData.forEach(ev => {
                 if (ev.status === 'active') {
                     
+                    let managerPhone = '010-2886-5086'; // 기본값
+                    if (ev.managerId && window.globalManagers) {
+                        const mgr = window.globalManagers.find(m => m.id === ev.managerId);
+                        if (mgr) managerPhone = mgr.phone;
+                    }
+
                     // 메인 상품 렌더링
                     let mainProductsHtml = '';
                     if (ev.mainProducts && ev.mainProducts.length > 0) {
@@ -116,11 +127,18 @@
                             if(!mProd) return;
                             const text = getProductText(prod);
                             
+                            let linkHtml = '';
+                            if (mProd.detailLink) {
+                                const sep = mProd.detailLink.includes('?') ? '&' : '?';
+                                const dynamicLink = `${mProd.detailLink}${sep}phone=${managerPhone}`;
+                                linkHtml = `<a href="${dynamicLink}" style="display: inline-block; color: var(--color-interactive-lime); text-decoration: none; font-size: 13px; font-weight: bold;">👉 자세히 보기</a>`;
+                            }
+                            
                             mainProductsHtml += `
                                 <div style="background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 8px;">
                                     <div style="color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 4px;">${text}</div>
                                     <div style="color: #aaa; font-size: 13px; margin-bottom: 12px;">${mProd.features || ''}</div>
-                                    ${mProd.detailLink ? `<a href="${mProd.detailLink}" style="display: inline-block; color: var(--color-interactive-lime); text-decoration: none; font-size: 13px; font-weight: bold;">👉 자세히 보기</a>` : ''}
+                                    ${linkHtml}
                                 </div>
                             `;
                         });
@@ -144,8 +162,10 @@
                             const text = getProductText(prod);
                             
                             if(mProd.detailLink) {
+                                const sep = mProd.detailLink.includes('?') ? '&' : '?';
+                                const dynamicLink = `${mProd.detailLink}${sep}phone=${managerPhone}`;
                                 addonProductsHtml += `
-                                    <a href="${mProd.detailLink}" style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-graphite-base); padding: 14px; border-radius: 8px; text-decoration: none; border: 1px solid #555;">
+                                    <a href="${dynamicLink}" style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-graphite-base); padding: 14px; border-radius: 8px; text-decoration: none; border: 1px solid #555;">
                                         <div>
                                             <div style="color: var(--color-silver-mist); font-size: 12px; margin-bottom: 4px;">${mProd.features || '프리미엄 상품'}</div>
                                             <div style="color: #fff; font-size: 15px; font-weight: bold;">${text}</div>
@@ -193,6 +213,19 @@
                         `;
                     });
 
+                    let defaultApt = ev.aptName;
+                    if (!defaultApt) {
+                        defaultApt = ev.title.replace(/(아파트|주방후드|환풍기|전동댐퍼|인덕션|수전|싱크볼|씽크볼|특가|이벤트|공동구매|교체|설치|핫써머|핫썸머|썸머|써머|여름|스멜|행사|할인|초특가|사전예약|모집|프로모션|패키지|혜택|지원|사은품|202\d).*$/i, '').trim();
+                        const words = defaultApt.split(/\s+/);
+                        if (words.length >= 2) {
+                            defaultApt = words.slice(1).join(' ');
+                        }
+                        if (!defaultApt) {
+                            const origWords = ev.title.split(/\s+/);
+                            defaultApt = origWords.length >= 2 ? origWords[1] : origWords[0];
+                        }
+                    }
+
                     html += `
                     <div id="card-${ev.id}" class="campaign-card active-card" onclick="toggleCampaign('${ev.id}', '${ev.title}')">
                         <div style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -209,8 +242,9 @@
                         ${mainProductsHtml}
                         ${addonProductsHtml}
 
-                        <button id="btn-show-form-${ev.id}" class="btn btn-primary" style="margin-bottom: 12px;" onclick="showForm('${ev.id}')">👉 무료 상담 예약하기</button>
-                        <a href="./reservation_v2.html?eventId=${ev.id}" class="btn btn-secondary" style="margin-bottom: 12px; display: block; text-align: center; background-color: #6366f1; border-color: #6366f1; color: white;">🛠️ 설치 예약 바로하기 (V2 테스트)</a>
+                        <div style="margin-bottom: 12px;">
+                            <button id="btn-show-form-${ev.id}" class="btn btn-primary" style="width: 100%; margin-bottom: 0; padding: 14px; font-size: 15px; font-weight: bold;" onclick="showForm('${ev.id}')">👉 무료상담 신청하기</button>
+                        </div>
 
                         <div id="form-container-${ev.id}" style="display: none; background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333;">
                             <div class="form-title">간편 상담 예약</div>
@@ -218,16 +252,47 @@
                                 <div style="color: var(--color-pure-white); font-size: 14px; margin-bottom: 8px;">상담 희망 상품 (다중 선택 가능)</div>
                                 ${formProductsHtml}
                             </div>
-                            <div class="input-group">
-                                <input type="text" id="apt-${ev.id}" placeholder="[아파트 동/호수] 예: 101동 102호">
-                                <input type="text" id="phone-${ev.id}" placeholder="[연락처] 010-0000-0000">
-                                <input type="text" id="time-${ev.id}" placeholder="[원하는 상담시간] 예: 평일 오후 2시 이후">
+                            <div class="form-fields-container" style="margin-bottom: 20px;">
+                                <!-- 휴대폰 번호 입력 -->
+                                <div class="form-field-item">
+                                    <div class="form-field-header">
+                                        <label class="form-field-label" for="phone-${ev.id}">📱 휴대폰 번호</label>
+                                        <span class="form-field-badge">✎ 입력하기</span>
+                                    </div>
+                                    <div class="form-field-input-box">
+                                        <input type="text" id="phone-${ev.id}" value="010-" placeholder="예: 010-1234-5678">
+                                    </div>
+                                    <div class="form-field-hint">💡 연락 받으실 휴대폰 번호를 이어서 적어주세요.</div>
+                                </div>
+                                
+                                <!-- 아파트 동/호수 입력 -->
+                                <div class="form-field-item">
+                                    <div class="form-field-header">
+                                        <label class="form-field-label" for="apt-${ev.id}">🏢 아파트 동·호수</label>
+                                        <span class="form-field-badge">✎ 입력하기</span>
+                                    </div>
+                                    <div class="form-field-input-box">
+                                        <input type="text" id="apt-${ev.id}" value="${defaultApt} " placeholder="예: 101동 102호">
+                                    </div>
+                                    <div class="form-field-hint">💡 동과 호수를 이어서 적어주세요 (예: 101동 102호).</div>
+                                </div>
+
+                                <!-- 기타 요청사항 -->
+                                <div class="form-field-item" style="margin-bottom: 0;">
+                                    <div class="form-field-header">
+                                        <label class="form-field-label" for="time-${ev.id}" style="font-size: 13px; color: #a0a6b2;">📝 기타 요청사항 (선택)</label>
+                                    </div>
+                                    <div class="form-field-input-box">
+                                        <input type="text" id="time-${ev.id}" placeholder="원하는 시공/통화 시간대 등 자유 기재 (30자 이내)" maxlength="30" style="font-weight: 400 !important; font-size: 14px !important;">
+                                    </div>
+                                </div>
                             </div>
-                            <button id="btn-submit-${ev.id}" class="btn btn-primary" onclick="submitForm('${ev.id}')">신청서 제출하기</button>
+                            <button id="btn-submit-${ev.id}" class="btn btn-primary" style="padding: 14px; font-size: 16px; font-weight: bold;" onclick="submitForm('${ev.id}')">상담신청 제출하기</button>
                             <button class="btn btn-ghost" style="margin-top: 8px;" onclick="hideForm('${ev.id}')">입력 취소</button>
                         </div>
                         
-                        <button class="btn btn-ghost" style="margin-top: 12px;" onclick="toggleCampaign('${ev.id}', '')">▲ 이벤트 접기 (목록으로)</button>
+                        <a href="./reservation_v2.html?eventId=${ev.id}&phone=${managerPhone}" class="btn btn-secondary" style="margin-top: 14px; display: block; text-align: center; background-color: #6366f1; border-color: #6366f1; color: white; padding: 14px; font-size: 15px; font-weight: bold; text-decoration: none;">🛠️ 설치예약 바로하기</a>
+                        <button class="btn btn-ghost" style="margin-top: 8px;" onclick="toggleCampaign('${ev.id}', '')">▲ 이벤트 접기 (목록으로)</button>
                     </div>`;
                 }
             });
@@ -343,13 +408,26 @@
                 phone = phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
             }
 
-            if (!apartment || !phone) {
-                alert("동/호수와 연락처를 입력해 주세요.");
+            if (!phone || phone.length < 10) {
+                alert("⚠️ 정확한 휴대폰 번호를 입력해주세요 (예: 010-1234-5678).");
+                phoneInput.focus();
+                return;
+            }
+
+            // 동호수 검증: 숫자가 포함되어 있지 않거나 너무 짧으면(아파트 이름만 있는 경우) 차단
+            if (!apartment || apartment.trim().length < 3 || !/\d/.test(apartment)) {
+                alert("⚠️ 아파트 동과 호수를 이어서 정확히 입력해주세요 (예: 101동 102호).");
+                aptInput.focus();
                 return;
             }
 
             // 다중 선택(체크박스) 값 취합
             const checkedBoxes = document.querySelectorAll(`input[name="product-${id}"]:checked`);
+            if (checkedBoxes.length === 0) {
+                alert("⚠️ 상담 희망 상품을 최소 1개 이상 선택해주세요.");
+                return;
+            }
+
             let selectedProducts = [];
             checkedBoxes.forEach(box => {
                 const prodId = box.getAttribute('data-id');
@@ -357,14 +435,27 @@
                 const qtyText = qtySelect ? ` (${qtySelect.value})` : '';
                 selectedProducts.push(box.value + qtyText);
             });
-            const product = selectedProducts.length > 0 ? selectedProducts.join(' + ') : "미선택";
+            const product = selectedProducts.join(' + ');
 
             const payload = {
                 apartment: apartment,
                 phone: phone,
                 consultTime: consultTime,
-                eventName: `${currentEventName} - [${product}]`
+                eventName: `${currentEventName} - [${product}]`,
+                timestamp: Date.now(),
+                status: "consultation_pending"
             };
+
+            // Firebase RTDB에 먼저 저장
+            if (window.firebaseDB) {
+                try {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const newResRef = window.firebasePush(window.firebaseRef(window.firebaseDB, `consultations/${todayStr}`));
+                    window.firebaseSet(newResRef, payload);
+                } catch(e) {
+                    console.error("Firebase DB Error:", e);
+                }
+            }
 
             // 제출 버튼 비활성화 및 텍스트 변경
             const submitBtn = document.getElementById(`btn-submit-${id}`);

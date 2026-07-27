@@ -7,6 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Oswald:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .time-slot, .cal-day, .btn, .status-badge, .time-badge, .card-header, #admin-adjust-modal {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
         .page-container {
             width: 100%;
             max-width: 800px;
@@ -202,8 +210,11 @@
     <div class="page-container">
         <nav class="header-actions">
             <a href="./index.html" class="btn btn-ghost" style="width: auto; padding: 8px 12px;">← 뒤로</a>
-            <div style="font-weight: bold;">예약 시스템 (V2)</div>
-            <button class="btn btn-secondary" onclick="loginAdmin()">관리자</button>
+            <div style="font-weight: bold;">설치예약 시스템</div>
+            <div style="display: flex; gap: 4px;">
+                <button class="btn btn-secondary" onclick="loginAdmin()">예약관리</button>
+                <a href="./admin.html" class="btn btn-secondary" style="text-decoration: none; padding: 8px 12px; background-color: #374151; border-color: #374151;">기본관리</a>
+            </div>
         </nav>
 
         <div class="content-area">
@@ -254,10 +265,40 @@
                     작업은 총 <span id="duration-hours">0</span>시간 소요됩니다.
                 </div>
 
-                <div class="input-group">
-                    <input type="text" id="customer-phone" value="010-" placeholder="[연락처] 010-0000-0000">
-                    <input type="text" id="customer-apt" placeholder="[아파트 동/호수] 예: 101동 102호">
-                    <input type="text" id="customer-notes" placeholder="기타 자유 기재 (30자 이내)" maxlength="30">
+                <div class="form-fields-container" style="margin-bottom: 24px;">
+                    <!-- 휴대폰 번호 입력 -->
+                    <div class="form-field-item">
+                        <div class="form-field-header">
+                            <label class="form-field-label" for="customer-phone">📱 휴대폰 번호</label>
+                            <span class="form-field-badge">✎ 입력하기</span>
+                        </div>
+                        <div class="form-field-input-box">
+                            <input type="text" id="customer-phone" value="010-" placeholder="예: 010-1234-5678">
+                        </div>
+                        <div class="form-field-hint">💡 연락 받으실 휴대폰 번호를 이어서 적어주세요.</div>
+                    </div>
+                    
+                    <!-- 아파트 동/호수 입력 -->
+                    <div class="form-field-item">
+                        <div class="form-field-header">
+                            <label class="form-field-label" for="customer-apt">🏢 아파트 동·호수</label>
+                            <span class="form-field-badge">✎ 입력하기</span>
+                        </div>
+                        <div class="form-field-input-box">
+                            <input type="text" id="customer-apt" placeholder="예: 101동 102호">
+                        </div>
+                        <div class="form-field-hint" id="apt-hint-text">💡 동과 호수를 이어서 적어주세요 (예: 101동 102호).</div>
+                    </div>
+
+                    <!-- 기타 요청사항 -->
+                    <div class="form-field-item" style="margin-bottom: 0;">
+                        <div class="form-field-header">
+                            <label class="form-field-label" for="customer-notes" style="font-size: 13px; color: #a0a6b2;">📝 기타 요청사항 (선택)</label>
+                        </div>
+                        <div class="form-field-input-box">
+                            <input type="text" id="customer-notes" placeholder="원하는 시공/통화 시간대 등 자유 기재 (30자 이내)" maxlength="30" style="font-weight: 400 !important; font-size: 14px !important;">
+                        </div>
+                    </div>
                 </div>
 
                 <button id="btn-submit" class="btn btn-primary" style="margin-top: 16px;" onclick="submitReservation()">예약 신청하기</button>
@@ -279,6 +320,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        window.db = db;
+        window.ref = ref;
+        window.set = set;
+        window.get = get;
+        window.update = update;
+        window.onValue = onValue;
+
         // Global State
         window.reservationsDB = {};
         window.globalProducts = [];
@@ -291,10 +339,13 @@
         // V2 요구사항: 14일 달력
         const displayDays = 14; 
         
-        // 시간 계산 유틸 (예: "09:00", 2 -> "11:00")
-        function addHoursToTimeString(timeStr, hoursToAdd) {
-            const hour = parseInt(timeStr.split(':')[0]);
-            return String(hour + hoursToAdd).padStart(2, '0') + ":00";
+        // 30분 단위 시간 계산 유틸 (step 1 = 30분)
+        function addStepToTimeString(timeStr, stepCount) {
+            let [h, m] = timeStr.split(':').map(Number);
+            m += stepCount * 30;
+            h += Math.floor(m / 60);
+            m = m % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
         }
         
         function renderCalendar() {
@@ -351,8 +402,8 @@
             const timeGrid = document.getElementById('time-grid');
             timeGrid.innerHTML = '';
             
-            // 09:00 ~ 18:00 (1시간 단위)
-            const times = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+            // 09:00 ~ 18:00 (30분 단위)
+            const times = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
             const dayReservations = window.reservationsDB[dateStr] || {};
 
             times.forEach(time => {
@@ -448,12 +499,8 @@
             
             const slotsText = slotsToProcess.join(', ');
             
-            if (currentStatus === "pending") {
-                if (confirm(`[${slotsText}] 예약을 최종 확정하시겠습니까?`)) {
-                    let updates = {};
-                    slotsToProcess.forEach(t => { updates[`reservations/${dateStr}/${t}/status`] = "confirmed"; });
-                    update(ref(db), updates);
-                }
+            if (currentStatus === "pending" || currentStatus === "confirmed") {
+                window.openAdminAdjustModal(slotsToProcess, slotData, dateStr);
             } else if (currentStatus === "available") {
                 if (confirm(`${time} 슬롯을 차단하시겠습니까? (개인 용무 등)`)) {
                     set(ref(db, `reservations/${dateStr}/${time}`), {
@@ -462,8 +509,8 @@
                         timestamp: Date.now()
                     });
                 }
-            } else if (currentStatus === "blocked" || currentStatus === "confirmed") {
-                if (confirm(`선택된 슬롯: [${slotsText}]\n현재 상태: ${currentStatus}\n해당 시간대의 상태를 초기화(예약가능) 하시겠습니까?`)) {
+            } else if (currentStatus === "blocked") {
+                if (confirm(`선택된 슬롯: [${slotsText}]\n현재 상태: 차단됨\n해당 시간대의 차단을 해제(예약가능) 하시겠습니까?`)) {
                     let updates = {};
                     slotsToProcess.forEach(t => { updates[`reservations/${dateStr}/${t}`] = null; });
                     update(ref(db), updates);
@@ -487,38 +534,53 @@
             let totalDuration = 0;
             
             checkedBoxes.forEach(box => {
-                selectedProducts.push(box.value);
-                totalDuration += parseInt(box.getAttribute('data-time') || '0');
+                let prodName = box.value;
+                let duration = parseInt(box.getAttribute('data-time') || '0');
+                const qtySelect = box.closest('label').querySelector('.prod-qty');
+                if(qtySelect) {
+                    prodName += ` (${qtySelect.value})`;
+                    duration *= parseInt(qtySelect.value);
+                }
+                selectedProducts.push(prodName);
+                totalDuration += duration;
             });
 
-            if (!phone || !apt || phone === "010-") {
-                alert("연락처와 아파트 동/호수를 모두 입력해주세요.");
+            if (!phone || phone === "010-" || phone.replace(/[^0-9]/g, "").length < 10) {
+                alert("⚠️ 정확한 휴대폰 번호를 입력해주세요 (예: 010-1234-5678).");
+                document.getElementById('customer-phone').focus();
+                return;
+            }
+
+            // 동호수 검증: 숫자가 포함되어 있지 않거나 너무 짧으면(아파트 이름만 있는 경우) 차단
+            if (!apt || apt.trim().length < 3 || !/\d/.test(apt)) {
+                alert("⚠️ 아파트 동과 호수를 이어서 정확히 입력해주세요 (예: 101동 102호).");
+                document.getElementById('customer-apt').focus();
                 return;
             }
 
             if (selectedProducts.length === 0) {
-                alert("최소 1개의 제품을 선택해주세요.");
+                alert("⚠️ 최소 1개의 시공 제품을 선택해주세요.");
                 return;
             }
 
-            const hoursNeeded = Math.max(1, Math.ceil(totalDuration / 60));
+            const slotsNeeded = Math.max(1, Math.ceil(totalDuration / 30));
             const dayReservations = window.reservationsDB[window.selectedDate] || {};
             
-            // 다중 슬롯 검증 로직
+            // 다중 슬롯 검증 로직 (30분 단위)
             const slotsToBook = [];
-            for (let i = 0; i < hoursNeeded; i++) {
-                const targetTime = addHoursToTimeString(window.selectedTime, i);
+            for (let i = 0; i < slotsNeeded; i++) {
+                const targetTime = addStepToTimeString(window.selectedTime, i);
                 
-                // 18시 이후거나 유효하지 않은 시간일 때 (예: 19:00)
+                // 18시 이후거나 유효하지 않은 시간일 때 (예: 18:30, 19:00)
                 if (targetTime > "18:00") {
-                    alert(`시공 시간이 총 ${hoursNeeded}시간 소요됩니다. 18:00 영업 종료 시간을 초과하여 예약할 수 없습니다. 더 이른 시간을 선택해주세요.`);
+                    alert(`시공 소요 시간이 길어 18:00 영업 종료 시간을 초과합니다. 더 이른 시간을 선택해주세요.`);
                     return;
                 }
                 
                 // 이미 예약된 슬롯인지 확인
                 const slot = dayReservations[targetTime];
                 if (slot && slot.status && slot.status !== 'available') {
-                    alert(`시공 시간이 총 ${hoursNeeded}시간 소요됩니다. ${targetTime}에 이미 다른 예약이나 차단된 일정이 있어 예약할 수 없습니다.`);
+                    alert(`${targetTime}에 이미 다른 예약이나 차단된 일정이 있어 해당 시간에 연속으로 예약할 수 없습니다. 다른 시간을 선택해주세요.`);
                     return;
                 }
                 
@@ -544,13 +606,32 @@
                         notes: notes,
                         items: selectedProducts,
                         totalDuration: totalDuration,
-                        hoursNeeded: hoursNeeded,
+                        hoursNeeded: slotsNeeded * 0.5,
+                        slotsNeeded: slotsNeeded,
                         parentTime: window.selectedTime
                     }
                 };
             });
 
             update(ref(db), updates).then(() => {
+                // 구글 시트 및 텔레그램 연동 Webhook
+                const GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby4sFDQcQ8BWX0jLdKZq86Ob3z537xSaHZ7Xl2ecg1k4kLO9Qw0TtMPG8BgUIiiUfekRQ/exec";
+                const productStr = selectedProducts.length > 0 ? selectedProducts.join(' + ') : "미선택";
+                const payload = {
+                    apartment: apt,
+                    phone: phone,
+                    consultTime: `${window.selectedDate} ${window.selectedTime}`,
+                    eventName: `[V2 설치예약] ${productStr}`
+                };
+                
+                // 백그라운드로 쏘기만 함 (no-cors)
+                fetch(GOOGLE_WEBAPP_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                }).catch(e => console.error("Webhook error:", e));
+
                 alert("고객님의 상담/예약 신청이 접수되었습니다!\n\n※ 관리자 최종 확정 후 확인 문자를 발송해 드립니다.");
                 
                 // 리셋
@@ -588,12 +669,26 @@
             if (eventId && window.eventsData) {
                 const currentEvent = window.eventsData.find(ev => ev.id === eventId);
                 if (currentEvent) {
-                    // 아파트 디폴트 값 설정 (정규식으로 '차', '아파트' 앞부분까지 추출)
+                    // 아파트 디폴트 값 설정 (DB에 저장된 구조화된 aptName 최우선 사용)
                     const aptInput = document.getElementById('customer-apt');
-                    const match = currentEvent.title.match(/^.*?(차|아파트|마을|단지|오피스텔)/);
-                    const defaultApt = match ? match[0] : currentEvent.title.split(' ')[0];
+                    let defaultApt = currentEvent.aptName;
+                    if (!defaultApt) {
+                        defaultApt = currentEvent.title.replace(/(아파트|주방후드|환풍기|전동댐퍼|인덕션|수전|싱크볼|씽크볼|특가|이벤트|공동구매|교체|설치|핫써머|핫썸머|썸머|써머|여름|스멜|행사|할인|초특가|사전예약|모집|프로모션|패키지|혜택|지원|사은품|202\d).*$/i, '').trim();
+                        const words = defaultApt.split(/\s+/);
+                        if (words.length >= 2) {
+                            defaultApt = words.slice(1).join(' ');
+                        }
+                        if (!defaultApt) {
+                            const origWords = currentEvent.title.split(/\s+/);
+                            defaultApt = origWords.length >= 2 ? origWords[1] : origWords[0];
+                        }
+                    }
                     aptInput.value = defaultApt + " ";
                     aptInput.setAttribute('data-default', defaultApt + " ");
+                    const hintEl = document.getElementById('apt-hint-text');
+                    if(hintEl) {
+                        hintEl.innerHTML = `💡 동과 호수를 이어서 적어주세요 (예: 101동 102호).`;
+                    }
 
                     const eventProducts = [...(currentEvent.mainProducts || []), ...(currentEvent.addonProducts || [])];
                     const prodIds = eventProducts.map(p => p.id);
@@ -608,10 +703,21 @@
             
             productsToRender.forEach(prod => {
                 const duration = prod.duration || 60; // 값이 없으면 기본 60분
+                const isFan = prod.name.includes('환풍기') || prod.name.includes('티오람') || prod.name.includes('댐퍼') || prod.name.includes('제로크');
+                let qtyHtml = '';
+                if(isFan) {
+                    qtyHtml = `
+                        <select class="prod-qty" style="margin-left:auto; padding: 4px 8px; border-radius: 4px; border: 1px solid #555; background-color: #222; color: white; font-size: 14px;" onclick="event.stopPropagation()" onchange="toggleProdStyle(this.closest('label'))">
+                            <option value="1대">1대</option>
+                            <option value="2대">2대</option>
+                        </select>
+                    `;
+                }
                 listDiv.innerHTML += `
                     <label class="checkbox-label" onclick="toggleProdStyle(this)">
                         <input type="checkbox" name="v2-prod" value="${prod.name}" data-time="${duration}">
-                        ${prod.name} <span style="font-size: 11px; margin-left: 6px; color:#aaa;">(${duration}분)</span>
+                        <span>${prod.name} <span style="font-size: 11px; margin-left: 6px; color:#aaa;">(${duration}분)</span></span>
+                        ${qtyHtml}
                     </label>
                 `;
             });
@@ -637,8 +743,7 @@
 
         // 초기 실행
         renderCalendar();
-    </script>
-    <script>
+
         // UI Interaction
         window.toggleProdStyle = function(labelEl) {
             const checkbox = labelEl.querySelector('input[type="checkbox"]');
@@ -654,7 +759,12 @@
                 // 총 시간 재계산
                 let totalDuration = 0;
                 document.querySelectorAll('input[name="v2-prod"]:checked').forEach(box => {
-                    totalDuration += parseInt(box.getAttribute('data-time') || '0');
+                    let duration = parseInt(box.getAttribute('data-time') || '0');
+                    const qtySelect = box.closest('label').querySelector('.prod-qty');
+                    if(qtySelect) {
+                        duration *= parseInt(qtySelect.value);
+                    }
+                    totalDuration += duration;
                 });
                 
                 const durationInfo = document.getElementById('duration-info');
@@ -668,6 +778,363 @@
                 
             }, 10);
         }
+
+        // 관리자 시간 조정 및 SMS 모달 제어
+        window.currentAdjSlots = [];
+        window.currentAdjData = null;
+        window.currentAdjDate = "";
+
+        window.openAdminAdjustModal = function(slots, data, dateStr) {
+            window.currentAdjSlots = [...(slots || [])].sort();
+            window.currentAdjData = data || {};
+            window.currentAdjDate = dateStr || '';
+
+            const cInfo = (data && data.customerInfo) ? data.customerInfo : {};
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = val;
+                    else el.innerText = val;
+                }
+            };
+            setVal('adj-customer-apt', cInfo.apt || '');
+            setVal('adj-customer-phone', cInfo.phone || '');
+            
+            let itemsStr = "";
+            if (Array.isArray(cInfo.items)) {
+                itemsStr = cInfo.items.join(', ');
+            } else if (cInfo.items) {
+                itemsStr = String(cInfo.items);
+            }
+            setVal('adj-customer-items', itemsStr);
+            setVal('adj-customer-notes', cInfo.notes || '');
+            document.getElementById('adj-date-str').value = dateStr || '';
+            document.getElementById('adj-res-id').value = (data && data.reservationId) ? data.reservationId : '';
+
+            // 3가지 예약 경로 배지 표시 (단어 자동 인지 판별식 강화 및 레거시 데이터 안전 변환)
+            const resType = (data && data.type) ? data.type : "";
+            const notesText = String(cInfo.notes || "").toLowerCase();
+            const aptText = String(cInfo.apt || "").toLowerCase();
+            let badgeHtml = "";
+            if (resType === "test" || notesText.includes("테스트") || aptText.includes("테스트")) {
+                badgeHtml = `<span style="background:#8b5cf6; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">🧪 테스트 예약</span>`;
+            } else if (resType === "admin_phone" || resType === "phone" || resType === "admin" || notesText.includes("통화") || notesText.includes("전화") || notesText.includes("협의") || notesText.includes("관리자") || aptText.includes("통화") || aptText.includes("전화")) {
+                badgeHtml = `<span style="background:#f97316; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">📞 통화협의 관리자 예약</span>`;
+            } else {
+                badgeHtml = `<span style="background:#3b82f6; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">🌐 온라인 랜딩페이지 예약</span>`;
+            }
+            const badgeEl = document.getElementById('adj-source-badge');
+            if (badgeEl) badgeEl.innerHTML = badgeHtml;
+
+            renderAdjustSlots();
+            document.getElementById('admin-adjust-modal').style.display = 'flex';
+        };
+
+        window.MASTER_TIME_SLOTS = [
+            "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", 
+            "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", 
+            "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", 
+            "17:00", "17:30", "18:00", "18:30", "19:00"
+        ];
+
+        window.renderAdjustSlots = function() {
+            window.currentAdjSlots.sort();
+            document.getElementById('adj-slots-display').innerText = window.currentAdjSlots.join(', ');
+            
+            // 30분 단위 시간 계산 (기본 1개 슬롯 = 30분)
+            let totalMin = window.currentAdjSlots.length * 30;
+            if (window.currentAdjSlots.length >= 2) {
+                const first = window.currentAdjSlots[0].split(':').map(Number);
+                const last = window.currentAdjSlots[window.currentAdjSlots.length - 1].split(':').map(Number);
+                const diffMin = (last[0] * 60 + last[1]) - (first[0] * 60 + first[1]) + 30;
+                if (diffMin > 0) totalMin = diffMin;
+            }
+            const h = Math.floor(totalMin / 60);
+            const m = totalMin % 60;
+            let timeStr = "";
+            if (h > 0) timeStr += `${h}시간 `;
+            if (m > 0) timeStr += `${m}분`;
+            if (!timeStr) timeStr = "30분";
+            
+            document.getElementById('adj-duration-text').innerText = `예상: ${timeStr} (${window.currentAdjSlots.length}칸)`;
+        };
+
+        window.adjustSlotHours = function(delta) {
+            // delta: -1 이면 30분 줄이기, 1 이면 30분 늘리기
+            if (delta === -1) {
+                if (window.currentAdjSlots.length <= 1) {
+                    alert("최소 1개 칸(30분~1시간) 이상은 유지되어야 합니다.");
+                    return;
+                }
+                window.currentAdjSlots.pop();
+                renderAdjustSlots();
+            } else if (delta === 1) {
+                window.currentAdjSlots.sort();
+                const lastTime = window.currentAdjSlots[window.currentAdjSlots.length - 1];
+                const idx = window.MASTER_TIME_SLOTS.indexOf(lastTime);
+                
+                let nextTimeStr = "";
+                if (idx !== -1 && idx + 1 < window.MASTER_TIME_SLOTS.length) {
+                    nextTimeStr = window.MASTER_TIME_SLOTS[idx + 1];
+                } else {
+                    let [h, m] = lastTime.split(':').map(Number);
+                    m += 30;
+                    if (m >= 60) { h += 1; m -= 60; }
+                    if (h >= 19) {
+                        alert("19:00 영업 종료 시간을 초과하여 늘릴 수 없습니다.");
+                        return;
+                    }
+                    nextTimeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                }
+
+                if (nextTimeStr >= "19:00") {
+                    alert("19:00 영업 종료 시간을 초과하여 늘릴 수 없습니다.");
+                    return;
+                }
+                
+                const dayReservations = window.reservationsDB[window.currentAdjDate] || {};
+                const targetSlot = dayReservations[nextTimeStr];
+                
+                if (targetSlot && targetSlot.status && targetSlot.reservationId !== (window.currentAdjData.reservationId || '')) {
+                    alert(`${nextTimeStr} 슬롯에 이미 다른 예약이나 차단 일정이 있어 30분 연장이 불가합니다.`);
+                    return;
+                }
+                window.currentAdjSlots.push(nextTimeStr);
+                renderAdjustSlots();
+            }
+        };
+
+        window.saveAdjustedSlots = function() {
+            const dateStr = window.currentAdjDate;
+            const rId = window.currentAdjData.reservationId || 'res_' + Date.now();
+            const dayReservations = window.reservationsDB[dateStr] || {};
+            
+            // 기존에 이 rId를 가지고 있던 슬롯 전부 찾기
+            const oldSlots = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
+            
+            let updates = {};
+            // 기존 슬롯들 중 새로 선택된 currentAdjSlots에 없으면 null(초기화)
+            oldSlots.forEach(t => {
+                if (!window.currentAdjSlots.includes(t)) {
+                    updates[`reservations/${dateStr}/${t}`] = null;
+                }
+            });
+            
+            // 새 슬롯들 confirmed 저장
+            window.currentAdjSlots.forEach(t => {
+                updates[`reservations/${dateStr}/${t}`] = {
+                    ...window.currentAdjData,
+                    status: "confirmed",
+                    reservationId: rId,
+                    timestamp: Date.now()
+                };
+            });
+            
+            const execUpdate = window.update || update;
+            const execRef = window.ref || ref;
+            const targetDb = window.db || db;
+
+            execUpdate(execRef(targetDb), updates).then(() => {
+                alert("📍 일정이 성공적으로 조정되고 최종 확정되었습니다!");
+                closeAdjustModal();
+            }).catch(e => {
+                alert("저장 실패: " + e.message);
+            });
+        };
+
+        window.deleteReservation = function() {
+            if(!confirm("이 일정을 완전히 삭제(취소)하시겠습니까?")) return;
+            const dateStr = window.currentAdjDate;
+            const rId = window.currentAdjData.reservationId || '';
+            const dayReservations = window.reservationsDB[dateStr] || {};
+            const oldSlots = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
+            
+            let updates = {};
+            oldSlots.forEach(t => { updates[`reservations/${dateStr}/${t}`] = null; });
+            const execUpdate = window.update || update;
+            const execRef = window.ref || ref;
+            const targetDb = window.db || db;
+
+            execUpdate(execRef(targetDb), updates).then(() => {
+                alert("🗑️ 예약이 삭제되었습니다.");
+                closeAdjustModal();
+            });
+        };
+
+        window.saveCustomerInfo = function() {
+            if(!confirm("고객 정보(동/호수, 연락처, 상품, 메모)를 변경하시겠습니까?")) return;
+            const dateStr = window.currentAdjDate;
+            const rId = window.currentAdjData.reservationId || '';
+            const dayReservations = window.reservationsDB[dateStr] || {};
+            const targetSlots = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
+            
+            const getVal = id => {
+                const el = document.getElementById(id);
+                return el ? (el.value !== undefined ? el.value : el.innerText) : '';
+            };
+            
+            const newApt = getVal('adj-customer-apt').trim();
+            const newPhone = getVal('adj-customer-phone').trim();
+            const newItemsStr = getVal('adj-customer-items').trim();
+            const newNotes = getVal('adj-customer-notes').trim();
+            
+            const newItems = newItemsStr.split(',').map(s => s.trim()).filter(Boolean);
+            
+            const updatedCustomerInfo = {
+                ...(window.currentAdjData.customerInfo || {}),
+                apt: newApt,
+                phone: newPhone,
+                items: newItems.length > 0 ? newItems : [newItemsStr],
+                notes: newNotes
+            };
+            
+            window.currentAdjData.customerInfo = updatedCustomerInfo;
+            
+            let updates = {};
+            targetSlots.forEach(t => {
+                updates[`reservations/${dateStr}/${t}/customerInfo`] = updatedCustomerInfo;
+            });
+            
+            const execUpdate = window.update || update;
+            const execRef = window.ref || ref;
+            const targetDb = window.db || db;
+
+            execUpdate(execRef(targetDb), updates).then(() => {
+                alert("✅ 고객 정보(동·호수 및 신청제품)가 성공적으로 변경되었습니다!");
+            }).catch(e => {
+                alert("저장 실패: " + e.message);
+            });
+        };
+
+        window.saveToPhoneContacts = function() {
+            const cInfo = window.currentAdjData.customerInfo || {};
+            const apt = cInfo.apt || "고객";
+            const phone = (cInfo.phone || "").replace(/[^0-9]/g, '');
+            const items = (cInfo.items || []).join(', ') || "신청상품";
+            const notes = cInfo.notes || "";
+            
+            const vcard = [
+                "BEGIN:VCARD",
+                "VERSION:3.0",
+                `FN:${apt}`,
+                `TEL;TYPE=CELL:${phone}`,
+                `NOTE:신청상품: ${items} / 메모: ${notes}`,
+                "END:VCARD"
+            ].join("\r\n");
+            
+            const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.setAttribute('download', `${apt}.vcf`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        };
+
+        window.closeAdjustModal = function() {
+            document.getElementById('admin-adjust-modal').style.display = 'none';
+        };
+
+        window.sendSms = function(type) {
+            const getVal = id => {
+                const el = document.getElementById(id);
+                return el ? (el.value !== undefined && el.value !== '' ? el.value : el.innerText) : '';
+            };
+            const apt = getVal('adj-customer-apt') || '';
+            const phone = getVal('adj-customer-phone') || '';
+            const items = getVal('adj-customer-items') || '';
+            const slotsText = document.getElementById('adj-slots-display').innerText || '';
+            const dateStr = document.getElementById('adj-date-str').value || '';
+            
+            const d = new Date(dateStr);
+            const days = ['일','월','화','수','목','금','토'];
+            const dateFormatted = `${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;
+            const startTime = slotsText.split(',')[0] || '';
+            
+            let body = "";
+            if(type === 'receipt') {
+                body = `안녕하세요?\n하츠 접수 확인입니다.\n\n${apt}\n\n설치 희망일시 : ${dateFormatted} ${startTime}\n\n신청제품 : ${items}\n특기사항 : \n\n📍 일정이 검토 후 확정되면 확정 문자를 다시 보내드립니다.\n\n감사합니다~\n담당 010-2886-5086`;
+            } else if(type === 'confirm') {
+                body = `안녕하세요?\n하츠 설치예약(확정) 안내입니다.\n\n${apt}\n\n도착시간 : ${dateFormatted} ${startTime}\n\n신청제품 : ${items}\n특기사항 : \n\n감사합니다~\n담당 010-2886-5086`;
+            } else if(type === 'change') {
+                body = `안녕하세요?\n하츠 설치예약(변경) 안내입니다.\n\n${apt}\n\n도착시간 : ${dateFormatted} ${startTime}\n\n신청제품 : ${items}\n특기사항 : \n\n감사합니다~\n담당 010-2886-5086`;
+            } else if(type === 'missing') {
+                body = `안녕하세요?\n하츠 접수안내 및 (동호수)요청입니다.\n📍누락 데이터 : 동 호수\n\n접수데이터 ----\n${apt}\n\n설치 희망일시 : ${dateFormatted} ${startTime}\n\n신청제품 : ${items}\n\n📍전화나 문자로 동호수를 알려주세요.\n접수안내 문자를 다시 보내드리겠습니다.\n\n감사합니다~\n담당 010-2886-5086`;
+            }
+            
+            window.location.href = `sms:${phone}?body=${encodeURIComponent(body)}`;
+        };
     </script>
-</body>
+
+    <!-- 관리자 시간 조정 및 4대 SMS 모달 -->
+    <div id="admin-adjust-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#1e1e20; width:90%; max-width:480px; padding:24px; border-radius:12px; border:1px solid #444; color:#fff; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+            <div id="adj-source-badge" style="margin-bottom:12px;"></div>
+            <h3 style="margin-top:0; color:#c9ff00; border-bottom:1px solid #333; padding-bottom:12px; font-size:18px;">⚙️ 통합 예약 제어 패널</h3>
+            <input type="hidden" id="adj-res-id">
+            <input type="hidden" id="adj-date-str">
+            
+            <div style="background:#111; padding:14px; border-radius:8px; margin-bottom:16px; border:1px solid #333;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="font-size:13px; color:#c9ff00; font-weight:bold;">👤 고객 접수 정보 (동·호수/제품 자유 수정)</div>
+                    <button class="btn" style="background:#3b82f6; color:#fff; padding:6px 12px; font-size:12px; font-weight:bold; border-radius:4px; border:none; cursor:pointer;" onclick="saveCustomerInfo()">💾 정보수정 저장</button>
+                </div>
+                <div style="display:grid; gap:8px;">
+                    <div>
+                        <label style="font-size:11px; color:#aaa;">아파트 / 동·호수</label>
+                        <input type="text" id="adj-customer-apt" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px; font-weight:bold;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; color:#aaa;">연락처 (하이픈 제외 숫자만 등)</label>
+                        <input type="text" id="adj-customer-phone" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#10b981; border-radius:4px; font-size:14px;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; color:#aaa;">신청 제품</label>
+                        <input type="text" id="adj-customer-items" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#eed37f; border-radius:4px; font-size:13px; font-weight:bold;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; color:#aaa;">메모 / 특기사항</label>
+                        <input type="text" id="adj-customer-notes" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#ccc; border-radius:4px; font-size:12px;">
+                    </div>
+                </div>
+            </div>
+
+            <div style="background:#2a2a2c; padding:16px; border-radius:8px; margin-bottom:16px; border:1px solid #444;">
+                <div style="color:#c9ff00; font-weight:bold; font-size:14px; margin-bottom:8px;">【 1단계: 시공 팀장 실제 배정 시간 조정 】</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-weight:bold; font-size:14px;">⏰ 소요 시간 조정 (30분 단위)</span>
+                    <span style="color:#eed37f; font-weight:bold; font-size:14px;" id="adj-duration-text">총 0분</span>
+                </div>
+                <div style="font-size:15px; font-weight:bold; color:#fff; background:#111; padding:10px 14px; border-radius:6px; margin-bottom:12px; text-align:center; border:1px dashed #555;" id="adj-slots-display">
+                    -
+                </div>
+                <div style="display:flex; gap:8px; margin-bottom:12px;">
+                    <button class="btn" style="flex:1; background:#ef4444; color:white; padding:10px; font-weight:bold; border-radius:6px; border:none; cursor:pointer;" onclick="adjustSlotHours(-1)">➖ 30분 줄이기</button>
+                    <button class="btn" style="flex:1; background:#3b82f6; color:white; padding:10px; font-weight:bold; border-radius:6px; border:none; cursor:pointer;" onclick="adjustSlotHours(1)">➕ 30분 늘리기</button>
+                </div>
+                <button class="btn" style="width:100%; background:#c9ff00; color:#000; font-weight:bold; padding:12px; border-radius:6px; border:none; cursor:pointer; font-size:15px;" onclick="saveAdjustedSlots()">🟢 시스템 예약 확정 저장 (달력 반영)</button>
+            </div>
+
+            <div style="background:#111; padding:14px; border-radius:8px; margin-bottom:20px; border:1px solid #333;">
+                <div style="font-weight:bold; color:#eed37f; margin-bottom:10px; font-size:14px;">【 2단계: 폰 주소록 저장 ➡️ 문자 발송 】</div>
+                
+                <button class="btn" style="width:100%; background:#8b5cf6; color:#fff; font-weight:bold; padding:12px; border-radius:6px; border:none; cursor:pointer; margin-bottom:12px; font-size:14px;" onclick="saveToPhoneContacts()">👤 1초 폰 연락처(주소록) 등록하기</button>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button class="btn" style="background:#374151; color:#fff; padding:10px 8px; font-size:13px; border-radius:6px; border:none; cursor:pointer; text-align:left;" onclick="sendSms('receipt')">📨 ① 접수 확인</button>
+                    <button class="btn" style="background:#10b981; color:#fff; padding:10px 8px; font-size:13px; font-weight:bold; border-radius:6px; border:none; cursor:pointer; text-align:left;" onclick="sendSms('confirm')">📍 ② 확정 문자</button>
+                    <button class="btn" style="background:#f59e0b; color:#fff; padding:10px 8px; font-size:13px; border-radius:6px; border:none; cursor:pointer; text-align:left;" onclick="sendSms('change')">🔄 ③ 일정 변경</button>
+                    <button class="btn" style="background:#ef4444; color:#fff; padding:10px 8px; font-size:13px; border-radius:6px; border:none; cursor:pointer; text-align:left;" onclick="sendSms('missing')">⚠️ ④ 동호수 요청</button>
+                </div>
+                <div style="font-size:11px; color:#888; margin-top:8px;">💡 클릭 시 고객 정보가 작성된 폰 문자 앱이 열립니다! 통화 협의 시 ②번, 변경 시 ③번을 발송하세요.</div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <button style="background:transparent; color:#ef4444; border:1px solid #ef4444; padding:8px 12px; border-radius:6px; font-size:12px; cursor:pointer;" onclick="deleteReservation()">🗑️ 예약 취소(삭제)</button>
+                <button class="btn" style="background:#444; color:#fff; padding:8px 16px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;" onclick="closeAdjustModal()">🚪 닫기</button>
+            </div>
+        </div>
+    </div>
 </html>

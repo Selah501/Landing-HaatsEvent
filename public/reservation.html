@@ -39,13 +39,39 @@
                     </div>
                 </div>
 
-                <div class="input-group" style="display: flex; flex-direction: column; gap: 12px;">
-                    <input type="text" id="apt-input" placeholder="[아파트 동/호수] 예: 101동 102호">
-                    <input type="text" id="phone-input" placeholder="[연락처] 010-0000-0000">
+                <div class="form-fields-container" style="margin-bottom: 24px;">
+                    <!-- 아파트 동/호수 입력 -->
+                    <div class="form-field-item">
+                        <div class="form-field-header">
+                            <label class="form-field-label" for="apt-input">🏢 아파트 동·호수</label>
+                            <span class="form-field-badge">✎ 입력하기</span>
+                        </div>
+                        <div class="form-field-input-box">
+                            <input type="text" id="apt-input" placeholder="예: 101동 102호">
+                        </div>
+                        <div class="form-field-hint">💡 동과 호수를 이어서 적어주세요 (예: 101동 102호).</div>
+                    </div>
+
+                    <!-- 휴대폰 번호 입력 -->
+                    <div class="form-field-item">
+                        <div class="form-field-header">
+                            <label class="form-field-label" for="phone-input">📱 휴대폰 번호</label>
+                            <span class="form-field-badge">✎ 입력하기</span>
+                        </div>
+                        <div class="form-field-input-box">
+                            <input type="text" id="phone-input" value="010-" placeholder="예: 010-1234-5678">
+                        </div>
+                        <div class="form-field-hint">💡 연락 받으실 휴대폰 번호를 이어서 적어주세요.</div>
+                    </div>
                     
-                    <div style="position: relative;">
-                        <input type="date" id="date-input" style="width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #444; background-color: #222; color: white; font-size: 15px; box-sizing: border-box;" onchange="updateDateDisplay()">
-                        <div id="date-display" style="position: absolute; right: 14px; top: 14px; color: var(--color-interactive-lime); font-weight: bold; pointer-events: none;"></div>
+                    <div class="form-field-item" style="margin-bottom: 0;">
+                        <div class="form-field-header">
+                            <label class="form-field-label" for="date-input">📅 시공 희망일 (선택)</label>
+                        </div>
+                        <div style="position: relative; margin-top: 4px;">
+                            <input type="date" id="date-input" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background-color: #222; color: white; font-size: 15px; box-sizing: border-box;" onchange="updateDateDisplay()">
+                            <div id="date-display" style="position: absolute; right: 14px; top: 12px; color: var(--color-interactive-lime); font-weight: bold; pointer-events: none;"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -102,6 +128,25 @@
 
             if (currentEvent) {
                 document.getElementById('event-title-display').innerText = currentEvent.title;
+                
+                // 아파트 디폴트 값 설정 (지역명 및 이벤트/행사 키워드 제거하여 아파트명만 추출)
+                const aptInput = document.getElementById('apt-input');
+                if (aptInput) {
+                    let defaultApt = currentEvent.aptName;
+                    if (!defaultApt) {
+                        defaultApt = currentEvent.title.replace(/(아파트|주방후드|환풍기|전동댐퍼|인덕션|수전|싱크볼|씽크볼|특가|이벤트|공동구매|교체|설치|핫써머|핫썸머|썸머|써머|여름|스멜|행사|할인|초특가|사전예약|모집|프로모션|패키지|혜택|지원|사은품|202\d).*$/i, '').trim();
+                        const words = defaultApt.split(/\s+/);
+                        if (words.length >= 2) {
+                            defaultApt = words.slice(1).join(' ');
+                        }
+                        if (!defaultApt) {
+                            const origWords = currentEvent.title.split(/\s+/);
+                            defaultApt = origWords.length >= 2 ? origWords[1] : origWords[0];
+                        }
+                    }
+                    aptInput.value = defaultApt + " ";
+                    aptInput.setAttribute('data-default', defaultApt + " ");
+                }
                 
                 const productsContainer = document.getElementById('products-container');
                 const allProducts = [...(currentEvent.mainProducts || []), ...(currentEvent.addonProducts || [])];

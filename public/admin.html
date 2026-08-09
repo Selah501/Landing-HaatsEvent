@@ -133,10 +133,28 @@
             <button onclick="addMasterRow()">+ 새 상품 추가</button>
         </div>
         
+        
+        <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+            <select id="master-category-filter" style="padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="renderMasterList()">
+                <option value="ALL">전체 보기 (느릴 수 있음)</option>
+                <option value="하츠후드 엘리카" selected>하츠후드 엘리카</option>
+                <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
+                <option value="하츠후드 데코">하츠후드 데코</option>
+                <option value="하츠후드 시스템">하츠후드 시스템</option>
+                <option value="하츠 전기레인지">하츠 전기레인지</option>
+                <option value="하츠 가스레인지">하츠 가스레인지</option>
+                <option value="하츠 수전빌트인">하츠 수전빌트인</option>
+                <option value="하츠 씽크볼">하츠 씽크볼</option>
+                <option value="하츠 기타빌트인">하츠 기타빌트인</option>
+                <option value="기타카테고리">기타카테고리</option>
+            </select>
+            <span style="font-size: 13px; color: #6b7280;">* 카테고리를 선택하여 조회하세요.</span>
+        </div>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
                     <tr>
+                        <th style="min-width: 80px;">분류</th>
                         <th width="12%">상품명</th>
                         <th width="12%">모델/유형</th>
                         <th width="15%">기능/특징</th>
@@ -165,10 +183,28 @@
             <button onclick="openEventModal()">+ 신규 현장 등록</button>
         </div>
         
+        
+        <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+            <select id="master-category-filter" style="padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="renderMasterList()">
+                <option value="ALL">전체 보기 (느릴 수 있음)</option>
+                <option value="하츠후드 엘리카" selected>하츠후드 엘리카</option>
+                <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
+                <option value="하츠후드 데코">하츠후드 데코</option>
+                <option value="하츠후드 시스템">하츠후드 시스템</option>
+                <option value="하츠 전기레인지">하츠 전기레인지</option>
+                <option value="하츠 가스레인지">하츠 가스레인지</option>
+                <option value="하츠 수전빌트인">하츠 수전빌트인</option>
+                <option value="하츠 씽크볼">하츠 씽크볼</option>
+                <option value="하츠 기타빌트인">하츠 기타빌트인</option>
+                <option value="기타카테고리">기타카테고리</option>
+            </select>
+            <span style="font-size: 13px; color: #6b7280;">* 카테고리를 선택하여 조회하세요.</span>
+        </div>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
                     <tr>
+                        <th style="min-width: 80px;">분류</th>
                         <th width="8%">상태</th>
                         <th width="22%">현장명</th>
                         <th width="20%">이벤트 기간</th>
@@ -209,10 +245,28 @@
             <p style="margin: 0; color: #6b7280; font-size:13px;">위임된 리드 및 고객 직접 접수 내역</p>
         </div>
         
+        
+        <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+            <select id="master-category-filter" style="padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="renderMasterList()">
+                <option value="ALL">전체 보기 (느릴 수 있음)</option>
+                <option value="하츠후드 엘리카" selected>하츠후드 엘리카</option>
+                <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
+                <option value="하츠후드 데코">하츠후드 데코</option>
+                <option value="하츠후드 시스템">하츠후드 시스템</option>
+                <option value="하츠 전기레인지">하츠 전기레인지</option>
+                <option value="하츠 가스레인지">하츠 가스레인지</option>
+                <option value="하츠 수전빌트인">하츠 수전빌트인</option>
+                <option value="하츠 씽크볼">하츠 씽크볼</option>
+                <option value="하츠 기타빌트인">하츠 기타빌트인</option>
+                <option value="기타카테고리">기타카테고리</option>
+            </select>
+            <span style="font-size: 13px; color: #6b7280;">* 카테고리를 선택하여 조회하세요.</span>
+        </div>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
                     <tr>
+                        <th style="min-width: 80px;">분류</th>
                         <th width="15%">날짜/시간</th>
                         <th width="10%">구분</th>
                         <th width="15%">고객명(아파트)</th>
@@ -229,9 +283,47 @@
         </div>
     </div>
 
+    <!-- 탭 4: 담당자 관리 -->
+    <div id="tab-managers" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <p style="margin: 0; color: #6b7280;">담당자 관리 (현장에 배정될 영업 담당자 목록)</p>
+            <button onclick="addManagerRow()">+ 담당자 추가</button>
+        </div>
+        
+        <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+            <select id="master-category-filter" style="padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="renderMasterList()">
+                <option value="ALL">전체 보기 (느릴 수 있음)</option>
+                <option value="하츠후드 엘리카" selected>하츠후드 엘리카</option>
+                <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
+                <option value="하츠후드 데코">하츠후드 데코</option>
+                <option value="하츠후드 시스템">하츠후드 시스템</option>
+                <option value="하츠 전기레인지">하츠 전기레인지</option>
+                <option value="하츠 가스레인지">하츠 가스레인지</option>
+                <option value="하츠 수전빌트인">하츠 수전빌트인</option>
+                <option value="하츠 씽크볼">하츠 씽크볼</option>
+                <option value="하츠 기타빌트인">하츠 기타빌트인</option>
+                <option value="기타카테고리">기타카테고리</option>
+            </select>
+            <span style="font-size: 13px; color: #6b7280;">* 카테고리를 선택하여 조회하세요.</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 80px;">분류</th>
+                        <th width="30%">담당자명</th>
+                        <th width="40%">전화번호</th>
+                        <th width="30%">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="manager-tbody">
+                    <!-- JS 렌더링 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
-
-
 
 <!-- 통합 예약 관리 및 문자발송 모달 -->
 <div id="unified-res-modal" class="modal-overlay" style="display:none; z-index:9999; align-items:center; justify-content:center; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85);">
@@ -287,8 +379,6 @@
             <button class="btn" style="background:#444; color:#fff; padding:8px 20px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;" onclick="closeUnifiedModal()">🚪 닫기</button>
         </div>
     </div>
-</div>
-
 </div>
 
 <!-- Event Modal -->
@@ -425,7 +515,7 @@
                         details: p.details
                     }));
                     if(document.getElementById('tab-master').classList.contains('active')) {
-                        renderMasterList();
+                        window.renderMasterList();
                     }
                 } else if (prodError) {
                     console.error('Supabase 상품 로드 실패:', prodError.message);
@@ -448,7 +538,7 @@
                 document.getElementById('db-status').innerHTML = '🟢 실시간 연동 중';
                 
                 if(document.getElementById('tab-master').classList.contains('active')) {
-                    renderMasterList();
+                    window.renderMasterList();
                 } else if(document.getElementById('tab-events').classList.contains('active')) {
                     renderEventList();
                 } else if(document.getElementById('tab-consultations').classList.contains('active')) {
@@ -490,7 +580,7 @@
     // 서버 저장 함수
     window.syncToServer = function() {
         document.getElementById('db-status').innerHTML = '🟡 저장 중...';
-        // set(ref(db, '/products'), window.currentProducts); // Now handled by individual save buttons for Supabase
+        set(ref(db, '/products'), window.currentProducts); // Now handled by individual save buttons for Supabase
         set(ref(db, '/events'), window.currentData);
         set(ref(db, '/managers'), window.currentManagers).then(() => {
             document.getElementById('db-status').innerHTML = '🟢 실시간 연동 중';
@@ -505,7 +595,7 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         element.classList.add('active');
         document.getElementById(tabId).classList.add('active');
-        if(tabId === 'tab-master') renderMasterList();
+        if(tabId === 'tab-master') window.renderMasterList();
         if(tabId === 'tab-events') renderEventList();
         if(tabId === 'tab-consultations') {
             renderCRMGrid(window.currentCrmPending);
@@ -569,16 +659,26 @@
 
     // (Supabase 상품 로드는 initAdminAuth 콜백 내부로 이동됨)
 
-    window.renderMasterList = function() {
+        window.renderMasterList = function() {
         const tbody = document.getElementById('master-tbody');
         if(!tbody) return;
         tbody.innerHTML = '';
-        window.currentProducts.forEach((prod, idx) => {
+        const filterEl = document.getElementById('master-category-filter');
+        const filterVal = filterEl ? filterEl.value : '하츠후드 엘리카';
+        
+        let filteredProducts = window.currentProducts;
+        if (filterVal !== 'ALL') {
+            filteredProducts = window.currentProducts.filter(p => (p.category || '기타카테고리') === filterVal);
+        }
+        
+        filteredProducts.forEach((prod) => {
+            const idx = window.currentProducts.indexOf(prod);
             const applicableSites = getApplicableSites(prod.id);
             const siteNames = applicableSites.length > 0 ? applicableSites.join(', ') : '<span style="color:#9ca3af;">없음</span>';
             
             tbody.innerHTML += `
                 <tr id="m-row-${idx}">
+                    <td data-label="분류"><span style="font-size:12px; color:#4b5563;">${prod.category || '기타카테고리'}</span></td>
                     <td><input type="text" class="m-name" value="${prod.name}"></td>
                     <td><input type="text" class="m-model" value="${prod.model || ''}"></td>
                     <td><input type="text" class="m-features" value="${prod.features || ''}"></td>
@@ -588,12 +688,98 @@
                     <td><input type="text" class="m-link" value="${prod.detailLink || ''}" placeholder="./products/xxx.html"></td>
                     <td style="font-size: 13px;">${siteNames}</td>
                     <td style="text-align:center;">
-                        <button class="btn-primary" style="padding: 6px 12px; font-size:12px; margin-bottom: 4px; display:block; width:100%;" onclick="updateMasterRow(${idx})">수정(저장)</button>
+                        <button class="btn-info" style="padding: 6px 12px; font-size:12px; margin-bottom: 4px; display:block; width:100%;" onclick="openAssignModal('${prod.id}')">현장 배정</button>
                         <button class="btn-danger" style="padding: 6px 12px; font-size:12px; display:block; width:100%;" onclick="deleteMasterRow(${idx})">삭제</button>
                     </td>
                 </tr>
             `;
         });
+    }
+
+    window.addMasterRow = function() {
+        window.currentProducts.push({
+            id: 'p_' + Date.now(),
+            name: '', model: '', features: '', duration: '', remarks: '', defaultPriceText: '', detailLink: ''
+        });
+        window.renderMasterList();
+    }
+
+    window.deleteMasterRow = function(idx) {
+        if(confirm("정말 삭제하시겠습니까? (이 상품을 사용하는 현장이 있다면 그곳에서도 사라집니다)")) {
+            const id = window.currentProducts[idx].id;
+            window.currentData.forEach(ev => {
+                if(ev.mainProducts) ev.mainProducts = ev.mainProducts.filter(p => p.id !== id);
+                if(ev.addonProducts) ev.addonProducts = ev.addonProducts.filter(p => p.id !== id);
+            });
+            window.currentProducts.splice(idx, 1);
+            window.syncToServer();
+        }
+    }
+
+    window.saveMasterList = function() {
+        const rows = document.querySelectorAll('#master-tbody tr');
+        rows.forEach((row, idx) => {
+            window.currentProducts[idx].name = row.querySelector('.m-name').value;
+            window.currentProducts[idx].model = row.querySelector('.m-model').value;
+            window.currentProducts[idx].features = row.querySelector('.m-features').value;
+            const durVal = parseInt(row.querySelector('.m-duration').value);
+            window.currentProducts[idx].duration = isNaN(durVal) ? 0 : durVal;
+            window.currentProducts[idx].remarks = row.querySelector('.m-remarks').value;
+            window.currentProducts[idx].defaultPriceText = row.querySelector('.m-defaultPrice').value;
+            window.currentProducts[idx].detailLink = row.querySelector('.m-link').value;
+        });
+        window.syncToServer();
+        alert('서버에 저장되었습니다.');
+    }
+
+    window.openAssignModal = function(prodId) {
+        document.getElementById('assign-modal').style.display = 'flex';
+        document.getElementById('assign-prod-id').value = prodId;
+        const prod = window.currentProducts.find(p => p.id === prodId);
+        document.getElementById('assign-modal-title').innerText = `[${prod.name}] 현장 일괄 배정`;
+
+        const listDiv = document.getElementById('assign-list');
+        listDiv.innerHTML = '';
+        window.currentData.forEach((ev, evIdx) => {
+            const inMain = (ev.mainProducts || []).some(p => p.id === prodId);
+            const inAddon = (ev.addonProducts || []).some(p => p.id === prodId);
+            
+            listDiv.innerHTML += `
+                <div class="assignment-row">
+                    <strong style="font-size:14px; width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${ev.title}</strong>
+                    <div class="radio-group" style="display:flex;">
+                        <label><input type="radio" name="assign-${evIdx}" value="none" ${(!inMain && !inAddon) ? 'checked' : ''}> 미배정</label>
+                        <label><input type="radio" name="assign-${evIdx}" value="main" ${inMain ? 'checked' : ''}> 메인 상품</label>
+                        <label><input type="radio" name="assign-${evIdx}" value="addon" ${inAddon ? 'checked' : ''}> 부가 상품</label>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    window.closeAssignModal = function() {
+        document.getElementById('assign-modal').style.display = 'none';
+    }
+
+    window.saveAssignments = function() {
+        const prodId = document.getElementById('assign-prod-id').value;
+        
+        window.currentData.forEach((ev, evIdx) => {
+            const val = document.querySelector(`input[name="assign-${evIdx}"]:checked`).value;
+            
+            if(ev.mainProducts) ev.mainProducts = ev.mainProducts.filter(p => p.id !== prodId);
+            if(ev.addonProducts) ev.addonProducts = ev.addonProducts.filter(p => p.id !== prodId);
+
+            if(val === 'main') {
+                ev.mainProducts.push({ id: prodId, customText: '' });
+            } else if (val === 'addon') {
+                ev.addonProducts.push({ id: prodId, customText: '' });
+            }
+        });
+
+        window.closeAssignModal();
+        window.syncToServer();
+        alert('배정이 서버에 저장되었습니다.');
     }
 
     window.renderEventList = function() {
@@ -631,10 +817,45 @@
     window.endEvent = function(index) { window.currentData[index].status = 'ended'; window.syncToServer(); }
     window.activateEvent = function(index) { window.currentData[index].status = 'active'; window.syncToServer(); }
 
-    window.openEventModal = function(index = -1) {
+    window.closeEventModal = function() {
+        document.getElementById('event-modal').style.display = 'none';
+    }
+
+    window.saveEvent = function() {
+        const index = parseInt(document.getElementById('modal-index').value);
+        const title = document.getElementById('ev-title').value;
+        if(!title) { alert('현장명을 입력하세요'); return; }
+
+        const managerId = document.getElementById('ev-manager').value || '';
+        const priceText = document.getElementById('ev-price').value || '';
+        const periodText = document.getElementById('ev-period').value || '';
+
+        const evObj = {
+            id: index >= 0 ? window.currentData[index].id : 'site_' + Date.now(),
+            title: title,
+            priceText: priceText,
+            periodText: periodText,
+            managerId: managerId,
+            mainProducts: window._editMainProds || [],
+            addonProducts: window._editAddonProds || [],
+            status: index >= 0 ? window.currentData[index].status : 'active'
+        };
+
+        if (index >= 0) {
+            window.currentData[index] = evObj;
+        } else {
+            window.currentData.unshift(evObj);
+        }
+
+        window.closeEventModal();
+        window.syncToServer();
+        alert('서버에 반영되었습니다.');
+    }
+
+        window.openEventModal = function(index = -1) {
         document.getElementById('event-modal').style.display = 'flex';
         const isEdit = index >= 0;
-        document.getElementById('modal-title').innerText = isEdit ? '현장 수정' : '신규 현장 등록';
+        document.getElementById('modal-title').innerText = isEdit ? '현장 수정' : '신규 현장 추가';
         document.getElementById('modal-index').value = index;
 
         const ev = isEdit ? window.currentData[index] : { title: '', priceText: '', periodText: '', managerId: '', mainProducts: [], addonProducts: [] };
@@ -643,7 +864,7 @@
         document.getElementById('ev-price').value = ev.priceText || '';
         document.getElementById('ev-period').value = ev.periodText || '';
         
-        // 담당자 선택 렌더링
+        // 담당자 세팅
         const managerSelect = document.getElementById('ev-manager');
         if(managerSelect) {
             managerSelect.innerHTML = '<option value="">선택 안함</option>';
@@ -652,19 +873,30 @@
             });
         }
 
-        // 상품이 너무 많을 경우를 대비: 검색 드롭다운 방식으로 대체
+        // 상품을 카테고리별로 그룹화
+        const groupedProducts = window.currentProducts.reduce((acc, p) => {
+            const cat = p.category || '기타카테고리';
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(p);
+            return acc;
+        }, {});
+
+        let optionsHtml = '<option value="">-- 추가할 상품 선택 --</option>';
+        for (const [cat, prods] of Object.entries(groupedProducts)) {
+            optionsHtml += `<optgroup label="${cat}">`;
+            optionsHtml += prods.map(p => `<option value="${p.id}" data-name="${p.name}" data-price="${p.defaultPriceText||''}">${p.name}</option>`).join('');
+            optionsHtml += `</optgroup>`;
+        }
+
         const mainDiv = document.getElementById('modal-main-prods');
         const addonDiv = document.getElementById('modal-addon-prods');
         if(mainDiv) {
-            // 이미 선택된 상품 표시
             const selectedMain = (ev.mainProducts || []);
-            const selectedAddon = (ev.addonProducts || []);
             
             mainDiv.innerHTML = `
                 <div style="margin-bottom:8px;">
                     <select id="main-prod-add-select" style="width:70%; padding:6px; border:1px solid #d1d5db; border-radius:4px;">
-                        <option value="">-- 메인 상품 추가 --</option>
-                        ${window.currentProducts.map(p => `<option value="${p.id}" data-name="${p.name}" data-price="${p.defaultPriceText||''}">${p.name}</option>`).join('')}
+                        ${optionsHtml}
                     </select>
                     <button class="btn-info" style="padding:6px 12px; font-size:13px;" onclick="addMainProduct()">추가</button>
                 </div>
@@ -673,7 +905,7 @@
                         const prod = window.currentProducts.find(x=>x.id===p.id);
                         return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                             <span>${prod ? prod.name : p.id}</span>
-                            <input type="text" id="price-main-${p.id}" placeholder="현장가" value="${p.customText||''}" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+                            <input type="text" id="price-main-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
                             <button onclick="removeMainProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
                         </div>`;
                     }).join('')}
@@ -685,8 +917,7 @@
             addonDiv.innerHTML = `
                 <div style="margin-bottom:8px;">
                     <select id="addon-prod-add-select" style="width:70%; padding:6px; border:1px solid #d1d5db; border-radius:4px;">
-                        <option value="">-- 같이 바꾸면 좋은 상품 추가 --</option>
-                        ${window.currentProducts.map(p => `<option value="${p.id}" data-name="${p.name}" data-price="${p.defaultPriceText||''}">${p.name}</option>`).join('')}
+                        ${optionsHtml}
                     </select>
                     <button class="btn-info" style="padding:6px 12px; font-size:13px;" onclick="addAddonProduct()">추가</button>
                 </div>
@@ -695,16 +926,13 @@
                         const prod = window.currentProducts.find(x=>x.id===p.id);
                         return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                             <span>${prod ? prod.name : p.id}</span>
-                            <input type="text" id="price-addon-${p.id}" placeholder="현장가" value="${p.customText||''}" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+                            <input type="text" id="price-addon-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
                             <button onclick="removeAddonProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
                         </div>`;
                     }).join('')}
                 </div>
             `;
         }
-        // 임시 배열 초기화
-        window._editMainProds = [...(ev.mainProducts||[])];
-        window._editAddonProds = [...(ev.addonProducts||[])];
     }
 
     window.addMainProduct = function() {

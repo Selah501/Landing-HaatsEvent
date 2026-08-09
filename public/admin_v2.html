@@ -249,23 +249,41 @@
             font-family: inherit;
         }
         
-        /* Utility */
         .empty-state {
             text-align: center;
             padding: 40px;
             color: var(--color-silver-mist);
         }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div id="app" class="page-container view-pc">
         
         <nav class="header-actions">
-            <div style="font-weight: bold; font-size: 18px;">📋 현장 작업지시서</div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <!-- 탭 -->
+                <button id="nav-work" class="btn btn-primary" onclick="switchTab('work')" style="border-radius:20px; font-weight:bold;">🛠️ 작업지시 및 캘린더</button>
+                <button id="nav-crm" class="btn btn-secondary" onclick="window.location.href='admin.html?tab=consultations';" style="border-radius:20px; font-weight:bold; position:relative;">
+                    📞 통화 AI 및 웹 상담 현황 ➡
+                </button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <button class="btn" style="background:#e32652; color:#fff; border:none; border-radius:20px; font-weight:bold; cursor:pointer; font-size:12px;" onclick="window.open('https://app.notion.com/p/d2d409048b414028b2bf6f4a4b4bb880', '_blank')">
+                    📷 미디어 아카이브 열기
+                </button>
+                <!-- 로고 대체 타이틀 -->
+                <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1px;">HAATZ V2</h1>
+            </div>
+            
             <div style="display: flex; gap: 8px; align-items: center;">
-                <a href="./admin.html" style="color: white; text-decoration: none; font-size: 14px; background: #374151; padding: 6px 12px; border-radius: 6px;">⚙️ 기본관리자</a>
-                <a href="./erp.html" style="color: white; text-decoration: none; font-size: 14px; background: #10b981; padding: 6px 12px; border-radius: 6px;">📊 재무/장부</a>
+                <div id="nav-container"></div>
                 <div class="toggle-group">
                     <button class="toggle-btn active" id="btn-pc-view" onclick="setView('pc')">💻 PC</button>
                     <button class="toggle-btn" id="btn-mobile-view" onclick="setView('mobile')">📱 모바일</button>
@@ -273,7 +291,8 @@
             </div>
         </nav>
 
-        <div class="content-area">
+        <!-- 작업지시 탭 -->
+        <div id="tab-work" class="content-area">
             <div class="date-header">
                 <input type="date" id="date-picker" class="date-picker" onchange="loadData()">
                 <span id="date-display"></span>
@@ -287,6 +306,19 @@
 
             <div id="schedule-grid" class="schedule-grid">
                 <!-- JS Rendering -->
+            </div>
+        </div>
+
+        <!-- CRM 결재 대기판 탭 -->
+        <div id="tab-crm" class="content-area" style="display: none;">
+            <div class="date-header" style="justify-content: space-between;">
+                <div>
+                    <h3 style="margin:0; color:var(--color-interactive-lime);">🤖 AI 통화 요약 결재판</h3>
+                    <div style="font-size:12px; color:#aaa; margin-top:4px;">새로운 통화 녹음이 분석되어 결재를 기다립니다.</div>
+                </div>
+            </div>
+            <div id="crm-grid" class="schedule-grid" style="margin-top: 16px;">
+                <!-- CRM Rendering -->
             </div>
         </div>
     </div>
@@ -350,10 +382,13 @@
             <div class="form-group">
                 <label>결제 수단</label>
                 <select id="modal-pay-method" class="form-control">
-                    <option value="계좌이체">계좌이체</option>
+                    <option value="계좌이체(우리은행)">계좌이체(우리은행)</option>
+                    <option value="계좌이체(우리은행사업자)">계좌이체(우리은행사업자)</option>
+                    <option value="카카오뱅크(김용태)">카카오뱅크(김용태)</option>
+                    <option value="케이뱅크(현길영)">케이뱅크(현길영)</option>
                     <option value="현금">현금</option>
                     <option value="카드">카드결제 (현장)</option>
-                    <option value="선결제">선결제 완료</option>
+                    <option value="기타">기타</option>
                 </select>
             </div>
 
@@ -366,6 +401,7 @@
                 <button class="btn btn-secondary" onclick="closeModal()">취소</button>
                 <button class="btn btn-primary" onclick="saveReport()">보고서 저장</button>
             </div>
+        </div>
     </div>
 
     <!-- 고객 정보(동·호수/제품 등) 변경 모달 -->
@@ -398,10 +434,66 @@
         </div>
     </div>
 
+                <label style="color: #aaa; font-size: 12px;">요청 제품 및 기타 메모</label>
+                <textarea id="crm-approve-notes" class="form-control" rows="3" style="color: #eed37f;"></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeCrmApproveModal()">취소</button>
+                <button class="btn btn-primary" style="flex: 1; border: none; cursor: pointer;" onclick="saveCrmApprove()">✅ 캘린더에 확정</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 음성 보고 모달 (작업지시서용) -->
+    <div id="voice-report-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 400px; background:var(--color-deep-slate); padding:24px; border-radius:12px; border:1px solid #e32652; text-align: center;">
+            <h3 style="margin-top: 0; color: #fff; font-size: 18px;">🎤 AI 음성 작업 보고</h3>
+            <input type="hidden" id="voice-report-rid">
+            
+            <div style="margin: 30px 0;">
+                <button id="btn-record-toggle" style="width: 100px; height: 100px; border-radius: 50%; background: #e32652; color: #fff; font-size: 40px; border: 4px solid #ff4d6d; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; transition: 0.3s; animation: none;">
+                    🎙️
+                </button>
+                <div id="voice-status-text" style="margin-top: 20px; color: #aaa; font-size: 14px;">
+                    버튼을 누르고 말씀하세요.<br>예: "티오람 교체했고 현금 5만원 받았어"
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeVoiceReportModal()">취소</button>
+                <button class="btn" style="flex: 1; background: #10b981; color: #fff; border: none; cursor: pointer; font-weight: bold;" onclick="analyzeVoiceReport()">✨ AI 분석 시작</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 제품 매칭 승인 모달 (4단계 UI) -->
+    <div id="ai-match-modal" class="modal-overlay" style="display: none; z-index: 2000;">
+        <div class="modal-content" style="max-width: 350px; background:var(--color-deep-slate); padding:24px; border-radius:12px; border:1px solid var(--color-interactive-lime); text-align: center;">
+            <h3 style="margin-top: 0; color: #fff; font-size: 18px;">🤖 AI 제품 인식 성공!</h3>
+            <p style="color:#aaa; font-size:14px; margin-bottom: 20px;">이 제품을 시공하셨습니까?</p>
+            
+            <div style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <img id="ai-match-img" src="" style="width: 100%; max-height: 120px; object-fit: contain; margin-bottom: 10px; display: none; background: #fff; border-radius: 4px; padding: 4px;">
+                <div id="ai-match-name" style="color: var(--color-interactive-lime); font-weight: bold; font-size: 18px; margin-bottom: 5px;">제품명</div>
+                <div id="ai-match-model" style="color: #888; font-size: 13px;">모델명</div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn" style="background: var(--color-interactive-lime); color: #000; font-weight: bold; border: none; padding: 12px; cursor: pointer; font-size: 15px;" onclick="confirmAiMatch()">✅ 맞습니다 (DB 등록)</button>
+                <button class="btn btn-secondary" style="padding: 12px; font-size: 14px;" onclick="rejectAiMatch()">❌ 아닙니다 (기타 메모로 이동)</button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Firebase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, update, push, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
@@ -410,25 +502,31 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const functions = getFunctions(app);
+        const storage = getStorage(app);
         
         window.db = db;
         window.ref = ref;
         window.set = set;
         window.get = get;
         window.update = update;
+        window.storage = storage;
+        window.sRef = sRef;
+        window.uploadBytes = uploadBytes;
+        window.getDownloadURL = getDownloadURL;
         window.onValue = onValue;
         window.push = push;
         window.increment = increment;
+
+        // Supabase Initialization
+        const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
+        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Global
         window.currentData = {};
         window.groupedTasks = [];
         window.masterProducts = [];
-
-        // Initialize Supabase
-        const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
-        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Load master_products globally from Supabase
         (async () => {
@@ -436,7 +534,6 @@
                 const { data, error } = await window.supabaseClient.from('products').select('*');
                 if (data) {
                     window.masterProducts = data.map(p => ({
-                        id: p.id,
                         name: p.name,
                         model: p.model,
                         brandCategory: p.brand || p.category,
@@ -445,11 +542,9 @@
                         sellPrice: p.price_selling,
                         imageUrl: (p.details && p.details.level1 && p.details.level1.images && p.details.level1.images[0]) ? p.details.level1.images[0] : ''
                     }));
-                } else if (error) {
-                    console.error("Supabase fetch error:", error);
                 }
-            } catch(e) {
-                console.error("Supabase fetch exception:", e);
+            } catch (err) {
+                console.error("Failed to load products from Supabase:", err);
             }
         })();
 
@@ -469,6 +564,18 @@
                 container.classList.add('view-mobile');
                 btnMobile.classList.add('active');
                 btnPc.classList.remove('active');
+            }
+        };
+
+        // Tab Toggle (Only work tab remains in this view)
+        window.switchTab = function(tabName) {
+            document.getElementById('tab-work').style.display = 'block';
+            
+            const btnWork = document.getElementById('nav-work');
+            if (btnWork) {
+                btnWork.style.background = '#3b82f6';
+                btnWork.style.color = '#fff';
+                btnWork.style.border = 'none';
             }
         };
 
@@ -524,6 +631,248 @@
             });
         }
 
+        // CRM Data Loader
+        window.loadCRMData = function() {
+            const crmRef = ref(db, 'crm_pending');
+            onValue(crmRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                const keys = Object.keys(data);
+                
+                const badge = document.getElementById('crm-badge');
+                if (badge) {
+                    if (keys.length > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.innerText = keys.length;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+                
+                renderCRMGrid(data);
+            });
+        };
+        
+        // Start listening to CRM data on load
+        loadCRMData();
+        
+        window.deleteCRMItem = function(key) {
+            if(confirm('이 통화 요약을 삭제하시겠습니까? (스팸/불필요 통화)')) {
+                set(ref(db, `crm_pending/${key}`), null);
+            }
+        };
+
+        window.approveCRMItem = function(key) {
+            get(ref(db, `crm_pending/${key}`)).then(snap => {
+                const item = snap.val();
+                if (!item) return;
+                
+                document.getElementById('crm-approve-key').value = key;
+                
+                // Parse date if possible from booking_info (fallback to today)
+                let yyyy = today.getFullYear();
+                let mm = String(today.getMonth() + 1).padStart(2, '0');
+                let dd = String(today.getDate()).padStart(2, '0');
+                document.getElementById('crm-approve-date').value = `${yyyy}-${mm}-${dd}`;
+                document.getElementById('crm-approve-time').value = "10:00"; // default time
+                
+                document.getElementById('crm-approve-phone').value = item.contact_info || '';
+                document.getElementById('crm-approve-site').value = item.site_info || '';
+                document.getElementById('crm-approve-notes').value = 
+                    `[구매희망] ${item.purchase_info || '없음'}\n[요약] ${item.summary || ''}\n[답변/약속] ${item.promises || ''}`;
+                
+                document.getElementById('crm-approve-modal').style.display = 'flex';
+            });
+        };
+
+        window.closeCrmApproveModal = function() {
+            document.getElementById('crm-approve-modal').style.display = 'none';
+        };
+
+        window.saveCrmApprove = function() {
+            const key = document.getElementById('crm-approve-key').value;
+            const dateStr = document.getElementById('crm-approve-date').value;
+            const timeStr = document.getElementById('crm-approve-time').value;
+            const phone = document.getElementById('crm-approve-phone').value;
+            const site = document.getElementById('crm-approve-site').value;
+            const notes = document.getElementById('crm-approve-notes').value;
+            
+            if (!dateStr || !timeStr) {
+                alert('날짜와 시간을 입력해주세요.');
+                return;
+            }
+            
+            const rId = "crm_" + Date.now();
+            const resData = {
+                reservationId: rId,
+                status: 'confirmed',
+                type: 'ai_call',
+                customerInfo: {
+                    address: site,
+                    contact: phone,
+                    items: "상담 내역 참조",
+                    name: "AI 접수 고객",
+                    notes: notes
+                }
+            };
+            
+            // 캘린더에 예약 저장
+            set(ref(db, `reservations/${dateStr}/${timeStr}`), resData)
+            .then(() => {
+                // CRM pending에서 삭제
+                set(ref(db, `crm_pending/${key}`), null);
+                closeCrmApproveModal();
+                
+                alert('캘린더에 성공적으로 예약이 확정되었습니다!');
+                
+                // 모달 닫은 후 작업지시 탭으로 이동하고 해당 날짜 렌더링
+                switchTab('work');
+                document.getElementById('date-picker').value = dateStr;
+                loadData();
+            })
+            .catch(e => {
+                console.error(e);
+                alert('오류 발생: ' + e.message);
+            });
+        };
+
+        window.holdCRMItem = function(key) {
+            update(ref(db, `crm_pending/${key}`), { status: 'hold' });
+        };
+        
+        window.editCRMItem = function(key) {
+            get(ref(db, `crm_pending/${key}`)).then(snap => {
+                const item = snap.val();
+                if (!item) return;
+                
+                // 간단히 prompt로 연락처와 요약을 수정할 수 있게 제공 (또는 모달창 구현 가능하나 심플하게)
+                const newPhone = prompt('연락처를 수정하세요:', item.contact_info || '');
+                if (newPhone !== null) {
+                    update(ref(db, `crm_pending/${key}`), { contact_info: newPhone });
+                }
+            });
+        };
+
+        function renderCRMGrid(data) {
+            const grid = document.getElementById('crm-grid');
+            grid.innerHTML = '';
+            
+            // 일반 대기와 보류(hold) 분리 후 정렬 (일반이 위, 보류가 아래, 최신순)
+            const keys = Object.keys(data).sort((a, b) => {
+                const itemA = data[a];
+                const itemB = data[b];
+                const holdA = itemA.status === 'hold' ? 1 : 0;
+                const holdB = itemB.status === 'hold' ? 1 : 0;
+                if (holdA !== holdB) return holdA - holdB;
+                return b.localeCompare(a);
+            });
+            
+            if (keys.length === 0) {
+                grid.innerHTML = `<div class="empty-state">새로 분석된 통화 녹음이 없습니다.</div>`;
+                return;
+            }
+            
+            keys.forEach(key => {
+                const item = data[key];
+                
+                let catColor = '#888';
+                if(item.category && item.category.includes('예약')) catColor = 'var(--color-interactive-lime)';
+                if(item.category && item.category.includes('상담')) catColor = 'var(--color-highlight-gold)';
+                if(item.category && item.category.includes('변경')) catColor = '#ef4444';
+
+                const isHold = item.status === 'hold';
+                const opacity = isHold ? '0.6' : '1';
+                const border = isHold ? '1px dashed #555' : '1px solid #333';
+                const holdLabel = isHold ? `<span style="background:#eab308; color:#000; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:8px;">보류됨</span>` : '';
+
+                // 시간, 요일, 전화번호 추출 (파일명 기준)
+                let callTime = "";
+                let extractedPhone = "";
+                if (item.filename) {
+                    // 번호 추출
+                    const phoneMatch = item.filename.match(/(010\d{8})/);
+                    if (phoneMatch) {
+                        const p = phoneMatch[1];
+                        extractedPhone = `${p.substring(0,3)}-${p.substring(3,7)}-${p.substring(7)}`;
+                    }
+                    // 날짜/시간 추출 (_260805_173500)
+                    const match = item.filename.match(/_(\d{2})(\d{2})(\d{2})_(\d{2})(\d{2})/);
+                    if (match) {
+                        const yy = "20" + match[1];
+                        const mm = match[2];
+                        const dd = match[3];
+                        const hr = match[4];
+                        const min = match[5];
+                        const dObj = new Date(`${yy}-${mm}-${dd}`);
+                        const days = ['일','월','화','수','목','금','토'];
+                        callTime = `${parseInt(mm)}/${parseInt(dd)} ${days[dObj.getDay()]} ${hr}:${min}`;
+                    }
+                }
+                if (!callTime && item.created_at) {
+                    callTime = item.created_at.split('T')[1].substring(0,5);
+                }
+                
+                // AI가 연락처를 못 찾았다면 파일명에서 추출한 번호로 대체
+                if ((!item.contact_info || item.contact_info === '없음' || item.contact_info.trim() === '') && extractedPhone) {
+                    item.contact_info = extractedPhone;
+                }
+
+                // 스팸이나 개인통화 등 무관한 통화인지 확인
+                const catStr = item.category || '';
+                const isUnrelated = catStr.includes('스팸') || catStr.includes('기타') || catStr.includes('개인') || catStr.includes('무관') || catStr.includes('광고');
+
+                const fields = [
+                    { label: '현장', key: 'site_info', color: '#fff' },
+                    { label: '연락처', key: 'contact_info', color: '#10b981' },
+                    { label: '예약희망', key: 'booking_info', color: 'var(--color-interactive-lime)' },
+                    { label: '구매품', key: 'purchase_info', color: 'var(--color-highlight-gold)' },
+                    { label: '결제', key: 'payment_info', color: '#3b82f6' },
+                    { label: '약속/답변', key: 'promises', color: '#ccc' }
+                ];
+                
+                let fieldHtml = '';
+                if (!isUnrelated) {
+                    fields.forEach(f => {
+                        const val = item[f.key];
+                        if (val && val !== 'null' && val.trim() !== '' && val !== '없음') {
+                            fieldHtml += `<div><span style="color:#888; display:inline-block; width:65px;">${f.label}:</span> <span style="color:${f.color};">${val}</span></div>`;
+                        } else {
+                            fieldHtml += `<div><span style="color:#888; display:inline-block; width:65px;">${f.label}:</span> <span style="color:#444;">-</span></div>`;
+                        }
+                    });
+                }
+
+                const html = `
+                    <div class="card" style="opacity:${opacity}; border:${border};">
+                        <div class="card-header" style="padding-bottom:8px;">
+                            <div style="font-weight:bold; color:${catColor}; font-size:16px;">
+                                [${item.category || '미분류'}] ${holdLabel}
+                            </div>
+                            <div style="font-size:14px; color:#aaa;">${callTime}</div>
+                        </div>
+                        <div class="card-body" style="background:#111; padding:12px; border-radius:6px; margin-bottom:8px;">
+                            <div style="color:var(--color-pure-white); font-weight:bold; margin-bottom: ${isUnrelated ? '0' : '12px'}; font-size:14px; line-height:1.4;">
+                                "${item.summary || '요약 없음'}"
+                            </div>
+                            
+                            ${!isUnrelated ? `
+                            <div style="font-size:13px; display:grid; gap:6px;">
+                                ${fieldHtml}
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-secondary" style="flex:1; font-size:12px; background:#444; padding:8px;" onclick="deleteCRMItem('${key}')">🗑️ 삭제</button>
+                            <button class="btn btn-secondary" style="flex:1; font-size:12px; background:#3b82f6; padding:8px;" onclick="editCRMItem('${key}')">✏️ 수정</button>
+                            ${!isHold ? `<button class="btn btn-secondary" style="flex:1; font-size:12px; background:#eab308; color:#000; padding:8px;" onclick="holdCRMItem('${key}')">⏳ 보류</button>` : ''}
+                            <button class="btn btn-primary" style="flex:2; font-size:12px; padding:8px;" onclick="approveCRMItem('${key}')">📝 캘린더 등록</button>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += html;
+            });
+        }
+
         function renderGrid() {
             const grid = document.getElementById('schedule-grid');
             grid.innerHTML = '';
@@ -550,6 +899,7 @@
                     timeStr = `${task.times[0]} ~ ${String(hour).padStart(2, '0')}:00`;
                 }
 
+                const cInfo = task.data.customerInfo || {};
                 let itemsStr = "-";
                 if (Array.isArray(cInfo.items)) {
                     itemsStr = cInfo.items.join(', ');
@@ -609,6 +959,9 @@
                     sourceBadgeHtml = `<span style="background:#3b82f6; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">🌐 온라인</span>`;
                 }
 
+                const safeNotes = String(cInfo.notes || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
+                const notesShort = safeNotes.length > 30 ? safeNotes.substring(0,30) + '...' : safeNotes;
+
                 grid.innerHTML += `
                     <div class="card">
                         <div class="card-header">
@@ -619,9 +972,15 @@
                             <div class="status-badge ${badgeClass}">${badgeText}</div>
                         </div>
                         <div class="card-body">
-                            <div class="info-row"><div class="info-label">연락처</div><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>${cInfo.phone || '-'}</span> ${cInfo.phone ? `<a href="tel:${cInfo.phone}" class="btn" style="padding:4px 8px; background:#10b981; color:#fff; text-decoration:none; font-size:12px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">📞 통화</a> <button class="btn" style="padding:4px 8px; background:#8b5cf6; color:#fff; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="saveToPhoneContactsFromCard('${task.rId}')">👤 폰 주소록 저장</button> <button class="btn" style="padding:4px 8px; background:#374151; color:#fff; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="copyCustomerInfo('${(cInfo.apt||'').replace(/'/g, "")}', '${cInfo.phone}')">📋 명함복사</button> <select class="btn" style="padding:4px 6px; background:#f59e0b; color:#000; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onchange="if(this.value){ sendSmsFromCard('${task.rId}', this.value); this.value=''; }"><option value="">💬 문자발송(4대 SMS)</option><option value="receipt">📨 ① 접수 확인</option><option value="confirm">📍 ② 예약 확정</option><option value="change">🔄 ③ 일정 변경</option><option value="missing">⚠️ ④ 동호수 요청</option></select>` : ''}</div></div>
+                            <div class="info-row"><div class="info-label">연락처</div><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>${cInfo.phone || '-'}</span> ${cInfo.phone ? `<a href="tel:${cInfo.phone}" class="btn" style="padding:4px 8px; background:#10b981; color:#fff; text-decoration:none; font-size:12px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">📞 통화</a> <button class="btn" style="padding:4px 8px; background:#8b5cf6; color:#fff; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="try{window.saveToPhoneContactsFromCard('${task.rId}');}catch(e){alert('Error: '+e.message);}">👤 폰 주소록 저장</button> <button class="btn" style="padding:4px 8px; background:#374151; color:#fff; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="copyCustomerInfo('${(cInfo.apt||'').replace(/'/g, "")}', '${cInfo.phone}')">📋 명함복사</button> <select class="btn" style="padding:4px 6px; background:#f59e0b; color:#000; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onchange="if(this.value){ try{sendSmsFromCard('${task.rId}', this.value);}catch(e){alert('Error: '+e.message);} this.value=''; }"><option value="">💬 문자발송(4대 SMS)</option><option value="receipt">📨 ① 접수 확인</option><option value="confirm">📍 ② 예약 확정</option><option value="change">🔄 ③ 일정 변경</option><option value="missing">⚠️ ④ 동호수 요청</option></select>` : ''}</div></div>
                             <div class="info-row"><div class="info-label">동/호수</div><div>${cInfo.apt || '-'}</div></div>
-                            <div class="info-row"><div class="info-label">기타(메모)</div><div>${cInfo.notes || '-'}</div></div>
+                            <div class="info-row">
+                                <div class="info-label">기타(메모)</div>
+                                <div>
+                                    <div style="margin-bottom:4px;">${notesShort || '-'}</div>
+                                    ${safeNotes ? `<button style="background:#fde68a; border:1px solid #f59e0b; border-radius:4px; padding:4px 8px; font-size:11px; cursor:pointer; color:#92400e; font-weight:bold;" onclick="alert('📝 기타(메모) 전체보기:\\n\\n${safeNotes}')">📝 전체 메모 및 통화요약 보기</button>` : ''}
+                                </div>
+                            </div>
                             <div class="info-row"><div class="info-label">시공품목</div><div style="color:var(--color-interactive-lime); font-weight:bold;">${itemsStr}</div></div>
                             
                             ${reportHtml}
@@ -632,7 +991,8 @@
                             ${isCompleted ? 
                                 `<button class="btn btn-secondary" style="flex:1;" onclick="openModal('${task.rId}')">📝 보고서 수정</button>
                                  <button class="btn" style="flex:1; background:#6366f1; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="copyNotionArchive('${task.rId}')">📋 노션 복사</button>` :
-                                `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">✅ 작업 완료 및 보고서 작성</button>`
+                                `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">✅ 폼 작성</button>
+                                 <button class="btn" style="flex:1; background:#e32652; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="startVoiceReport('${task.rId}')">🎤 음성 보고</button>`
                             }
                         </div>
                     </div>
@@ -712,6 +1072,11 @@
             document.getElementById('report-modal').style.display = 'flex';
             document.getElementById('modal-res-id').value = rId;
             
+            // 미디어 첨부 초기화 (버그 픽스: 이전 첨부 파일 초기화)
+            const photosInput = document.getElementById('modal-photos');
+            if (photosInput) photosInput.value = '';
+
+            
             const task = window.groupedTasks.find(t => t.rId === rId);
             const report = task && task.data.report ? task.data.report : {};
             
@@ -743,20 +1108,13 @@
             renderAddedProducts();
         };
 
-        const FIXED_CATEGORIES = [
-            '하츠후드 엘리카', '하츠후드 플래티늄', '하츠후드 데코', '하츠후드 시스템',
-            '하츠 전기레인지', '하츠 가스레인지', '하츠 수전빌트인', '하츠 씽크볼', '하츠 기타빌트인'
-        ];
-
         function populateBrandCategories() {
             const catSelect = document.getElementById('modal-brand-cat');
             catSelect.innerHTML = '<option value="">-- 분류 선택 --</option>';
-            
-            FIXED_CATEGORIES.forEach(c => {
-                catSelect.innerHTML += `<option value="${c}">${c}</option>`;
+            const predefinedCategories = ["하츠 후드", "하츠 욕실", "하츠 씽크", "하츠 기타", "힘펠 욕실", "기타", "비등록제품서비스"];
+            predefinedCategories.forEach(b => {
+                catSelect.innerHTML += `<option value="${b}">${b}</option>`;
             });
-            catSelect.innerHTML += `<option value="비분류카테고리">비분류카테고리</option>`;
-            
             document.getElementById('modal-prod-select').innerHTML = '<option value="">-- 먼저 분류를 선택 --</option>';
         }
 
@@ -768,11 +1126,31 @@
             if(!cat) return;
             
             window.masterProducts.forEach(p => {
-                const bc = p.brandCategory || p.category;
-                if(bc === cat && p.name) {
-                    pSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.model||''})</option>`;
+                const b = p.brand || "기타";
+                const c = p.category || "기타";
+                let derivedCat = "기타";
+                if (b.includes("하츠")) {
+                    if (c.includes("후드")) derivedCat = "하츠 후드";
+                    else if (c.includes("욕실") || c.includes("환풍기")) derivedCat = "하츠 욕실";
+                    else if (c.includes("싱크") || c.includes("씽크") || c.includes("수전")) derivedCat = "하츠 씽크";
+                    else derivedCat = "하츠 기타";
+                } else if (b.includes("힘펠")) {
+                    if (c.includes("욕실") || c.includes("환풍기")) derivedCat = "힘펠 욕실";
+                    else derivedCat = "기타";
+                }
+                
+                // fallback for exact match
+                if (p.brandCategory === cat) derivedCat = cat;
+                
+                if(derivedCat === cat && p.name) {
+                    pSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.model||'모델명없음'})</option>`;
                 }
             });
+            
+            if (cat === "비등록제품서비스") {
+                pSelect.innerHTML += `<option value="비등록제품(메모참조)">비등록제품(메모참조)</option>`;
+                pSelect.innerHTML += `<option value="출장/수리비">출장/수리비</option>`;
+            }
         };
 
         window.addModalProduct = function() {
@@ -784,8 +1162,14 @@
                 return;
             }
             
-            const mp = window.masterProducts.find(m => m.name === name);
-            if(!mp) return;
+            let mp = window.masterProducts.find(m => m.name === name);
+            if(!mp) {
+                if (name === "비등록제품(메모참조)" || name === "출장/수리비") {
+                    mp = { name: name, price_purchase: 0, price_selling: 0, cost: 0, sell: 0 };
+                } else {
+                    return;
+                }
+            }
 
             const existing = window.currentSelectedProducts.find(p => p.name === name);
             if(existing) {
@@ -857,7 +1241,7 @@
             document.getElementById('report-modal').style.display = 'none';
         };
 
-        window.saveReport = function() {
+        window.saveReport = async function() {
             const rId = document.getElementById('modal-res-id').value;
             const selectedDate = document.getElementById('date-picker').value;
             const task = window.groupedTasks.find(t => t.rId === rId);
@@ -877,12 +1261,40 @@
             let productNamesForMemo = [];
             
             window.currentSelectedProducts.forEach(p => {
-                totalCost += p.cost * p.qty;
-                totalSell += p.sell * p.qty;
+                totalCost += (Number(p.cost) || 0) * (Number(p.qty) || 1);
+                totalSell += (Number(p.sell) || 0) * (Number(p.qty) || 1);
                 productNamesForMemo.push(`${p.name} ${p.qty}개`);
             });
             
             const margin = totalSell - totalCost;
+
+            // --- 미디어 업로드 로직 추가 ---
+            const photosInput = document.getElementById('modal-photos');
+            const files = photosInput ? photosInput.files : [];
+            let uploadedUrls = [];
+
+            if (files.length > 0) {
+                // UI에 업로드 중 표시 (버튼 텍스트 변경 등)
+                const saveBtn = document.querySelector('#report-modal .modal-content button.btn-primary');
+                const originalBtnText = saveBtn.innerText;
+                
+                try {
+                    for (let i = 0; i < files.length; i++) {
+                        saveBtn.innerText = `사진 업로드 중... (${i+1}/${files.length})`;
+                        const file = files[i];
+                        const storageRef = window.sRef(window.storage, `reports/${selectedDate}/${rId}/${Date.now()}_${file.name}`);
+                        await window.uploadBytes(storageRef, file);
+                        const downloadUrl = await window.getDownloadURL(storageRef);
+                        uploadedUrls.push(downloadUrl);
+                    }
+                } catch (err) {
+                    console.error("Storage 업로드 에러:", err);
+                    alert("사진 업로드 중 오류가 발생했습니다.");
+                    saveBtn.innerText = originalBtnText;
+                    return; // 업로드 실패 시 저장 중단
+                }
+                saveBtn.innerText = originalBtnText;
+            }
 
             const reportData = {
                 notes,
@@ -892,33 +1304,31 @@
                 totalCost,
                 totalSell,
                 margin,
+                mediaUrls: uploadedUrls, // 업로드된 이미지 URL 저장
                 timestamp: Date.now()
             };
 
             const updates = {};
-            const isFirstCompletion = task.data.status !== 'completed'; // 처음으로 '완료' 상태가 되는 것인지 체크
+            const isFirstCompletion = task.data.status !== 'completed';
 
             task.times.forEach(time => {
                 updates[`reservations/${selectedDate}/${time}/report`] = reportData;
                 updates[`reservations/${selectedDate}/${time}/status`] = 'completed';
             });
 
-            // 재고 출고(-) 차감 로직: 처음 완료 처리 시에만 차감
             if (isFirstCompletion) {
                 window.currentSelectedProducts.forEach(p => {
-                    // Firebase Realtime DB의 increment 기능을 사용하여 동시성 문제 방지
                     updates[`inventory_counts/${p.name}`] = increment(-p.qty);
                 });
             }
 
-            // ERP 장부 연동 로직
             const numericAmount = parseInt(payAmount);
             if (!isNaN(numericAmount) && numericAmount > 0) {
                 let ledgerAccount = '현금';
                 if (payMethod === '계좌이체' || payMethod === '선결제') ledgerAccount = '이체(우리은행)';
                 else if (payMethod === '카드') ledgerAccount = '카드(대리점)';
 
-                const newLedgerKey = push(ref(db, 'ledger')).key;
+                const newLedgerKey = push(ref(window.db, 'ledger')).key;
                 const cInfo = task.data.customerInfo || {};
                 const aptInfo = cInfo.apt ? ` (${cInfo.apt})` : '';
 
@@ -937,11 +1347,28 @@
             const execRef = window.ref || ref;
             const targetDb = window.db || db;
 
-            execUpdate(execRef(targetDb), updates).then(() => {
+            try {
+                await execUpdate(execRef(targetDb), updates);
+                
+                // Supabase 재고 차감 (5단계 로직)
+                if (isFirstCompletion) {
+                    for (const p of window.currentSelectedProducts) {
+                        try {
+                            const { error } = await window.supabaseClient.rpc('decrement_inventory', {
+                                product_name: p.name,
+                                qty: p.qty
+                            });
+                            if (error) console.error("Supabase Inventory Decrement Error:", error);
+                        } catch (err) {
+                            console.error("Supabase Call Error:", err);
+                        }
+                    }
+                }
+                
                 closeModal();
-            }).catch(e => {
+            } catch(e) {
                 alert('저장 실패: ' + e.message);
-            });
+            }
         };
 
         // 고객 식별 정보 복사 (5단계 CRM MVP)
@@ -1035,6 +1462,205 @@
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         };
+
+        // 음성 보고(Voice Report) 로직
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        window.startVoiceReport = function(rId) {
+            try {
+                document.getElementById('voice-report-modal').style.display = 'flex';
+                document.getElementById('voice-report-rid').value = rId;
+                document.getElementById('voice-status-text').innerHTML = '버튼을 누르고 말씀하세요.<br>예: "티오람 교체했고 현금 5만원 받았어"';
+                const btn = document.getElementById('btn-record-toggle');
+                btn.style.animation = 'none';
+                btn.style.borderColor = '#ff4d6d';
+                audioChunks = []; // 초기화
+            } catch (err) {
+                alert("Error in startVoiceReport: " + err.message);
+            }
+        };
+
+        window.closeVoiceReportModal = function() {
+            document.getElementById('voice-report-modal').style.display = 'none';
+            if (isRecording && mediaRecorder) {
+                mediaRecorder.stop();
+                isRecording = false;
+            }
+        };
+
+        document.getElementById('btn-record-toggle').addEventListener('click', async function() {
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data.size > 0) audioChunks.push(e.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        console.log("녹음 완료:", audioChunks.length, "chunks");
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    
+                    // UI 변경
+                    this.style.animation = 'pulse 1.5s infinite';
+                    this.style.borderColor = '#10b981';
+                    document.getElementById('voice-status-text').innerHTML = '<span style="color:#10b981; font-weight:bold;">녹음 중입니다... 완료하려면 다시 누르세요.</span>';
+                } catch (err) {
+                    alert('마이크 접근 권한이 필요합니다. 설정에서 마이크를 허용해주세요.');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                
+                // UI 변경
+                this.style.animation = 'none';
+                this.style.borderColor = '#ff4d6d';
+                document.getElementById('voice-status-text').innerHTML = '녹음이 완료되었습니다. <br>[✨ AI 분석 시작]을 눌러주세요.';
+            }
+        });
+
+        window.analyzeVoiceReport = async function() {
+            if (audioChunks.length === 0) {
+                alert('녹음된 음성이 없습니다. 버튼을 눌러 녹음해주세요.');
+                return;
+            }
+            
+            document.getElementById('voice-status-text').innerHTML = '음성 데이터 전송 및 AI 분석 중... ⏳ (약 5~10초 소요)';
+            
+            try {
+                // 1. 오디오 청크를 하나의 Blob으로 병합 (WebM 형식)
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                
+                // 2. Base64로 변환하여 서버리스 함수로 전송
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = async function() {
+                    const base64data = reader.result.split(',')[1];
+                    
+                    try {
+                        const analyzeVoiceReportFn = httpsCallable(functions, 'analyzeVoiceReport');
+                        const result = await analyzeVoiceReportFn({
+                            audioBase64: base64data,
+                            mimeType: 'audio/webm'
+                        });
+                        
+                        const aiData = result.data;
+                        closeVoiceReportModal();
+                        
+                        // 3. 결과 파싱 및 폼 적용
+                        processAIReportData(aiData, document.getElementById('voice-report-rid').value);
+                    } catch (fnErr) {
+                        console.error('Function Error:', fnErr);
+                        alert('AI 분석 중 오류가 발생했습니다: ' + fnErr.message);
+                        document.getElementById('voice-status-text').innerHTML = '분석 실패. 닫고 다시 시도해주세요.';
+                    }
+                };
+            } catch (err) {
+                console.error(err);
+                alert('오디오 처리 중 오류 발생');
+                document.getElementById('voice-status-text').innerHTML = '오류 발생.';
+            }
+        };
+        
+        function processAIReportData(data, rId) {
+            const { matchedProduct, payMethod, payAmount, notes } = data;
+            
+            // 스마트 매칭 로직 (4단계)
+            let foundProduct = null;
+            if (matchedProduct && window.masterProducts) {
+                // 단순 텍스트 포함 여부로 가장 그럴싸한 제품 검색 (대소문자, 띄어쓰기 무시)
+                const searchStr = String(matchedProduct || "").replace(/ /g, '').toLowerCase();
+                foundProduct = window.masterProducts.find(p => {
+                    const pName = String(p.name || "").replace(/ /g, '').toLowerCase();
+                    const pModel = String(p.model || "").replace(/ /g, '').toLowerCase();
+                    return pName.includes(searchStr) || searchStr.includes(pName) || (pModel && (pModel.includes(searchStr) || searchStr.includes(pModel)));
+                });
+            }
+
+            if (foundProduct) {
+                // 승인 팝업 띄우기
+                document.getElementById('ai-match-modal').style.display = 'flex';
+                document.getElementById('ai-match-name').innerText = foundProduct.name;
+                document.getElementById('ai-match-model').innerText = foundProduct.model || '상세 모델명 없음';
+                
+                // 썸네일 렌더링
+                const imgEl = document.getElementById('ai-match-img');
+                if (foundProduct.imageUrl) {
+                    imgEl.src = foundProduct.imageUrl;
+                    imgEl.style.display = 'block';
+                } else {
+                    imgEl.style.display = 'none';
+                }
+                
+                // 확정 콜백
+                window.confirmAiMatch = function() {
+                    document.getElementById('ai-match-modal').style.display = 'none';
+                    applyAiDataToForm(rId, data, foundProduct);
+                };
+                
+                // 취소 콜백
+                window.rejectAiMatch = function() {
+                    document.getElementById('ai-match-modal').style.display = 'none';
+                    applyAiDataToForm(rId, data, null);
+                };
+            } else {
+                // 매칭 실패 시 그냥 폼에 넣기 (기타 메모로)
+                applyAiDataToForm(rId, data, null);
+            }
+        }
+        
+        function applyAiDataToForm(rId, aiData, foundProduct) {
+            const { matchedProduct, payMethod, payAmount, notes } = aiData;
+            
+            openModal(rId);
+            
+            setTimeout(() => {
+                let finalNotes = (notes || '') + '\n(🎤 AI 음성 분석 완료)';
+                
+                // 제품 매칭 성공 시 장바구니에 쏙!
+                if (foundProduct) {
+                    const existing = window.currentSelectedProducts.find(p => p.name === foundProduct.name);
+                    if(existing) {
+                        existing.qty += 1;
+                    } else {
+                        window.currentSelectedProducts.push({
+                            name: foundProduct.name,
+                            qty: 1,
+                            cost: Number(foundProduct.costPrice) || 0,
+                            sell: Number(foundProduct.sellPrice) || 0
+                        });
+                    }
+                    renderAddedProducts();
+                } else if (matchedProduct && matchedProduct !== '없음' && matchedProduct !== 'null') {
+                    // 매칭 실패 시 특이사항 첫 줄에 기록
+                    finalNotes = `[매칭 실패 제품: ${matchedProduct}]\n` + finalNotes;
+                }
+                
+                document.getElementById('modal-notes').value = finalNotes;
+                
+                if (payMethod && payMethod !== '없음') {
+                    // 키워드 정규화
+                    let finalMethod = '계좌이체';
+                    if (payMethod.includes('현금')) finalMethod = '현금';
+                    else if (payMethod.includes('카드')) finalMethod = '카드';
+                    else if (payMethod.includes('선결제')) finalMethod = '선결제';
+                    
+                    document.getElementById('modal-pay-method').value = finalMethod;
+                }
+                
+                if (payAmount && !isNaN(parseInt(payAmount)) && parseInt(payAmount) > 0) {
+                    document.getElementById('modal-pay-amount').value = parseInt(payAmount);
+                    document.getElementById('modal-pay-amount').dataset.autoFilled = 'false';
+                }
+            }, 300);
+        }
 
         // 초기 실행
         loadData();

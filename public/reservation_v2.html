@@ -137,7 +137,6 @@
         .time-slot.confirmed {
             background-color: #111;
             color: #555;
-            text-decoration: line-through;
             border-color: #222;
         }
         .time-slot.pending {
@@ -308,6 +307,7 @@
     </div>
 
     <!-- Firebase SDK -->
+    <script src="./auth.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -447,6 +447,9 @@
         }
 
         window.selectTime = function(time, currentStatus) {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('readonly') === 'true') return;
+            
             if (window.isAdmin) {
                 adminHandleTimeClick(time, currentStatus);
                 return;
@@ -472,18 +475,27 @@
                 alert("이미 관리자 모드입니다.");
                 return;
             }
-            const pwd = prompt("관리자 비밀번호를 입력하세요:");
-            if (pwd === "2896") {
+            initAdminAuth(() => {
                 window.isAdmin = true;
                 document.getElementById('admin-panel').style.display = "block";
                 if(window.selectedDate) {
                     renderTimeSlots(window.selectedDate); // 리렌더링하여 클릭 활성화
                 }
                 alert("관리자 모드로 전환되었습니다.");
-            } else {
-                alert("비밀번호가 틀렸습니다.");
-            }
+            });
         }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('admin') === 'true') {
+                sessionStorage.setItem('adminAuth', 'true');
+            }
+
+            if(sessionStorage.getItem('adminAuth') === 'true') {
+                window.isAdmin = true;
+                document.getElementById('admin-panel').style.display = "block";
+            }
+        });
 
         window.adminHandleTimeClick = function(time, currentStatus) {
             const dateStr = window.selectedDate;
@@ -797,8 +809,8 @@
                     else el.innerText = val;
                 }
             };
-            setVal('adj-customer-apt', cInfo.apt || '');
-            setVal('adj-customer-phone', cInfo.phone || '');
+            setVal('adj-customer-apt', cInfo.apt || cInfo.address || '');
+            setVal('adj-customer-phone', cInfo.phone || cInfo.contact || '');
             
             let itemsStr = "";
             if (Array.isArray(cInfo.items)) {
@@ -920,10 +932,29 @@
                 }
             });
             
-            // 새 슬롯들 confirmed 저장
+            // 새 슬롯들 confirmed 저장 (고객 폼 데이터 자동 병합)
+            const getVal = id => {
+                const el = document.getElementById(id);
+                return el ? (el.value !== undefined ? el.value : el.innerText) : '';
+            };
+            const newApt = getVal('adj-customer-apt').trim();
+            const newPhone = getVal('adj-customer-phone').trim();
+            const newItemsStr = getVal('adj-customer-items').trim();
+            const newNotes = getVal('adj-customer-notes').trim();
+            const newItems = newItemsStr.split(',').map(s => s.trim()).filter(Boolean);
+            
+            const autoUpdatedCustomerInfo = {
+                ...(window.currentAdjData.customerInfo || {}),
+                apt: newApt,
+                phone: newPhone,
+                items: newItems.length > 0 ? newItems : [newItemsStr],
+                notes: newNotes
+            };
+
             window.currentAdjSlots.forEach(t => {
                 updates[`reservations/${dateStr}/${t}`] = {
                     ...window.currentAdjData,
+                    customerInfo: autoUpdatedCustomerInfo,
                     status: "confirmed",
                     reservationId: rId,
                     timestamp: Date.now()
@@ -1007,11 +1038,10 @@
         };
 
         window.saveToPhoneContacts = function() {
-            const cInfo = window.currentAdjData.customerInfo || {};
-            const apt = cInfo.apt || "고객";
-            const phone = (cInfo.phone || "").replace(/[^0-9]/g, '');
-            const items = (cInfo.items || []).join(', ') || "신청상품";
-            const notes = cInfo.notes || "";
+            const apt = document.getElementById('adj-customer-apt').value || "미상";
+            const phone = (document.getElementById('adj-customer-phone').value || "").replace(/[^0-9]/g, '');
+            const items = document.getElementById('adj-customer-items').value || "신청제품미상";
+            const notes = document.getElementById('adj-customer-notes').value || "";
             
             const vcard = [
                 "BEGIN:VCARD",

@@ -196,10 +196,9 @@
 <body>
     <div class="page-container view-pc" id="app">
         <nav class="header-actions">
-            <div style="font-weight: bold; font-size: 18px;">📊 종합 ERP 시스템</div>
-            <div class="nav-links">
-                <a href="./admin.html">기본관리자</a>
-                <a href="./admin_v2.html">작업지시서</a>
+            <div style="font-weight: bold; font-size: 18px;">📊 재무장부</div>
+            <div class="nav-links" style="display:flex; align-items:center; gap:8px;">
+                <div id="nav-container"></div>
                 <button onclick="document.getElementById('app').classList.toggle('view-mobile')" style="background:none; border:1px solid #666; color:white; padding:4px 8px; border-radius:4px; cursor:pointer;">PC/모바일 전환</button>
             </div>
         </nav>
@@ -573,6 +572,7 @@
     </div>
 
     <!-- Firebase SDK -->
+    <script src="./auth.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, push, update, remove, set, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -583,6 +583,10 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
+        initAdminAuth(() => {
+            document.getElementById('nav-container').innerHTML = renderAdminNav('erp');
+        });
 
         window.currentLedger = [];
         window.masterProducts = [];
@@ -621,15 +625,27 @@
             }
         });
 
-        // 2. Products 로드
-        onValue(ref(db, 'master_products'), (snapshot) => {
-            const data = snapshot.val();
-            window.masterProducts = [];
-            if(data) {
-                window.masterProducts = Array.isArray(data) ? data : Object.values(data);
+        // 2. Products 로드 (Supabase)
+        (async () => {
+            try {
+                const { data, error } = await window.supabaseClient.from('products').select('*');
+                window.masterProducts = [];
+                if (data) {
+                    window.masterProducts = data.map(p => ({
+                        name: p.name,
+                        model: p.model,
+                        brandCategory: p.brand || p.category,
+                        category: p.category,
+                        costPrice: p.price_purchase,
+                        sellPrice: p.price_selling,
+                        imageUrl: (p.details && p.details.level1 && p.details.level1.images && p.details.level1.images[0]) ? p.details.level1.images[0] : ''
+                    }));
+                }
+                renderProducts();
+            } catch (err) {
+                console.error("Failed to load products from Supabase:", err);
             }
-            renderProducts();
-        });
+        })();
 
         // 3. Reservations 로드 (일일 보고서용)
         onValue(ref(db, 'reservations'), (snapshot) => {

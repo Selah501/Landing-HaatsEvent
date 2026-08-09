@@ -402,11 +402,43 @@
         document.getElementById('nav-container').innerHTML = renderAdminNav('admin');
         document.getElementById('main-container').style.display = 'block';
         
+        // Supabase에서 상품 로드 (로그인 후 DOM이 준비된 시점에 실행)
+        (async () => {
+            try {
+                const { data: prodData, error: prodError } = await window.supabaseClient.from('products').select('*').order('name');
+                if (prodData) {
+                    window.currentProducts = prodData.map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        model: p.model,
+                        features: p.features,
+                        duration: (p.details && p.details.duration) ? p.details.duration : '',
+                        remarks: (p.details && p.details.remarks) ? p.details.remarks : '',
+                        defaultPriceText: p.default_price_text,
+                        detailLink: (p.details && p.details.detailLink) ? p.details.detailLink : '',
+                        brandCategory: p.brand || p.category,
+                        category: p.category,
+                        price_purchase: p.price_purchase,
+                        price_selling: p.price_selling,
+                        costPrice: p.price_purchase,
+                        sellPrice: p.price_selling,
+                        details: p.details
+                    }));
+                    if(document.getElementById('tab-master').classList.contains('active')) {
+                        renderMasterList();
+                    }
+                } else if (prodError) {
+                    console.error('Supabase 상품 로드 실패:', prodError.message);
+                }
+            } catch(e) {
+                console.error('Supabase 상품 로드 오류:', e);
+            }
+        })();
+        
         const dbRef = ref(db, '/');
         onValue(dbRef, (snapshot) => {
             const data = snapshot.val();
             if(data) {
-                // window.currentProducts = data.products || []; // Now loaded from Supabase below
                 window.currentData = data.events || [];
                 window.currentManagers = data.managers || [];
                 window.currentConsultations = data.consultations || {};
@@ -492,36 +524,7 @@
         return sites;
     }
 
-    
-    // Load products from Supabase
-    (async () => {
-        try {
-            const { data, error } = await window.supabaseClient.from('products').select('*').order('name');
-            if (data) {
-                window.currentProducts = data.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    model: p.model,
-                    features: p.features,
-                    duration: (p.details && p.details.duration) ? p.details.duration : '',
-                    remarks: (p.details && p.details.remarks) ? p.details.remarks : '',
-                    defaultPriceText: p.default_price_text,
-                    detailLink: (p.details && p.details.detailLink) ? p.details.detailLink : '',
-                    brandCategory: p.brand || p.category,
-                    category: p.category,
-                    price_purchase: p.price_purchase,
-                    price_selling: p.price_selling,
-                    costPrice: p.price_purchase,
-                    sellPrice: p.price_selling
-                }));
-                if (document.getElementById('master-tbody')) {
-                    renderMasterList();
-                }
-            }
-        } catch(e) {
-            console.error("Supabase fetch error:", e);
-        }
-    })();
+    // (Supabase 상품 로드는 initAdminAuth 콜백 내부로 이동됨)
 
     window.renderMasterList = function() {
         const tbody = document.getElementById('master-tbody');

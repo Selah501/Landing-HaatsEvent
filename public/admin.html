@@ -101,6 +101,7 @@
             padding-bottom: 4px;
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -429,6 +430,7 @@
                     <td data-label="적용 현장">${sitesHtml}</td>
                     <td data-label="관리" style="text-align:center;">
                         <button class="btn-info" style="padding: 10px; font-size:14px; margin-bottom: 8px; display:block; width:100%;" onclick="openAssignModal('${prod.id}')">현장 배정</button>
+                        <button class="btn-primary" style="padding: 10px; font-size:14px; margin-bottom: 8px; display:block; width:100%;" onclick="updateMasterRow(${idx})">수정(저장)</button>
                         <button class="btn-danger" style="padding: 10px; font-size:14px; display:block; width:100%;" onclick="deleteMasterRow(${idx})">삭제</button>
                     </td>
                 </tr>
@@ -443,6 +445,45 @@
         });
         renderMasterList();
     }
+
+        window.updateMasterRow = async function(idx) {
+        const row = document.getElementById(`m-row-${idx}`);
+        const prod = window.currentProducts[idx];
+        
+        const newName = row.querySelector('.m-name').value;
+        const newModel = row.querySelector('.m-model').value;
+        const newFeatures = row.querySelector('.m-features').value;
+        const newDuration = row.querySelector('.m-duration').value;
+        const newRemarks = row.querySelector('.m-remarks').value;
+        const newPriceText = row.querySelector('.m-defaultPrice').value;
+        const newLink = row.querySelector('.m-link').value;
+        
+        const { data, error } = await window.supabaseClient.from('products').update({
+            name: newName,
+            model: newModel,
+            features: newFeatures,
+            default_price_text: newPriceText,
+            details: {
+                ...prod.details,
+                duration: newDuration,
+                remarks: newRemarks,
+                detailLink: newLink
+            }
+        }).eq('id', prod.id);
+        
+        if (error) {
+            alert('수정 실패: ' + error.message);
+        } else {
+            alert('수정되었습니다.');
+            prod.name = newName;
+            prod.model = newModel;
+            prod.features = newFeatures;
+            prod.duration = newDuration;
+            prod.remarks = newRemarks;
+            prod.defaultPriceText = newPriceText;
+            prod.detailLink = newLink;
+        }
+    };
 
     window.deleteMasterRow = function(idx) {
         if(confirm("정말 삭제하시겠습니까? (이 상품을 사용하는 현장이 있다면 그곳에서도 사라집니다)")) {

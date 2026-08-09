@@ -514,6 +514,49 @@
         if(tabId === 'tab-managers') renderManagerList();
     }
 
+    window.renderManagerList = function() {
+        const tbody = document.getElementById('manager-tbody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        window.currentManagers.forEach((mgr, idx) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td data-label="담당자명"><input type="text" class="mgr-name" value="${mgr.name}"></td>
+                    <td data-label="전화번호"><input type="text" class="mgr-phone" value="${mgr.phone}"></td>
+                    <td data-label="관리" style="text-align:center;">
+                        <button class="btn-warning" style="padding:6px 12px; font-size:12px; margin-bottom:4px; display:block; width:100%;" onclick="saveManagerRow(${idx})">저장</button>
+                        <button class="btn-danger" style="padding: 6px 12px; font-size:12px; display:block; width:100%;" onclick="deleteManagerRow(${idx})">삭제</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    window.saveManagerRow = function(idx) {
+        const rows = document.querySelectorAll('#manager-tbody tr');
+        const row = rows[idx];
+        if(!row) return;
+        window.currentManagers[idx].name = row.querySelector('.mgr-name').value;
+        window.currentManagers[idx].phone = row.querySelector('.mgr-phone').value;
+        window.syncToServer();
+        alert('담당자 정보가 저장되었습니다.');
+    }
+
+    window.addManagerRow = function() {
+        window.currentManagers.push({
+            id: 'mgr_' + Date.now(),
+            name: '', phone: ''
+        });
+        renderManagerList();
+    }
+
+    window.deleteManagerRow = function(idx) {
+        if(confirm("담당자를 삭제하시겠습니까? (기존 배정된 현장에는 영향 없습니다)")) {
+            window.currentManagers.splice(idx, 1);
+            window.syncToServer();
+        }
+    }
+
     function getApplicableSites(prodId) {
         let sites = [];
         window.currentData.forEach(ev => {
@@ -552,6 +595,158 @@
             `;
         });
     }
+
+    window.renderEventList = function() {
+        const tbody = document.getElementById('event-tbody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        window.currentData.forEach((ev, idx) => {
+            const isEnded = ev.status === 'ended';
+            const mainNames = (ev.mainProducts || []).map(p => {
+                const m = window.currentProducts.find(x => x.id === p.id);
+                return m ? m.name : '(알수없음)';
+            }).join(', ');
+            const addonNames = (ev.addonProducts || []).map(p => {
+                const m = window.currentProducts.find(x => x.id === p.id);
+                return m ? m.name : '(알수없음)';
+            }).join(', ');
+            tbody.innerHTML += `
+                <tr style="${isEnded ? 'background-color: #f9fafb; color: #9ca3af;' : ''}">
+                    <td data-label="상태"><span class="badge ${isEnded ? 'ended' : 'active'}">${isEnded ? '종료됨' : '진행중'}</span></td>
+                    <td data-label="현장명"><strong>${ev.title}</strong></td>
+                    <td data-label="이벤트 기간">${ev.periodText || '-'}</td>
+                    <td data-label="메인 상품" style="font-size: 13px;">${mainNames || '-'}</td>
+                    <td data-label="같이 바꾸면 좋은 상품" style="font-size: 13px; color: #6b7280;">${addonNames || '-'}</td>
+                    <td data-label="관리">
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-warning" style="flex:1; padding: 10px;" onclick="openEventModal(${idx})">수정</button>
+                            ${!isEnded ? `<button class="btn-danger" style="flex:1; padding: 10px;" onclick="endEvent(${idx})">종료</button>` : `<button class="btn-secondary" style="flex:1; padding: 10px;" onclick="activateEvent(${idx})">진행</button>`}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    window.endEvent = function(index) { window.currentData[index].status = 'ended'; window.syncToServer(); }
+    window.activateEvent = function(index) { window.currentData[index].status = 'active'; window.syncToServer(); }
+
+    window.openEventModal = function(index = -1) {
+        document.getElementById('event-modal').style.display = 'flex';
+        const isEdit = index >= 0;
+        document.getElementById('modal-title').innerText = isEdit ? '현장 수정' : '신규 현장 등록';
+        document.getElementById('modal-index').value = index;
+
+        const ev = isEdit ? window.currentData[index] : { title: '', priceText: '', periodText: '', managerId: '', mainProducts: [], addonProducts: [] };
+        
+        document.getElementById('ev-title').value = ev.title;
+        document.getElementById('ev-price').value = ev.priceText || '';
+        document.getElementById('ev-period').value = ev.periodText || '';
+        
+        // 담당자 선택 렌더링
+        const managerSelect = document.getElementById('ev-manager');
+        if(managerSelect) {
+            managerSelect.innerHTML = '<option value="">선택 안함</option>';
+            window.currentManagers.forEach(mgr => {
+                managerSelect.innerHTML += `<option value="${mgr.id}" ${ev.managerId === mgr.id ? 'selected' : ''}>${mgr.name} (${mgr.phone})</option>`;
+            });
+        }
+
+        // 상품이 너무 많을 경우를 대비: 검색 드롭다운 방식으로 대체
+        const mainDiv = document.getElementById('modal-main-prods');
+        const addonDiv = document.getElementById('modal-addon-prods');
+        if(mainDiv) {
+            // 이미 선택된 상품 표시
+            const selectedMain = (ev.mainProducts || []);
+            const selectedAddon = (ev.addonProducts || []);
+            
+            mainDiv.innerHTML = `
+                <div style="margin-bottom:8px;">
+                    <select id="main-prod-add-select" style="width:70%; padding:6px; border:1px solid #d1d5db; border-radius:4px;">
+                        <option value="">-- 메인 상품 추가 --</option>
+                        ${window.currentProducts.map(p => `<option value="${p.id}" data-name="${p.name}" data-price="${p.defaultPriceText||''}">${p.name}</option>`).join('')}
+                    </select>
+                    <button class="btn-info" style="padding:6px 12px; font-size:13px;" onclick="addMainProduct()">추가</button>
+                </div>
+                <div id="main-prod-list">
+                    ${selectedMain.map((p,i) => {
+                        const prod = window.currentProducts.find(x=>x.id===p.id);
+                        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                            <span>${prod ? prod.name : p.id}</span>
+                            <input type="text" id="price-main-${p.id}" placeholder="현장가" value="${p.customText||''}" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+                            <button onclick="removeMainProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+        }
+        if(addonDiv) {
+            const selectedAddon = (ev.addonProducts || []);
+            addonDiv.innerHTML = `
+                <div style="margin-bottom:8px;">
+                    <select id="addon-prod-add-select" style="width:70%; padding:6px; border:1px solid #d1d5db; border-radius:4px;">
+                        <option value="">-- 같이 바꾸면 좋은 상품 추가 --</option>
+                        ${window.currentProducts.map(p => `<option value="${p.id}" data-name="${p.name}" data-price="${p.defaultPriceText||''}">${p.name}</option>`).join('')}
+                    </select>
+                    <button class="btn-info" style="padding:6px 12px; font-size:13px;" onclick="addAddonProduct()">추가</button>
+                </div>
+                <div id="addon-prod-list">
+                    ${selectedAddon.map((p,i) => {
+                        const prod = window.currentProducts.find(x=>x.id===p.id);
+                        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                            <span>${prod ? prod.name : p.id}</span>
+                            <input type="text" id="price-addon-${p.id}" placeholder="현장가" value="${p.customText||''}" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+                            <button onclick="removeAddonProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+        }
+        // 임시 배열 초기화
+        window._editMainProds = [...(ev.mainProducts||[])];
+        window._editAddonProds = [...(ev.addonProducts||[])];
+    }
+
+    window.addMainProduct = function() {
+        const sel = document.getElementById('main-prod-add-select');
+        const id = sel.value; const name = sel.options[sel.selectedIndex]?.dataset?.name || '';
+        if(!id) return;
+        if(window._editMainProds.find(p=>p.id===id)) { alert('이미 추가된 상품입니다.'); return; }
+        window._editMainProds.push({id, customText:''});
+        const list = document.getElementById('main-prod-list');
+        list.innerHTML += `<div id="mainrow-${id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span>${name}</span>
+            <input type="text" id="price-main-${id}" placeholder="현장가" value="" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+            <button onclick="removeMainProduct('${id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
+        </div>`;
+    }
+
+    window.removeMainProduct = function(id) {
+        window._editMainProds = window._editMainProds.filter(p=>p.id!==id);
+        const el = document.getElementById(`mainrow-${id}`);
+        if(el) el.remove(); else { const list = document.getElementById('main-prod-list'); list.innerHTML = window._editMainProds.map(p=>{ const prod=window.currentProducts.find(x=>x.id===p.id); return `<div id="mainrow-${p.id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>${prod?prod.name:p.id}</span><input type="text" id="price-main-${p.id}" value="${p.customText||''}"><button onclick="removeMainProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button></div>`; }).join(''); }
+    }
+
+    window.addAddonProduct = function() {
+        const sel = document.getElementById('addon-prod-add-select');
+        const id = sel.value; const name = sel.options[sel.selectedIndex]?.dataset?.name || '';
+        if(!id) return;
+        if(window._editAddonProds.find(p=>p.id===id)) { alert('이미 추가된 상품입니다.'); return; }
+        window._editAddonProds.push({id, customText:''});
+        const list = document.getElementById('addon-prod-list');
+        list.innerHTML += `<div id="addonrow-${id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span>${name}</span>
+            <input type="text" id="price-addon-${id}" placeholder="현장가" value="" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+            <button onclick="removeAddonProduct('${id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
+        </div>`;
+    }
+
+    window.removeAddonProduct = function(id) {
+        window._editAddonProds = window._editAddonProds.filter(p=>p.id!==id);
+        const el = document.getElementById(`addonrow-${id}`);
+        if(el) el.remove();
+    }
+
 
     window.renderConsultations = function() {
         const tbody = document.getElementById('consult-tbody');

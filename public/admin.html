@@ -101,6 +101,7 @@
             padding-bottom: 4px;
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -374,6 +375,11 @@
 
     // 전역 변수
     window.currentProducts = [];
+    
+    const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
+    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     window.currentData = [];
     window.currentConsultations = {};
     window.currentReservations = {};
@@ -400,7 +406,7 @@
         onValue(dbRef, (snapshot) => {
             const data = snapshot.val();
             if(data) {
-                window.currentProducts = data.products || [];
+                // window.currentProducts = data.products || []; // Now loaded from Supabase below
                 window.currentData = data.events || [];
                 window.currentManagers = data.managers || [];
                 window.currentConsultations = data.consultations || {};
@@ -452,7 +458,7 @@
     // 서버 저장 함수
     window.syncToServer = function() {
         document.getElementById('db-status').innerHTML = '🟡 저장 중...';
-        set(ref(db, '/products'), window.currentProducts);
+        // set(ref(db, '/products'), window.currentProducts); // Now handled by individual save buttons for Supabase
         set(ref(db, '/events'), window.currentData);
         set(ref(db, '/managers'), window.currentManagers).then(() => {
             document.getElementById('db-status').innerHTML = '🟢 실시간 연동 중';
@@ -486,6 +492,37 @@
         return sites;
     }
 
+    
+    // Load products from Supabase
+    (async () => {
+        try {
+            const { data, error } = await window.supabaseClient.from('products').select('*').order('name');
+            if (data) {
+                window.currentProducts = data.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    model: p.model,
+                    features: p.features,
+                    duration: (p.details && p.details.duration) ? p.details.duration : '',
+                    remarks: (p.details && p.details.remarks) ? p.details.remarks : '',
+                    defaultPriceText: p.default_price_text,
+                    detailLink: (p.details && p.details.detailLink) ? p.details.detailLink : '',
+                    brandCategory: p.brand || p.category,
+                    category: p.category,
+                    price_purchase: p.price_purchase,
+                    price_selling: p.price_selling,
+                    costPrice: p.price_purchase,
+                    sellPrice: p.price_selling
+                }));
+                if (document.getElementById('master-tbody')) {
+                    renderMasterList();
+                }
+            }
+        } catch(e) {
+            console.error("Supabase fetch error:", e);
+        }
+    })();
+
     window.renderMasterList = function() {
         const tbody = document.getElementById('master-tbody');
         if(!tbody) return;
@@ -495,7 +532,7 @@
             const siteNames = applicableSites.length > 0 ? applicableSites.join(', ') : '<span style="color:#9ca3af;">없음</span>';
             
             tbody.innerHTML += `
-                <tr>
+                <tr id="m-row-${idx}">
                     <td><input type="text" class="m-name" value="${prod.name}"></td>
                     <td><input type="text" class="m-model" value="${prod.model || ''}"></td>
                     <td><input type="text" class="m-features" value="${prod.features || ''}"></td>
@@ -505,7 +542,8 @@
                     <td><input type="text" class="m-link" value="${prod.detailLink || ''}" placeholder="./products/xxx.html"></td>
                     <td style="font-size: 13px;">${siteNames}</td>
                     <td style="text-align:center;">
-                        <button class="btn-danger" style="padding: 6px 12px; font-size:12px;" onclick="deleteMasterRow(${idx})">삭제</button>
+                        <button class="btn-primary" style="padding: 6px 12px; font-size:12px; margin-bottom: 4px; display:block; width:100%;" onclick="updateMasterRow(${idx})">수정(저장)</button>
+                        <button class="btn-danger" style="padding: 6px 12px; font-size:12px; display:block; width:100%;" onclick="deleteMasterRow(${idx})">삭제</button>
                     </td>
                 </tr>
             `;

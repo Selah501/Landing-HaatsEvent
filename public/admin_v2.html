@@ -1110,47 +1110,46 @@
 
         function populateBrandCategories() {
             const catSelect = document.getElementById('modal-brand-cat');
-            catSelect.innerHTML = '<option value="">-- 분류 선택 --</option>';
-            const predefinedCategories = ["하츠 후드", "하츠 욕실", "하츠 씽크", "하츠 기타", "힘펠 욕실", "기타", "비등록제품서비스"];
+            catSelect.innerHTML = '<option value="">-- 대분류 선택 --</option>';
+            const predefinedCategories = [
+                "하츠후드 엘리카", "하츠후드 플래티늄", "하츠후드 데코", "하츠후드 스템", 
+                "하츠 전기레인지", "하츠 가스레인지", "하츠 수전빌트인", "하츠 씽크볼", 
+                "하츠 기타빌트인", "기타카테고리"
+            ];
             predefinedCategories.forEach(b => {
                 catSelect.innerHTML += `<option value="${b}">${b}</option>`;
             });
-            document.getElementById('modal-prod-select').innerHTML = '<option value="">-- 먼저 분류를 선택 --</option>';
+            document.getElementById('modal-prod-select').innerHTML = '<option value="">-- 제품을 먼저 선택하세요 --</option>';
         }
 
         window.updateModalProductList = function() {
             const cat = document.getElementById('modal-brand-cat').value;
             const pSelect = document.getElementById('modal-prod-select');
-            pSelect.innerHTML = '<option value="">-- 제품 선택 --</option>';
-            
+            pSelect.innerHTML = '<option value="">-- 상품 선택 --</option>';
             if(!cat) return;
             
+            const validCategories = [
+                "하츠후드 엘리카", "하츠후드 플래티늄", "하츠후드 데코", "하츠후드 스템", 
+                "하츠 전기레인지", "하츠 가스레인지", "하츠 수전빌트인", "하츠 씽크볼", "하츠 기타빌트인"
+            ];
+            
             window.masterProducts.forEach(p => {
-                const b = p.brand || "기타";
-                const c = p.category || "기타";
-                let derivedCat = "기타";
-                if (b.includes("하츠")) {
-                    if (c.includes("후드")) derivedCat = "하츠 후드";
-                    else if (c.includes("욕실") || c.includes("환풍기")) derivedCat = "하츠 욕실";
-                    else if (c.includes("싱크") || c.includes("씽크") || c.includes("수전")) derivedCat = "하츠 씽크";
-                    else derivedCat = "하츠 기타";
-                } else if (b.includes("힘펠")) {
-                    if (c.includes("욕실") || c.includes("환풍기")) derivedCat = "힘펠 욕실";
-                    else derivedCat = "기타";
-                }
+                let c = p.category || "";
+                let derivedCat = "기타카테고리";
                 
-                // fallback for exact match
-                if (p.brandCategory === cat) derivedCat = cat;
+                if (validCategories.includes(c)) {
+                    derivedCat = c;
+                }
                 
                 if(derivedCat === cat && p.name) {
                     pSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.model||'모델명없음'})</option>`;
                 }
             });
             
-            if (cat === "비등록제품서비스") {
-                pSelect.innerHTML += `<option value="비등록제품(메모참조)">비등록제품(메모참조)</option>`;
-                pSelect.innerHTML += `<option value="출장/수리비">출장/수리비</option>`;
+            if (cat === "기타카테고리") {
+                pSelect.innerHTML += `<option value="직접입력(메모)">직접입력(메모기재)</option>`;
             }
+        }
         };
 
         window.addModalProduct = function() {

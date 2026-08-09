@@ -1,0 +1,1159 @@
+﻿diff --git a/public/admin.html b/public/admin.html
+index 4d253fd..a60d3c2 100644
+--- a/public/admin.html
++++ b/public/admin.html
+@@ -3,11 +3,11 @@
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-    <title>?대깽??愿由ъ옄 ??(PC 理쒖쟻??</title>
++    <title>湲곕낯?ㅼ젙 (湲곕낯 愿由ъ옄)</title>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+     <style>
+         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 20px; margin: 0; }
+-        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: none; }
++        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: block; }
+         h1 { margin-top: 0; color: #111827; }
+         
+         /* Login Overlay */
+@@ -104,25 +104,13 @@
+ </head>
+ <body>
+ 
+-<div id="login-overlay">
+-    <div class="login-box">
+-        <h2 style="margin-top:0; color:#111827; margin-bottom: 24px;">愿由ъ옄 濡쒓렇??/h2>
+-        <input type="password" id="admin-pw" placeholder="鍮꾨?踰덊샇 ?낅젰" onkeypress="if(event.key === 'Enter') checkPw()">
+-        <br>
+-        <button class="btn-success" onclick="checkPw()">?묒냽?섍린</button>
+-    </div>
+-</div>
+-
+ <div class="container" id="main-container">
+     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
+-        <h1 style="margin:0;">?썱 ?대깽??愿由ъ옄 ??/h1>
++        <h1 style="margin:0;">?숋툘 湲곕낯?ㅼ젙</h1>
+         <div style="display: flex; align-items: center; gap: 16px;">
+             <span style="color:#10b981; font-weight:bold;" id="db-status">?윞 ?곌껐 以?..</span>
+-            <div style="display: flex; gap: 8px;">
+-                <a href="./reservation_v2.html" class="btn-success" style="background-color: #6366f1; text-decoration: none; display: inline-block;">?ㅼ튂?덉빟?쒖뒪??/a>
+-                <a href="./admin_v2.html" class="btn-success" style="background-color: #8b5cf6; text-decoration: none; display: inline-block;">?묒뾽吏?쒖꽌</a>
+-                <a href="./erp.html" class="btn-success" style="background-color: #10b981; text-decoration: none; display: inline-block;">?щТ/?λ? ERP</a>
+-            </div>
++            <button onclick="window.triggerInjectTestData()" style="background-color:#8b5cf6; color:white; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold; border-radius:6px;">?㎦ 媛???뚯뒪???곗씠???앹꽦</button>
++            <div id="nav-container"></div>
+             <div style="display:flex; background:#e5e7eb; border-radius:6px; overflow:hidden; border:1px solid #d1d5db;">
+                 <button id="btn-pc-view" onclick="setView('pc')" style="background-color:#2563eb; color:white; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold;">?뮲 PC</button>
+                 <button id="btn-mobile-view" onclick="setView('mobile')" style="background-color:transparent; color:#4b5563; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold;">?벑 紐⑤컮??/button>
+@@ -133,7 +121,7 @@
+     <div class="tabs">
+         <div class="tab active" onclick="switchTab('tab-master', this)">1. ?곹뭹 留덉뒪??愿由?/div>
+         <div class="tab" onclick="switchTab('tab-events', this)">2. ?꾩옣蹂??대깽??愿由?/div>
+-        <div class="tab" onclick="switchTab('tab-consultations', this)">3. DB (?곷떞/?덉빟) ?꾪솴</div>
++        <div class="tab" onclick="switchTab('tab-consultations', this)">3. ?듯솕 AI 諛????곷떞 DB</div>
+         <div class="tab" onclick="switchTab('tab-managers', this)">4. ?대떦??愿由?/div>
+     </div>
+ 
+@@ -197,8 +185,27 @@
+ 
+     <!-- ??3: 怨좉컼 ?곷떞/?덉빟 ?꾪솴 -->
+     <div id="tab-consultations" class="tab-content">
++        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
++            <h3 style="margin:0; color:#111;">?벑 ?듯솕 ?붿빟 ?ㅼ떆媛?<span id="crm-badge" style="background:#ef4444; color:#fff; font-size:12px; border-radius:12px; padding:2px 8px; margin-left:8px; display:none;">0</span></h3>
++            <div style="display:flex; gap:8px;">
++                <button class="btn" style="background:#10b981; color:#fff; padding:6px 12px; border-radius:4px; font-weight:bold; border:none; cursor:pointer;" onclick="document.getElementById('readonly-cal-modal').style.display='flex'">?뿎截??щ젰 蹂닿린 (?쎄린 ?꾩슜)</button>
++                <a href="reservation_v2.html?admin=true" target="_blank" class="btn" style="background:#8b5cf6; color:#fff; padding:6px 12px; border-radius:4px; font-weight:bold; border:none; text-decoration:none;">?숋툘 ?щ젰 愿由?(愿由ъ옄 紐⑤뱶)</a>
++            </div>
++        </div>
++        
++        <!-- CRM Grid -->
++        <div id="crm-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 30px;">
++            <!-- JS ?뚮뜑留?-->
++        </div>
++        
++        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
++
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+-            <p style="margin: 0; color: #6b7280;">怨좉컼???묒닔??臾대즺?곷떞 諛??덉빟(V2) ?꾩껜 ?댁뿭?낅땲??</p>
++            <div style="display:flex; align-items:center; gap:12px;">
++                <h3 style="margin: 0; color: #111;">?뙋 ??QR) ?묒닔 諛?DB 留덉뒪????/h3>
++                <button class="btn" style="background:#f59e0b; color:#fff; padding:4px 10px; border-radius:4px; font-weight:bold; border:none; cursor:pointer; font-size:12px;" onclick="openUnifiedModal('', '', '', '', '')">???섍린(臾몄옄) ?덉빟 ?앹꽦</button>
++            </div>
++            <p style="margin: 0; color: #6b7280; font-size:13px;">?꾩엫??由щ뱶 諛?怨좉컼 吏곸젒 ?묒닔 ?댁뿭</p>
+         </div>
+         
+         <div style="overflow-x: auto;">
+@@ -223,6 +230,66 @@
+ 
+ </div>
+ 
++
++
++<!-- ?듯빀 ?덉빟 愿由?諛?臾몄옄諛쒖넚 紐⑤떖 -->
++<div id="unified-res-modal" class="modal-overlay" style="display:none; z-index:9999; align-items:center; justify-content:center; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85);">
++    <div style="background:#1e1e20; width:90%; max-width:480px; padding:24px; border-radius:12px; border:1px solid #444; color:#fff; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
++        <h3 style="margin-top:0; color:#fff; display:flex; align-items:center; gap:8px;">?뿎截??덉빟 愿由?諛?臾몄옄 諛쒖넚</h3>
++        <input type="hidden" id="uni-res-path">
++        
++        <div style="background:#111; padding:14px; border-radius:8px; margin-bottom:16px; border:1px solid #333;">
++            <div style="font-size:13px; color:#c9ff00; font-weight:bold; margin-bottom:10px;">?뫀 怨좉컼 ?묒닔 ?뺣낫 (?먮룞 梨꾩?)</div>
++            <div style="display:grid; gap:8px;">
++                <div>
++                    <label style="font-size:11px; color:#aaa;">?꾩옣紐?/ ?쇑룻샇??/label>
++                    <input type="text" id="uni-customer-apt" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px; font-weight:bold;">
++                </div>
++                <div>
++                    <label style="font-size:11px; color:#aaa;">?곕씫泥?(?レ옄留?</label>
++                    <input type="text" id="uni-customer-phone" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#10b981; border-radius:4px; font-size:14px;">
++                </div>
++                <div>
++                    <label style="font-size:11px; color:#aaa;">?좎껌 ?쒗뭹 (援щℓ??</label>
++                    <input type="text" id="uni-customer-items" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#eed37f; border-radius:4px; font-size:13px; font-weight:bold;">
++                </div>
++                <div>
++                    <label style="font-size:11px; color:#aaa;">硫붾え / AI ?듯솕 ?붿빟</label>
++                    <textarea id="uni-customer-notes" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#ccc; border-radius:4px; font-size:12px;" rows="3"></textarea>
++                </div>
++            </div>
++        </div>
++
++        <div style="background:#2a2a2c; padding:16px; border-radius:8px; margin-bottom:16px; border:1px solid #444;">
++            <div style="color:#c9ff00; font-weight:bold; font-size:14px; margin-bottom:8px;">??1?④퀎: ?덉빟 ?깅줉 (?뺤젙 ?湲곗쨷) ??/div>
++            <div style="display:flex; gap:8px; margin-bottom:12px;">
++                <input type="date" id="uni-res-date" style="flex:1; padding:10px; border-radius:6px; background:#111; color:white; border:1px solid #555; color-scheme:dark;">
++                <input type="time" id="uni-res-time" style="flex:1; padding:10px; border-radius:6px; background:#111; color:white; border:1px solid #555; color-scheme:dark;" value="10:00">
++            </div>
++            <button class="btn" style="width:100%; background:#fef3c7; color:#d97706; border:1px solid #d97706; font-weight:bold; padding:12px; border-radius:6px; cursor:pointer; font-size:15px;" onclick="saveUnifiedReservation()">?윞 ?덉빟 ?깅줉(?섏젙)?섍린 (愿由ъ옄)</button>
++        </div>
++
++        <div style="background:#111; padding:14px; border-radius:8px; margin-bottom:20px; border:1px solid #333;">
++            <div style="font-weight:bold; color:#eed37f; margin-bottom:10px; font-size:14px;">??2?④퀎: ??二쇱냼濡?????∽툘 臾몄옄 諛쒖넚 ??/div>
++            
++            <button class="btn" style="width:100%; background:#8b5cf6; color:#fff; font-weight:bold; padding:12px; border-radius:6px; border:none; cursor:pointer; margin-bottom:12px; font-size:14px;" onclick="uniSaveToPhone()">?뫀 1珥????곕씫泥?二쇱냼濡? ?깅줉?섍린</button>
++            
++            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
++                <button class="btn" style="background:#374151; color:#fff; padding:10px 8px; font-size:13px; border-radius:6px; border:none; cursor:pointer; text-align:left;" onclick="uniSendSms('receipt')">?벂 ???묒닔 ?뺤씤</button>
++                <button class="btn" style="background:#f59e0b; color:#fff; padding:10px 8px; font-size:13px; border-radius:6px; border:none; cursor:pointer; text-align:left;" onclick="uniSendSms('change')">?봽 ???쇱젙 蹂寃?/button>
++                <button class="btn" style="background:#ef4444; color:#fff; padding:10px 8px; font-size:13px; border-radius:6px; border:none; cursor:pointer; text-align:left;" onclick="uniSendSms('missing')">?좑툘 ???숉샇???붿껌</button>
++            </div>
++            <div style="font-size:11px; color:#888; margin-top:8px;">?뮕 ?대┃ ??怨좉컼 ?뺣낫媛 ?묒꽦????臾몄옄 ?깆씠 ?대┰?덈떎!</div>
++        </div>
++
++        <div style="display:flex; justify-content:flex-end;">
++            <button class="btn" style="background:#444; color:#fff; padding:8px 20px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;" onclick="closeUnifiedModal()">?슞 ?リ린</button>
++        </div>
++    </div>
++</div>
++
++</div>
++
+ <!-- Event Modal -->
+ <div id="event-modal" class="modal-overlay">
+     <div class="modal">
+@@ -291,9 +358,11 @@
+     </div>
+ </div>
+ 
++<script src="./auth.js"></script>
+ <script type="module">
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+-    import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
++    import { getDatabase, ref, onValue, set, get, update, push, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
++    import { injectTestData } from "./test_data.js";
+ 
+     const firebaseConfig = {
+         databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+@@ -309,51 +378,55 @@
+     window.currentConsultations = {};
+     window.currentReservations = {};
+     window.currentManagers = [];
+-    window.firebaseDb = db;
++    window.firebaseSet = set;
++    window.firebasePush = push;
++    window.firebaseRemove = remove;
+     window.firebaseUpdate = update;
+     window.firebaseRef = ref;
++    window.firebaseDb = db;
++    window.firebaseGet = get;
++    window.firebaseOnValue = onValue;
+ 
+-    // 濡쒓렇???뺤씤
+-    window.checkPw = function() {
+-        const pw = document.getElementById('admin-pw').value;
+-        if(pw === '5096') {
+-            document.getElementById('login-overlay').style.display = 'none';
+-            document.getElementById('main-container').style.display = 'block';
+-            
+-            // ?곗씠?곕쿋?댁뒪 ?곕룞 ?쒖옉
+-            const dbRef = ref(db, '/');
+-            onValue(dbRef, (snapshot) => {
+-                const data = snapshot.val();
+-                if(data) {
+-                    window.currentProducts = data.products || [];
+-                    window.currentData = data.events || [];
+-                    window.currentManagers = data.managers || [];
+-                    window.currentConsultations = data.consultations || {};
+-                    window.currentReservations = data.reservations || {};
+-                    
+-                    document.getElementById('db-status').innerHTML = '?윟 ?ㅼ떆媛??곕룞 以?;
+-                    
+-                    if(document.getElementById('tab-master').classList.contains('active')) {
+-                        renderMasterList();
+-                    } else if(document.getElementById('tab-events').classList.contains('active')) {
+-                        renderEventList();
+-                    } else if(document.getElementById('tab-consultations').classList.contains('active')) {
+-                        renderConsultations();
+-                    } else if(document.getElementById('tab-managers').classList.contains('active')) {
+-                        renderManagerList();
+-                    }
+-                } else {
+-                    document.getElementById('db-status').innerHTML = '?뵶 ?곗씠?곌? ?놁뒿?덈떎.';
++    window.triggerInjectTestData = function() {
++        injectTestData(db, ref, set, push);
++    };
++
++    // 濡쒓렇???뺤씤 諛?珥덇린??+    initAdminAuth(() => {
++        document.getElementById('nav-container').innerHTML = renderAdminNav('admin');
++        document.getElementById('main-container').style.display = 'block';
++        
++        const dbRef = ref(db, '/');
++        onValue(dbRef, (snapshot) => {
++            const data = snapshot.val();
++            if(data) {
++                window.currentProducts = Array.isArray(data.products) ? data.products : Object.values(data.products || {});
++                window.currentData = data.events || [];
++                window.currentManagers = data.managers || [];
++                window.currentConsultations = data.consultations || {};
++                window.currentCrmPending = data.crm_pending || {};
++                window.currentReservations = data.reservations || {};
++                
++                document.getElementById('db-status').innerHTML = '?윟 ?ㅼ떆媛??곕룞 以?;
++                
++                if(document.getElementById('tab-master').classList.contains('active')) {
++                    renderMasterList();
++                } else if(document.getElementById('tab-events').classList.contains('active')) {
++                    renderEventList();
++                } else if(document.getElementById('tab-consultations').classList.contains('active')) {
++                    renderCRMGrid(window.currentCrmPending);
++                    renderConsultations();
++                } else if(document.getElementById('tab-managers').classList.contains('active')) {
++                    renderManagerList();
+                 }
+-            }, (error) => {
+-                console.error("Firebase read failed: " + error.code);
+-                document.getElementById('db-status').innerHTML = '?뵶 ?곗씠?곕쿋?댁뒪 ?ㅻ쪟';
+-            });
+-            
+-        } else {
+-            alert('鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.');
+-        }
+-    }
++            } else {
++                document.getElementById('db-status').innerHTML = '?뵶 ?곗씠?곌? ?놁뒿?덈떎.';
++            }
++        }, (error) => {
++            console.error("Firebase read failed: " + error.code);
++            document.getElementById('db-status').innerHTML = '?뵶 ?곗씠?곕쿋?댁뒪 ?ㅻ쪟';
++        });
++    });
+ 
+     // PC / 紐⑤컮??酉??좉?
+     window.setView = function(view) {
+@@ -396,7 +469,10 @@
+         document.getElementById(tabId).classList.add('active');
+         if(tabId === 'tab-master') renderMasterList();
+         if(tabId === 'tab-events') renderEventList();
+-        if(tabId === 'tab-consultations') renderConsultations();
++        if(tabId === 'tab-consultations') {
++            renderCRMGrid(window.currentCrmPending);
++            renderConsultations();
++        }
+         if(tabId === 'tab-managers') renderManagerList();
+     }
+ 
+@@ -412,246 +488,30 @@
+ 
+     window.renderMasterList = function() {
+         const tbody = document.getElementById('master-tbody');
++        if(!tbody) return;
+         tbody.innerHTML = '';
+         window.currentProducts.forEach((prod, idx) => {
+-            const sites = getApplicableSites(prod.id);
+-            const sitesHtml = sites.map(s => `<span class="site-badge">${s}</span>`).join('') || '<span style="color:#999;font-size:12px;">?곸슜?놁쓬</span>';
++            const applicableSites = getApplicableSites(prod.id);
++            const siteNames = applicableSites.length > 0 ? applicableSites.join(', ') : '<span style="color:#9ca3af;">?놁쓬</span>';
+             
+             tbody.innerHTML += `
+-                <tr id="m-row-${idx}">
+-                    <td data-label="?곹뭹紐?><input type="text" class="m-name" value="${prod.name}"></td>
+-                    <td data-label="紐⑤뜽/?좏삎"><input type="text" class="m-model" value="${prod.model || ''}"></td>
+-                    <td data-label="湲곕뒫/?뱀쭠"><input type="text" class="m-features" value="${prod.features || ''}"></td>
+-                    <td data-label="?뚯슂?쒓컙(遺?"><input type="number" class="m-duration" value="${prod.duration || ''}" placeholder="?? 120" style="width:100%; padding:10px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"></td>
+-                    <td data-label="鍮꾧퀬(鍮꾧났媛?"><input type="text" class="m-remarks" value="${prod.remarks || ''}" placeholder="鍮꾧났媛?硫붾え"></td>
+-                    <td data-label="湲곕낯 ?쒖떆媛"><input type="text" class="m-defaultPrice" value="${prod.defaultPriceText || ''}"></td>
+-                    <td data-label="?곸꽭 留곹겕"><input type="text" class="m-link" value="${prod.detailLink || ''}" placeholder="./products/xxx.html"></td>
+-                    <td data-label="?곸슜 ?꾩옣">${sitesHtml}</td>
+-                    <td data-label="愿由? style="text-align:center;">
+-                        <button class="btn-info" style="padding: 10px; font-size:14px; margin-bottom: 8px; display:block; width:100%;" onclick="openAssignModal('${prod.id}')">?꾩옣 諛곗젙</button>
+-                        <button class="btn-danger" style="padding: 10px; font-size:14px; display:block; width:100%;" onclick="deleteMasterRow(${idx})">??젣</button>
+-                    </td>
+-                </tr>
+-            `;
+-        });
+-    }
+-
+-    window.addMasterRow = function() {
+-        window.currentProducts.push({
+-            id: 'p_' + Date.now(),
+-            name: '', model: '', features: '', duration: '', remarks: '', defaultPriceText: '', detailLink: ''
+-        });
+-        renderMasterList();
+-    }
+-
+-    window.deleteMasterRow = function(idx) {
+-        if(confirm("?뺣쭚 ??젣?섏떆寃좎뒿?덇퉴? (???곹뭹???ъ슜?섎뒗 ?꾩옣???덈떎硫?洹멸납?먯꽌???щ씪吏묐땲??")) {
+-            const id = window.currentProducts[idx].id;
+-            window.currentData.forEach(ev => {
+-                if(ev.mainProducts) ev.mainProducts = ev.mainProducts.filter(p => p.id !== id);
+-                if(ev.addonProducts) ev.addonProducts = ev.addonProducts.filter(p => p.id !== id);
+-            });
+-            window.currentProducts.splice(idx, 1);
+-            window.syncToServer();
+-        }
+-    }
+-
+-    window.saveMasterList = function() {
+-        const rows = document.querySelectorAll('#master-tbody tr');
+-        rows.forEach((row, idx) => {
+-            window.currentProducts[idx].name = row.querySelector('.m-name').value;
+-            window.currentProducts[idx].model = row.querySelector('.m-model').value;
+-            window.currentProducts[idx].features = row.querySelector('.m-features').value;
+-            const durVal = parseInt(row.querySelector('.m-duration').value);
+-            window.currentProducts[idx].duration = isNaN(durVal) ? 0 : durVal;
+-            window.currentProducts[idx].remarks = row.querySelector('.m-remarks').value;
+-            window.currentProducts[idx].defaultPriceText = row.querySelector('.m-defaultPrice').value;
+-            window.currentProducts[idx].detailLink = row.querySelector('.m-link').value;
+-        });
+-        window.syncToServer();
+-        alert('?쒕쾭????λ릺?덉뒿?덈떎.');
+-    }
+-
+-    window.openAssignModal = function(prodId) {
+-        document.getElementById('assign-modal').style.display = 'flex';
+-        document.getElementById('assign-prod-id').value = prodId;
+-        const prod = window.currentProducts.find(p => p.id === prodId);
+-        document.getElementById('assign-modal-title').innerText = `[${prod.name}] ?꾩옣 ?쇨큵 諛곗젙`;
+-
+-        const listDiv = document.getElementById('assign-list');
+-        listDiv.innerHTML = '';
+-        window.currentData.forEach((ev, evIdx) => {
+-            const inMain = (ev.mainProducts || []).some(p => p.id === prodId);
+-            const inAddon = (ev.addonProducts || []).some(p => p.id === prodId);
+-            
+-            listDiv.innerHTML += `
+-                <div class="assignment-row">
+-                    <strong style="font-size:14px; width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${ev.title}</strong>
+-                    <div class="radio-group" style="display:flex;">
+-                        <label><input type="radio" name="assign-${evIdx}" value="none" ${(!inMain && !inAddon) ? 'checked' : ''}> 誘몃같??/label>
+-                        <label><input type="radio" name="assign-${evIdx}" value="main" ${inMain ? 'checked' : ''}> 硫붿씤 ?곹뭹</label>
+-                        <label><input type="radio" name="assign-${evIdx}" value="addon" ${inAddon ? 'checked' : ''}> 遺媛 ?곹뭹</label>
+-                    </div>
+-                </div>
+-            `;
+-        });
+-    }
+-
+-    window.closeAssignModal = function() {
+-        document.getElementById('assign-modal').style.display = 'none';
+-    }
+-
+-    window.saveAssignments = function() {
+-        const prodId = document.getElementById('assign-prod-id').value;
+-        
+-        window.currentData.forEach((ev, evIdx) => {
+-            const val = document.querySelector(`input[name="assign-${evIdx}"]:checked`).value;
+-            
+-            if(ev.mainProducts) ev.mainProducts = ev.mainProducts.filter(p => p.id !== prodId);
+-            if(ev.addonProducts) ev.addonProducts = ev.addonProducts.filter(p => p.id !== prodId);
+-
+-            if(val === 'main') {
+-                ev.mainProducts.push({ id: prodId, customText: '' });
+-            } else if (val === 'addon') {
+-                ev.addonProducts.push({ id: prodId, customText: '' });
+-            }
+-        });
+-
+-        window.closeAssignModal();
+-        window.syncToServer();
+-        alert('諛곗젙???쒕쾭????λ릺?덉뒿?덈떎.');
+-    }
+-
+-    window.renderEventList = function() {
+-        const tbody = document.getElementById('event-tbody');
+-        tbody.innerHTML = '';
+-        window.currentData.forEach((ev, idx) => {
+-            const isEnded = ev.status === 'ended';
+-            
+-            const mainNames = (ev.mainProducts || []).map(p => {
+-                const m = window.currentProducts.find(x => x.id === p.id);
+-                return m ? m.name : '?뚯닔?놁쓬';
+-            }).join(', ');
+-
+-            const addonNames = (ev.addonProducts || []).map(p => {
+-                const m = window.currentProducts.find(x => x.id === p.id);
+-                return m ? m.name : '?뚯닔?놁쓬';
+-            }).join(', ');
+-
+-            tbody.innerHTML += `
+-                <tr style="${isEnded ? 'background-color: #f9fafb; color: #9ca3af;' : ''}">
+-                    <td data-label="?곹깭"><span class="badge ${isEnded ? 'ended' : 'active'}">${isEnded ? '醫낅즺?? : '吏꾪뻾以?}</span></td>
+-                    <td data-label="?꾩옣紐?><strong>${ev.title}</strong></td>
+-                    <td data-label="?대깽??湲곌컙">${ev.periodText}</td>
+-                    <td data-label="硫붿씤 ?곹뭹" style="font-size: 13px;">${mainNames || '-'}</td>
+-                    <td data-label="遺媛 ?곹뭹" style="font-size: 13px; color: #6b7280;">${addonNames || '-'}</td>
+-                    <td data-label="?대떦??>
+-                        ${ev.managerId ? (window.currentManagers.find(m => m.id === ev.managerId)?.name || '誘몃같??) : '誘몃같??}
+-                    </td>
+-                    <td data-label="愿由?>
+-                        <div style="display:flex; gap:8px;">
+-                            <button class="btn-warning" style="flex:1; padding: 10px;" onclick="openEventModal(${idx})">?섏젙</button>
+-                            ${!isEnded ? `<button class="btn-danger" style="flex:1; padding: 10px;" onclick="endEvent(${idx})">醫낅즺</button>` : `<button class="btn-secondary" style="flex:1; padding: 10px;" onclick="activateEvent(${idx})">吏꾪뻾</button>`}
+-                        </div>
++                <tr>
++                    <td><input type="text" class="m-name" value="${prod.name}"></td>
++                    <td><input type="text" class="m-model" value="${prod.model || ''}"></td>
++                    <td><input type="text" class="m-features" value="${prod.features || ''}"></td>
++                    <td><input type="number" class="m-duration" value="${prod.duration || ''}" placeholder="?? 120" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px;"></td>
++                    <td><input type="text" class="m-remarks" value="${prod.remarks || ''}" placeholder="鍮꾧났媛?硫붾え"></td>
++                    <td><input type="text" class="m-defaultPrice" value="${prod.defaultPriceText || ''}"></td>
++                    <td><input type="text" class="m-link" value="${prod.detailLink || ''}" placeholder="./products/xxx.html"></td>
++                    <td style="font-size: 13px;">${siteNames}</td>
++                    <td style="text-align:center;">
++                        <button class="btn-danger" style="padding: 6px 12px; font-size:12px;" onclick="deleteMasterRow(${idx})">??젣</button>
+                     </td>
+                 </tr>
+             `;
+         });
+     }
+ 
+-    window.endEvent = function(index) { window.currentData[index].status = 'ended'; window.syncToServer(); }
+-    window.activateEvent = function(index) { window.currentData[index].status = 'active'; window.syncToServer(); }
+-
+-    window.openEventModal = function(index = -1) {
+-        document.getElementById('event-modal').style.display = 'flex';
+-        const isEdit = index >= 0;
+-        document.getElementById('modal-title').innerText = isEdit ? '?꾩옣 ?섏젙' : '?좉퇋 ?꾩옣 ?깅줉';
+-        document.getElementById('modal-index').value = index;
+-
+-        const ev = isEdit ? window.currentData[index] : { title: '', priceText: '', periodText: '', managerId: '', mainProducts: [], addonProducts: [] };
+-        
+-        document.getElementById('ev-title').value = ev.title;
+-        document.getElementById('ev-price').value = ev.priceText || '';
+-        document.getElementById('ev-period').value = ev.periodText;
+-        
+-        // ?대떦???좏깮 ?뚮뜑留?-        const managerSelect = document.getElementById('ev-manager');
+-        managerSelect.innerHTML = '<option value="">?좏깮 ?덊븿</option>';
+-        window.currentManagers.forEach(mgr => {
+-            managerSelect.innerHTML += `<option value="${mgr.id}" ${ev.managerId === mgr.id ? 'selected' : ''}>${mgr.name} (${mgr.phone})</option>`;
+-        });
+-
+-        const mainDiv = document.getElementById('modal-main-prods');
+-        const addonDiv = document.getElementById('modal-addon-prods');
+-        mainDiv.innerHTML = ''; addonDiv.innerHTML = '';
+-
+-        window.currentProducts.forEach(prod => {
+-            const checkedMain = (ev.mainProducts || []).find(p => p.id === prod.id);
+-            mainDiv.innerHTML += `
+-                <div class="product-item">
+-                    <input type="checkbox" id="chk-main-${prod.id}" value="${prod.id}" ${checkedMain ? 'checked' : ''}>
+-                    <label for="chk-main-${prod.id}"><strong>${prod.name}</strong> <span style="font-size:11px;">(${prod.defaultPriceText})</span></label>
+-                    <input type="text" id="price-main-${prod.id}" placeholder="?꾩옣媛 (湲곕낯媛??ъ슜??鍮꾩?)" value="${checkedMain ? checkedMain.customText : ''}">
+-                </div>
+-            `;
+-
+-            const checkedAddon = (ev.addonProducts || []).find(p => p.id === prod.id);
+-            addonDiv.innerHTML += `
+-                <div class="product-item">
+-                    <input type="checkbox" id="chk-addon-${prod.id}" value="${prod.id}" ${checkedAddon ? 'checked' : ''}>
+-                    <label for="chk-addon-${prod.id}"><strong>${prod.name}</strong> <span style="font-size:11px;">(${prod.defaultPriceText})</span></label>
+-                    <input type="text" id="price-addon-${prod.id}" placeholder="?꾩옣媛 (湲곕낯媛??ъ슜??鍮꾩?)" value="${checkedAddon ? checkedAddon.customText : ''}">
+-                </div>
+-            `;
+-        });
+-    }
+-
+-    window.closeEventModal = function() {
+-        document.getElementById('event-modal').style.display = 'none';
+-    }
+-
+-    window.saveEvent = function() {
+-        const index = parseInt(document.getElementById('modal-index').value);
+-        const title = document.getElementById('ev-title').value;
+-        if(!title) { alert('?꾩옣紐낆쓣 ?낅젰?섏꽭??'); return; }
+-
+-        const mainProducts = [];
+-        const addonProducts = [];
+-
+-        window.currentProducts.forEach(prod => {
+-            const chkMain = document.getElementById(`chk-main-${prod.id}`);
+-            if(chkMain && chkMain.checked) {
+-                mainProducts.push({ id: prod.id, customText: document.getElementById(`price-main-${prod.id}`).value });
+-            }
+-
+-            const chkAddon = document.getElementById(`chk-addon-${prod.id}`);
+-            if(chkAddon && chkAddon.checked) {
+-                addonProducts.push({ id: prod.id, customText: document.getElementById(`price-addon-${prod.id}`).value });
+-            }
+-        });
+-
+-        const evObj = {
+-            id: index >= 0 ? window.currentData[index].id : 'ev_' + Date.now(),
+-            title: title,
+-            priceText: document.getElementById('ev-price').value,
+-            periodText: document.getElementById('ev-period').value,
+-            status: index >= 0 ? window.currentData[index].status : 'active',
+-            managerId: document.getElementById('ev-manager').value,
+-            mainProducts: mainProducts,
+-            addonProducts: addonProducts
+-        };
+-
+-        if(index >= 0) {
+-            window.currentData[index] = evObj;
+-        } else {
+-            window.currentData.unshift(evObj);
+-        }
+-
+-        window.closeEventModal();
+-        window.syncToServer();
+-        alert('?쒕쾭????λ릺?덉뒿?덈떎.');
+-    }
+-
+     window.renderConsultations = function() {
+         const tbody = document.getElementById('consult-tbody');
+         if(!tbody) return;
+@@ -659,41 +519,58 @@
+         
+         let allItems = [];
+         
+-        // 臾대즺?곷떞 ?뚯떛 (consultations/YYYY-MM-DD/{id})
++        // V1 ?⑥닚?곷떞 ?뚯떛 (consultations/YYYY-MM-DD/{id})
+         for (const [dateStr, dailyData] of Object.entries(window.currentConsultations)) {
+             for (const [key, val] of Object.entries(dailyData)) {
++                let contentText = val.eventName || '';
++                let memoText = val.adminMemo || '';
++                if (contentText.startsWith('[AI ?⑥닚?곷떞]') && contentText.length > 20) {
++                    memoText = contentText.substring(10).trim() + "\n\n" + memoText;
++                    contentText = "[AI] ?붿빟 李몄“ (援щℓ??誘몄젙)";
++                }
++                
+                 allItems.push({
+                     id: key,
+                     path: `consultations/${dateStr}/${key}`,
+-                    type: '臾대즺?곷떞',
++                    type: '臾대즺?곷떞(AI/??',
+                     timestamp: val.timestamp || 0,
+-                    dateText: new Date(val.timestamp || Date.now()).toLocaleString(),
+                     customer: val.apartment || '',
+                     phone: val.phone || '',
+-                    content: val.eventName || '',
++                    content: contentText,
+                     status: val.status || 'consultation_pending',
+-                    adminMemo: val.adminMemo || ''
++                    adminMemo: memoText
+                 });
+             }
+         }
+         
+-        // V2 ?덉빟 ?뚯떛 (reservations/YYYY-MM/{date}/{id})
+-        for (const [monthStr, monthData] of Object.entries(window.currentReservations)) {
+-            for (const [dateStr, dailyData] of Object.entries(monthData)) {
+-                for (const [key, val] of Object.entries(dailyData)) {
+-                    if(val.type === 'customer') {
+-                        let prodStr = (val.customerInfo && val.customerInfo.items) ? val.customerInfo.items.join(' + ') : '';
++        // V2 ?덉빟 ?뚯떛 (reservations/YYYY-MM-DD/HH:MM)
++        const processedV2 = new Set();
++        for (const [dateStr, dailyData] of Object.entries(window.currentReservations)) {
++            // dateStr format is usually YYYY-MM-DD
++            if (typeof dailyData === 'object' && dailyData !== null) {
++                for (const [timeStr, val] of Object.entries(dailyData)) {
++                    if(val && (val.type === 'customer' || val.type === 'ai_call')) {
++                        const rId = val.reservationId || `${dateStr}_${timeStr}`;
++                        if (processedV2.has(rId)) continue;
++                        processedV2.add(rId);
++                        
++                        let prodStr = (val.customerInfo && val.customerInfo.items) ? val.customerInfo.items : '';
++                        if(Array.isArray(prodStr)) prodStr = prodStr.join(' + ');
++                        
++                        let timeText = val.customerInfo?.parentTime || timeStr || '';
++                        
+                         allItems.push({
+-                            id: key,
+-                            path: `reservations/${monthStr}/${dateStr}/${key}`,
+-                            type: '?ㅼ튂?덉빟(V2)',
++                            id: timeStr,
++                            path: `reservations/${dateStr}/${timeStr}`,
++                            type: '?щ젰?덉빟(V2)',
+                             timestamp: val.timestamp || 0,
+-                            dateText: new Date(val.timestamp || Date.now()).toLocaleString(),
+-                            customer: (val.customerInfo && val.customerInfo.apt) || '',
+-                            phone: (val.customerInfo && val.customerInfo.phone) || '',
+-                            content: `[?щ쭩: ${dateStr} ${val.customerInfo?.parentTime}] ${prodStr}`,
++                            targetDate: dateStr,
++                            targetTime: timeText,
++                            customer: (val.customerInfo && val.customerInfo.address) || (val.customerInfo && val.customerInfo.apt) || '',
++                            phone: (val.customerInfo && val.customerInfo.contact) || (val.customerInfo && val.customerInfo.phone) || '',
++                            content: prodStr,
+                             status: val.status || 'pending',
+-                            adminMemo: val.adminMemo || ''
++                            adminMemo: (val.customerInfo && val.customerInfo.notes) || val.adminMemo || ''
+                         });
+                     }
+                 }
+@@ -703,40 +580,252 @@
+         // 理쒖떊???뺣젹
+         allItems.sort((a,b) => b.timestamp - a.timestamp);
+         
++        // Group by Phone
++        let groupedItems = [];
++        let phoneMap = {};
+         allItems.forEach(item => {
+-            let statusText = '';
+-            let statusColor = '';
+-            if(item.status.includes('pending')) { statusText = '?湲곗쨷'; statusColor = '#f59e0b'; }
+-            else if(item.status === 'confirmed') { statusText = '?뺤젙/?덉빟?꾨즺'; statusColor = '#3b82f6'; }
+-            else if(item.status === 'completed') { statusText = '?묒뾽?꾨즺(?뺤궛)'; statusColor = '#10b981'; }
+-            else { statusText = '痍⑥냼/李⑤떒'; statusColor = '#6b7280'; }
++            const ph = (item.phone || '').replace(/[^0-9]/g, '');
++            if(ph && ph.length >= 8) {
++                if(!phoneMap[ph]) {
++                    item.history = [];
++                    phoneMap[ph] = item;
++                    groupedItems.push(item);
++                } else {
++                    phoneMap[ph].history.push(item);
++                }
++            } else {
++                groupedItems.push(item);
++            }
++        });
++
++        groupedItems.forEach(item => {
++            const d = new Date(item.timestamp || Date.now());
++            const days = ['??,'??,'??,'??,'紐?,'湲?,'??];
++            const dateText = `${d.getMonth()+1}/${d.getDate()} ${days[d.getDay()]} ${d.getHours() >= 12 ? '?ㅽ썑' : '?ㅼ쟾'}${d.getHours() % 12 || 12}:${String(d.getMinutes()).padStart(2,'0')}`;
+             
++            let statusBadge = '';
++            if(item.status.includes('pending')) { statusBadge = '<span style="background:#fef3c7; color:#d97706; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold;">?윞 ?뺤젙 ?湲곗쨷</span>'; }
++            else if(item.status === 'confirmed') { statusBadge = '<span style="background:#dcfce7; color:#15803d; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold;">?윟 ?덉빟 ?뺤젙</span>'; }
++            else if(item.status === 'completed') { statusBadge = '<span style="background:#e5e7eb; color:#374151; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold;">?뵖 ?묒뾽 ?꾨즺</span>'; }
++            else { statusBadge = '<span style="background:#fee2e2; color:#b91c1c; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold;">?뵶 痍⑥냼/湲고?</span>'; }
++            
++            const safeContent = (item.content || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++            const safeMemo = (item.adminMemo || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++            const safeCustomer = (item.customer || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++            const safePhone = (item.phone || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++            const safePath = (item.path || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++            let targetDateStr = '';
++            if (item.path && item.path.startsWith('reservations/')) {
++                const parts = item.path.split('/');
++                if (parts.length >= 3) {
++                    const dateParts = parts[1].split('-');
++                    const timeParts = parts[2].split(':');
++                    if (dateParts.length === 3 && timeParts.length >= 2) {
++                        const m = parseInt(dateParts[1]);
++                        const d = parseInt(dateParts[2]);
++                        let h = parseInt(timeParts[0]);
++                        const min = timeParts[1];
++                        const ampm = h >= 12 ? 'pm' : 'am';
++                        if (h > 12) h -= 12;
++                        if (h === 0) h = 12;
++                        const minStr = min === '00' ? '' : `:${min}`;
++                        targetDateStr = `<div style="font-size:11.5px; color:#4b5563; margin-top:8px; font-weight:bold; background:#f3f4f6; padding:2px 6px; border-radius:4px; display:inline-block;">?븩 ${m}/${d} ${h}${minStr}${ampm}</div>`;
++                    }
++                }
++            }
++
++            let historyHtml = '';
++            if(item.history && item.history.length > 0) {
++                let historyNotes = item.history.map(h => {
++                    const hd = new Date(h.timestamp);
++                    const htime = `${hd.getMonth()+1}/${hd.getDate()} ${hd.getHours()}:${String(hd.getMinutes()).padStart(2,'0')}`;
++                    return `[${htime}] ${h.type}\\n${h.content}\\n${h.adminMemo}`;
++                }).join('\\n\\n-------------------\\n\\n');
++                const safeHistory = historyNotes.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++                historyHtml = `<div style="margin-top:8px;"><button style="background:#fde68a; border:1px solid #f59e0b; border-radius:4px; padding:4px 8px; font-size:11px; cursor:pointer; color:#92400e; font-weight:bold;" onclick="alert('?봽 怨쇨굅 ?듯솕/?묒닔 ?대젰:\\n\\n${safeHistory}')">?봽 怨쇨굅 ?대젰 (${item.history.length}嫄? 蹂닿린</button></div>`;
++            }
++
+             tbody.innerHTML += `
+                 <tr>
+-                    <td data-label="?좎쭨/?쒓컙" style="font-size:12px; color:#ccc;">${item.dateText}</td>
+-                    <td data-label="援щ텇"><span style="background:#444; padding:4px 8px; border-radius:4px; font-size:12px;">${item.type}</span></td>
+-                    <td data-label="怨좉컼紐??꾪뙆??">${item.customer}</td>
+-                    <td data-label="?곕씫泥?>${item.phone}</td>
+-                    <td data-label="?좎껌?댁슜" style="font-size:13px; line-height:1.3;">${item.content}</td>
+-                    <td data-label="?곹깭"><span style="color:${statusColor}; font-weight:bold;">${statusText}</span></td>
+-                    <td data-label="?곹깭蹂寃?硫붾え">
+-                        <select onchange="updateDbStatus('${item.path}', this.value)" style="margin-bottom:4px; padding:6px; background:#222; color:white; border:1px solid #555; border-radius:4px; width:100%; font-size:13px;">
+-                            <option value="">?곹깭蹂寃?..</option>
+-                            <option value="${item.type==='臾대즺?곷떞'?'consultation_pending':'pending'}">?湲곗쨷</option>
+-                            <option value="confirmed">?뺤젙/?덉빟?꾨즺</option>
+-                            <option value="completed">?묒뾽?꾨즺(?뺤궛)</option>
+-                            <option value="cancelled">痍⑥냼/李⑤떒</option>
+-                        </select>
+-                        <input type="text" value="${item.adminMemo}" placeholder="愿由ъ옄 硫붾え ?낅젰 ??Enter" onchange="updateDbMemo('${item.path}', this.value)" style="width:100%; padding:6px; box-sizing:border-box; background:#111; color:white; border:1px solid #444; border-radius:4px; font-size:13px;">
++                    <td data-label="?좎쭨/?쒓컙" style="font-size:12px; color:#666; font-weight:bold;">${dateText}</td>
++                    <td data-label="援щ텇"><span style="background:#444; padding:4px 8px; border-radius:4px; font-size:12px; color:white;">${item.type}</span></td>
++                    <td data-label="怨좉컼紐??꾩옣紐??숉샇??" style="font-weight:bold; color:#111;">${item.customer}</td>
++                    <td data-label="?곕씫泥? style="color:#2563eb; font-weight:bold;">${item.phone}</td>
++                    <td data-label="?좎껌?댁슜" style="font-size:13px; line-height:1.3;">
++                        ${item.content ? `<div style="margin-bottom:4px; font-weight:bold;">${item.content}</div>` : ''}
++                        <button style="background:#f3f4f6; border:1px solid #d1d5db; border-radius:4px; padding:2px 6px; font-size:11px; cursor:pointer; color:#374151;" onclick="alert('?붿빟 硫붾え:\\n${safeMemo}')">?뱷 ?붿빟 蹂닿린</button>
++                        ${historyHtml}
++                    </td>
++                    <td data-label="?곹깭" style="text-align:center; vertical-align:middle;">
++                        ${statusBadge}
++                        ${targetDateStr}
++                    </td>
++                    <td data-label="?곹깭蹂寃?硫붾え" style="text-align:center;">
++                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
++                            <button style="background:#c9ff00; color:#000; border:1px solid #a3cc00; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; width:100%;" onclick="openUnifiedModal('${safePath}', '${safeCustomer}', '${safePhone}', '${safeContent}', '${safeMemo}')">?뿎截??덉빟 愿由?(臾몄옄諛쒖넚)</button>
++                            <button style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; width:100%;" onclick="deleteMasterTableRow('${safePath}')">?뿊截?媛뺤젣 ??젣 (?ㅻ쪟嫄?</button>
++                        </div>
+                     </td>
+                 </tr>
+             `;
+         });
+-        if(allItems.length === 0) {
++        if(groupedItems.length === 0) {
+             tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color:#666;">?곗씠?곌? ?놁뒿?덈떎.</td></tr>';
+         }
+     }
+ 
++    
++    // ==========================================
++    // ?듯빀 ?덉빟 愿由?紐⑤떖 濡쒖쭅
++    // ==========================================
++    window.openUnifiedModal = function(path, customer, phone, items, memo) {
++        document.getElementById('uni-res-path').value = path;
++        document.getElementById('uni-customer-apt').value = customer || '';
++        document.getElementById('uni-customer-phone').value = phone || '';
++        document.getElementById('uni-customer-items').value = items || '';
++        document.getElementById('uni-customer-notes').value = memo || '';
++        
++        let dateVal = "";
++        let timeVal = "10:00";
++        
++        if (path && path.startsWith('reservations/')) {
++            const parts = path.split('/');
++            if (parts.length >= 3) {
++                dateVal = parts[1];
++                timeVal = parts[2];
++            }
++        } else {
++            let yyyy = new Date().getFullYear();
++            let mm = String(new Date().getMonth() + 1).padStart(2, '0');
++            let dd = String(new Date().getDate()).padStart(2, '0');
++            dateVal = `${yyyy}-${mm}-${dd}`;
++        }
++        
++        document.getElementById('uni-res-date').value = dateVal;
++        document.getElementById('uni-res-time').value = timeVal;
++        
++        document.getElementById('unified-res-modal').style.display = 'flex';
++    };
++
++    window.closeUnifiedModal = function() {
++        document.getElementById('unified-res-modal').style.display = 'none';
++    };
++
++    window.deleteMasterTableRow = async function(path) {
++        if(!confirm('???덉빟 ?댁뿭(?뚯뒪???ㅻ쪟嫄????곗씠?곕쿋?댁뒪?먯꽌 ?꾩쟾????젣?섏떆寃좎뒿?덇퉴?')) return;
++        try {
++            const dbRef = window.firebaseRef(window.firebaseDb, path);
++            await window.firebaseRemove(dbRef);
++            alert('?깃났?곸쑝濡???젣?섏뿀?듬땲??');
++        } catch(e) {
++            console.error(e);
++            alert('??젣 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎: ' + e.message);
++        }
++    };
++
++    window.uniSaveToPhone = function() {
++        const name = document.getElementById('uni-customer-apt').value || '誘몄긽';
++        const phone = (document.getElementById('uni-customer-phone').value || '').replace(/[^0-9]/g, '');
++        const items = document.getElementById('uni-customer-items').value || '?좎껌?쒗뭹誘몄긽';
++        const notes = document.getElementById('uni-customer-notes').value || '';
++        
++        if(!phone) { alert("?곕씫泥섍? ?꾩슂?⑸땲??"); return; }
++        
++        let vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nNOTE:?좎껌?쒗뭹: ${items} / 硫붾え: ${notes}\nEND:VCARD`;
++        let blob = new Blob([vcard], {type: "text/vcard"});
++        let url = URL.createObjectURL(blob);
++        let a = document.createElement('a');
++        a.href = url;
++        a.download = `${name}.vcf`;
++        document.body.appendChild(a);
++        a.click();
++        document.body.removeChild(a);
++    };
++
++    window.saveUnifiedReservation = function() {
++        const oldPath = document.getElementById('uni-res-path').value;
++        const dateStr = document.getElementById('uni-res-date').value;
++        const timeStr = document.getElementById('uni-res-time').value;
++        
++        const customer = document.getElementById('uni-customer-apt').value;
++        const phone = document.getElementById('uni-customer-phone').value;
++        const items = document.getElementById('uni-customer-items').value;
++        const notes = document.getElementById('uni-customer-notes').value;
++        
++        if (!dateStr || !timeStr) {
++            alert('?좎쭨? ?쒓컙???낅젰?댁＜?몄슂.');
++            return;
++        }
++        
++        const rId = "crm_" + Date.now();
++        const newPath = `reservations/${dateStr}/${timeStr}`;
++        
++        const resData = {
++            reservationId: rId,
++            status: 'pending',
++            type: 'ai_call',
++            customerInfo: {
++                address: customer,
++                contact: phone,
++                items: [items],
++                name: "?묒닔 怨좉컼",
++                notes: notes,
++                parentTime: timeStr
++            },
++            timestamp: Date.now(),
++            adminMemo: notes
++        };
++        
++        window.firebaseSet(window.firebaseRef(window.firebaseDb, newPath), resData).then(() => {
++            if (oldPath && oldPath !== newPath) {
++                window.firebaseRemove(window.firebaseRef(window.firebaseDb, oldPath));
++                document.getElementById('uni-res-path').value = newPath;
++            }
++            alert('?щ젰???덉빟 ?깅줉(?湲????꾨즺?섏뿀?듬땲??');
++        }).catch(e => alert('?ㅻ쪟: ' + e.message));
++    };
++
++    window.uniSaveToPhone = function() {
++        const name = document.getElementById('uni-customer-apt').value;
++        const phone = document.getElementById('uni-customer-phone').value;
++        const notes = document.getElementById('uni-customer-items').value;
++        
++        if(!name || !phone) { alert("?대쫫(?꾩옣紐?怨??곕씫泥섍? ?꾩슂?⑸땲??"); return; }
++        
++        let vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nNOTE:${notes}\nEND:VCARD`;
++        let blob = new Blob([vcard], {type: "text/vcard"});
++        let url = URL.createObjectURL(blob);
++        let a = document.createElement('a');
++        a.href = url;
++        a.download = `${name}.vcf`;
++        document.body.appendChild(a);
++        a.click();
++        document.body.removeChild(a);
++    };
++
++    window.uniSendSms = function(type) {
++        const apt = document.getElementById('uni-customer-apt').value || '怨좉컼';
++        const phone = document.getElementById('uni-customer-phone').value;
++        const dateStr = document.getElementById('uni-res-date').value;
++        const timeStr = document.getElementById('uni-res-time').value;
++        
++        if(!phone) { alert('?곕씫泥섍? ?놁뒿?덈떎.'); return; }
++        
++        let body = "";
++        const [yy, mm, dd] = dateStr.split('-');
++        let schedStr = `${mm}??${dd}??${timeStr}`;
++
++        if(type === 'receipt') {
++            body = `?덈뀞?섏꽭?? ?섏툩 異⑸궓(?띿꽦/?댄룷) ?由ъ젏?낅땲??\n\n[ ${apt} ]\n?묒닔?댁＜???댁슜 ?뺤씤?덉뒿?덈떎.\n\n?쇱젙 議곗쑉???꾪빐 ?곕씫?쒕━寃좎뒿?덈떎. 媛먯궗?⑸땲??`;
++        } else if(type === 'change') {
++            body = `?덈뀞?섏꽭?? ?섏툩 異⑸궓 ?由ъ젏?낅땲??\n\n[ ${apt} ] ?덉빟 ?쇱젙 蹂寃??덈궡?쒕┰?덈떎.\n?댁쟾 ?꾩옣 ?묒뾽 吏?곗쑝濡??명븯??諛⑸Ц ?쒓컙???ㅼ냼 吏?곕맆 ?덉젙?낅땲??\n\n- 蹂寃쎈맂 ?덉긽 ?쒓컙: ${schedStr}\n\n理쒕????좎냽?섍쾶 ?대룞?섍쿋?듬땲?? ?묓빐 遺?곷뱶由쎈땲??`;
++        } else if(type === 'missing') {
++            body = `?덈뀞?섏꽭?? ?섏툩 異⑸궓 ?由ъ젏?낅땲??\n?묒닔 ???뺥솗?????몄닔 ?뺣낫媛 ?꾨씫?섏뼱 ?곕씫?쒕졇?듬땲??\n\n諛⑸Ц 諛??쒗뭹 以鍮꾨? ?꾪빐 臾몄옄濡??뺥솗?????몄닔瑜??④꺼二쇱떆硫?媛먯궗?섍쿋?듬땲??`;
++        }
++        
++        window.location.href = `sms:${phone}?body=${encodeURIComponent(body)}`;
++    };
++
+     window.updateDbStatus = function(path, newStatus) {
+         if(!newStatus) return;
+         window.firebaseUpdate(window.firebaseRef(window.firebaseDb, path), { status: newStatus }).then(() => {
+@@ -750,47 +839,239 @@
+         }).catch(e => console.error(e));
+     }
+ 
+-    // --- ?대떦??愿由?異붽? ---
+-    window.renderManagerList = function() {
+-        const tbody = document.getElementById('manager-tbody');
+-        tbody.innerHTML = '';
+-        window.currentManagers.forEach((mgr, idx) => {
+-            tbody.innerHTML += `
+-                <tr>
+-                    <td data-label="?대떦?먮챸"><input type="text" class="mgr-name" value="${mgr.name}"></td>
+-                    <td data-label="?꾪솕踰덊샇"><input type="text" class="mgr-phone" value="${mgr.phone}"></td>
+-                    <td data-label="愿由? style="text-align:center;">
+-                        <button class="btn-danger" style="padding: 10px; font-size:14px; display:block; width:100%;" onclick="deleteManagerRow(${idx})">??젣</button>
+-                    </td>
+-                </tr>
+-            `;
++    
++    // ==========================================
++    // CRM AI ?듯솕 ?붿빟 寃곗옱??濡쒖쭅
++    // ==========================================
++    window.loadCRMData = function() {
++        const crmRef = window.firebaseRef(window.firebaseDb, 'crm_pending');
++        window.firebaseOnValue(crmRef, (snapshot) => {
++            const data = snapshot.val() || {};
++            const keys = Object.keys(data);
++            const badge = document.getElementById('crm-badge');
++            if (badge) {
++                if (keys.length > 0) {
++                    badge.style.display = 'inline-block';
++                    badge.innerText = keys.length;
++                } else {
++                    badge.style.display = 'none';
++                }
++            }
++            renderCRMGrid(data);
+         });
+-    }
++    };
++
++    window.deleteCRMItem = function(key) {
++        if(confirm('???듯솕 ?붿빟??[怨좉컼????젣] 泥섎━?섏떆寃좎뒿?덇퉴?')) {
++            window.firebaseRemove(window.firebaseRef(window.firebaseDb, `crm_pending/${key}`))
++                .catch(e => {
++                    console.error("Delete error:", e);
++                    window.firebaseSet(window.firebaseRef(window.firebaseDb, `crm_pending/${key}`), null);
++                });
++        }
++    };
+ 
+-    window.addManagerRow = function() {
+-        window.currentManagers.push({
+-            id: 'mgr_' + Date.now(),
+-            name: '', phone: ''
++    window.editCRMItem = function(key) {
++        window.firebaseGet(window.firebaseRef(window.firebaseDb, `crm_pending/${key}`)).then(snap => {
++            const item = snap.val();
++            if (!item) return;
++            const newPhone = prompt('?곕씫泥섎? ?섏젙?섏꽭??', item.contact_info || '');
++            if (newPhone !== null) {
++                window.firebaseUpdate(window.firebaseRef(window.firebaseDb, `crm_pending/${key}`), { contact_info: newPhone });
++            }
+         });
+-        renderManagerList();
+-    }
++    };
++
++    window.saveAsLead = function(key) {
++        if(!confirm('罹섎┛???쇱젙 ?놁씠 [DB 由щ뱶]濡쒕쭔 蹂닿??섏떆寃좎뒿?덇퉴?')) return;
++        window.firebaseGet(window.firebaseRef(window.firebaseDb, `crm_pending/${key}`)).then(snap => {
++            const item = snap.val();
++            if (!item) return;
++            
++            let extractedPhone = item.contact_info || '';
++            if ((!extractedPhone || extractedPhone === '?놁쓬' || extractedPhone.trim() === '') && item.filename) {
++                const phoneMatch = item.filename.match(/(010\d{8})/);
++                if (phoneMatch) {
++                    const p = phoneMatch[1];
++                    extractedPhone = `${p.substring(0,3)}-${p.substring(3,7)}-${p.substring(7)}`;
++                }
++            }
++            
++            // consultations DB濡??대룞
++            let yyyy = new Date().getFullYear();
++            let mm = String(new Date().getMonth() + 1).padStart(2, '0');
++            let dd = String(new Date().getDate()).padStart(2, '0');
++            const dateStr = `${yyyy}-${mm}-${dd}`;
++            const cId = "lead_" + Date.now();
++            
++            const leadData = {
++                timestamp: Date.now(),
++                eventName: item.purchase_info || '[AI] ?붿빟 李몄“ (援щℓ??誘몄젙)',
++                apartment: item.site_info || '',
++                phone: extractedPhone,
++                status: 'consultation_pending',
++                adminMemo: `[?붿빟]\n${item.summary || ''}\n\n[?듬?]\n${item.promises || ''}`
++            };
++            
++            window.firebaseSet(window.firebaseRef(window.firebaseDb, `consultations/${dateStr}/${cId}`), leadData)
++            .then(() => {
++                // ?먮낯 ??젣
++                window.firebaseSet(window.firebaseRef(window.firebaseDb, `crm_pending/${key}`), null);
++                alert('由щ뱶(DB)濡??깃났?곸쑝濡???λ릺?덉뒿?덈떎. ?꾨옒 ?쒖뿉???뺤씤 媛?ν빀?덈떎.');
++            });
++        });
++    };
+ 
+-    window.deleteManagerRow = function(idx) {
+-        if(confirm("???대떦?먮? ??젣?섏떆寃좎뒿?덇퉴? (湲곗〈 諛곗젙???꾩옣?먮뒗 ?곹뼢??以????덉뒿?덈떎)")) {
+-            window.currentManagers.splice(idx, 1);
+-            window.syncToServer();
++    function renderCRMGrid(data) {
++        const grid = document.getElementById('crm-grid');
++        const badge = document.getElementById('crm-badge');
++        if(!grid) return;
++        
++        const count = data ? Object.keys(data).length : 0;
++        if(badge) {
++            badge.innerText = count;
++            badge.style.display = count > 0 ? 'inline-block' : 'none';
+         }
+-    }
++        
++        grid.innerHTML = '';
++        if (!data) return;
++        
++        let itemsArr = [];
++        for (const [key, item] of Object.entries(data)) {
++            let itemDate = 0;
++            // Extract Time from filename (e.g. 260804_1703)
++            if (item.filename) {
++                const match = item.filename.match(/_(\d{2})(\d{2})(\d{2})_(\d{2})(\d{2})/);
++                if (match) {
++                    const yy = "20" + match[1];
++                    const mm = match[2];
++                    const dd = match[3];
++                    const hr = match[4];
++                    const min = match[5];
++                    itemDate = new Date(`${yy}-${mm}-${dd}T${hr}:${min}:00`).getTime();
++                }
++            }
++            if(!itemDate && item.created_at) {
++                itemDate = new Date(item.created_at).getTime();
++            }
++            item._ts = itemDate || 0;
++            item._key = key;
++            
++            let extractedPhone = "";
++            if (item.filename) {
++                const phoneMatch = item.filename.match(/(010\d{8})/);
++                if (phoneMatch) {
++                    const p = phoneMatch[1];
++                    extractedPhone = `${p.substring(0,3)}-${p.substring(3,7)}-${p.substring(7)}`;
++                }
++            }
++            if ((!item.contact_info || item.contact_info === '?놁쓬' || item.contact_info.trim() === '') && extractedPhone) {
++                item.contact_info = extractedPhone;
++            }
++            item._phone = (item.contact_info || '').replace(/[^0-9]/g, '');
++            itemsArr.push(item);
++        }
++        
++        // Sort newest first
++        itemsArr.sort((a, b) => b._ts - a._ts);
++        
++        // Group by Phone
++        let groupedItems = [];
++        let phoneMap = {};
++        itemsArr.forEach(item => {
++            const ph = item._phone;
++            if(ph && ph.length >= 8) {
++                if(!phoneMap[ph]) {
++                    item.history = [];
++                    phoneMap[ph] = item;
++                    groupedItems.push(item);
++                } else {
++                    phoneMap[ph].history.push(item);
++                }
++            } else {
++                groupedItems.push(item);
++            }
++        });
++        
++        if (groupedItems.length === 0) {
++            grid.innerHTML = `<div style="grid-column: 1 / -1; padding:20px; text-align:center; background:#f9fafb; border-radius:8px; color:#6b7280;">?덈줈 遺꾩꽍???듯솕 ?뱀쓬???놁뒿?덈떎.</div>`;
++            return;
++        }
++        
++        groupedItems.forEach(item => {
++            const key = item._key;
++            let catColor = '#6b7280';
++            let catBg = '#f3f4f6';
++            if(item.category && item.category.includes('?덉빟')) { catColor = '#15803d'; catBg = '#dcfce7'; }
++            if(item.category && item.category.includes('?곷떞')) { catColor = '#b45309'; catBg = '#fef3c7'; }
++            if(item.category && item.category.includes('蹂寃?)) { catColor = '#b91c1c'; catBg = '#fee2e2'; }
++
++            const dObj = new Date(item._ts);
++            const days = ['??,'??,'??,'??,'紐?,'湲?,'??];
++            const callTime = `${dObj.getMonth()+1}/${dObj.getDate()} ${days[dObj.getDay()]} ${dObj.getHours()}:${String(dObj.getMinutes()).padStart(2,'0')}`;
++            
++            const fields = [
++                { label: '?꾩옣', key: 'site_info' },
++                { label: '?곕씫泥?, key: 'contact_info' },
++                { label: '?щ쭩', key: 'booking_info' },
++                { label: '援щℓ??, key: 'purchase_info' },
++                { label: '?듬?', key: 'promises' }
++            ];
++            
++            let fieldHtml = '';
++            fields.forEach(f => {
++                const val = item[f.key];
++                if (val && val !== 'null' && val.trim() !== '' && val !== '?놁쓬') {
++                    fieldHtml += `<div style="margin-bottom:4px;"><span style="color:#6b7280; display:inline-block; width:50px; font-size:12px;">${f.label}</span> <span style="font-size:13px; font-weight:bold;">${val}</span></div>`;
++                }
++            });
++
++            // Safe values for function call
++            const safePath = `crm_pending/${key}`;
++            const safeCustomer = (item.site_info || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++            const safePhone = (item.contact_info || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++            const safeItems = (item.purchase_info || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++            const safeMemo = (item.summary || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
+ 
+-    window.saveManagerList = function() {
+-        const rows = document.querySelectorAll('#manager-tbody tr');
+-        rows.forEach((row, idx) => {
+-            window.currentManagers[idx].name = row.querySelector('.mgr-name').value;
+-            window.currentManagers[idx].phone = row.querySelector('.mgr-phone').value;
++            const html = `
++                <div style="background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
++                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
++                        <span style="background:${catBg}; color:${catColor}; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold;">${item.category || '誘몃텇瑜?}</span>
++                        <span style="font-size:12px; font-weight:bold; color:#111;">${callTime}</span>
++                    </div>
++                    
++                    <div style="font-weight:bold; color:#111; margin-bottom:12px; font-size:14px; line-height:1.4;">
++                        "${item.summary || '?붿빟 ?놁쓬'}"
++                    </div>
++                    
++                    <div style="background:#f9fafb; padding:10px; border-radius:8px; margin-bottom:16px; flex:1;">
++                        ${fieldHtml}
++                    </div>
++                    
++                    <div style="display:grid; grid-template-columns: 1fr; gap:6px; margin-bottom:6px;">
++                        <button class="btn" style="flex:1; background:#c9ff00; color:#000; font-weight:bold; padding:8px; border-radius:6px; border:none; cursor:pointer;" onclick="openUnifiedModal('${safePath}', '${safeCustomer}', '${safePhone}', '${safeItems}', '${safeMemo}')">?뿎截??덉빟 ?깅줉 (愿由ъ옄)</button>
++                    </div>
++                    
++                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
++                        <button style="background:#fee2e2; color:#b91c1c; border:none; padding:8px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;" onclick="deleteCRMItem('${key}')">?뿊截?怨좉컼????젣</button>
++                        <button style="background:#f3f4f6; color:#374151; border:none; padding:8px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;" onclick="saveAsLead('${key}')">?뮶 由щ뱶(DB) ?꾩떆???/button>
++                    </div>
++                </div>
++            `;
++            grid.innerHTML += html;
+         });
+-        window.syncToServer();
+-        alert('?대떦??紐⑸줉????λ릺?덉뒿?덈떎.');
+     }
+ </script>
++<!-- ?쎄린 ?꾩슜 ?щ젰 紐⑤떖 -->
++<div id="readonly-cal-modal" class="modal-overlay" style="display:none; z-index:9999; align-items:center; justify-content:center; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85);">
++    <div style="background:#fff; width:95%; max-width:800px; height:90vh; border-radius:12px; display:flex; flex-direction:column; overflow:hidden;">
++        <div style="background:#111; color:#fff; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
++            <h3 style="margin:0; color:#c9ff00;">?뿎截??ㅼ튂?덉빟 ?쒖뒪??(?쎄린 ?꾩슜)</h3>
++            <button style="background:transparent; color:#fff; border:none; font-size:24px; cursor:pointer;" onclick="document.getElementById('readonly-cal-modal').style.display='none'">&times;</button>
++        </div>
++        <iframe src="reservation_v2.html?readonly=true" style="flex:1; width:100%; border:none;"></iframe>
++    </div>
++</div>
++
+ </body>
+ </html>

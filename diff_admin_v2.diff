@@ -1,0 +1,946 @@
+﻿diff --git a/public/admin_v2.html b/public/admin_v2.html
+index a3d6850..ef44e6a 100644
+--- a/public/admin_v2.html
++++ b/public/admin_v2.html
+@@ -249,22 +249,41 @@
+             font-family: inherit;
+         }
+         
+-        /* Utility */
+         .empty-state {
+             text-align: center;
+             padding: 40px;
+             color: var(--color-silver-mist);
+         }
++        
++        @keyframes pulse {
++            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
++            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
++            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
++        }
+     </style>
+ </head>
+ <body>
+     <div id="app" class="page-container view-pc">
+         
+         <nav class="header-actions">
+-            <div style="font-weight: bold; font-size: 18px;">?뱥 ?꾩옣 ?묒뾽吏?쒖꽌</div>
++            <div style="display: flex; gap: 12px; align-items: center;">
++                <!-- ??-->
++                <button id="nav-work" class="btn btn-primary" onclick="switchTab('work')" style="border-radius:20px; font-weight:bold;">?썱截??묒뾽吏??諛?罹섎┛??/button>
++                <button id="nav-crm" class="btn btn-secondary" onclick="window.location.href='admin.html?tab=consultations';" style="border-radius:20px; font-weight:bold; position:relative;">
++                    ?뱸 ?듯솕 AI 諛????곷떞 ?꾪솴 ??+                </button>
++            </div>
++            
++            <div style="display: flex; gap: 8px;">
++                <button class="btn" style="background:#e32652; color:#fff; border:none; border-radius:20px; font-weight:bold; cursor:pointer; font-size:12px;" onclick="window.open('https://app.notion.com/p/d2d409048b414028b2bf6f4a4b4bb880', '_blank')">
++                    ?벜 誘몃뵒???꾩뭅?대툕 ?닿린
++                </button>
++                <!-- 濡쒓퀬 ?泥???댄? -->
++                <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1px;">HAATZ V2</h1>
++            </div>
++            
+             <div style="display: flex; gap: 8px; align-items: center;">
+-                <a href="./admin.html" style="color: white; text-decoration: none; font-size: 14px; background: #374151; padding: 6px 12px; border-radius: 6px;">?숋툘 湲곕낯愿由ъ옄</a>
+-                <a href="./erp.html" style="color: white; text-decoration: none; font-size: 14px; background: #10b981; padding: 6px 12px; border-radius: 6px;">?뱤 ?щТ/?λ?</a>
++                <div id="nav-container"></div>
+                 <div class="toggle-group">
+                     <button class="toggle-btn active" id="btn-pc-view" onclick="setView('pc')">?뮲 PC</button>
+                     <button class="toggle-btn" id="btn-mobile-view" onclick="setView('mobile')">?벑 紐⑤컮??/button>
+@@ -272,7 +291,8 @@
+             </div>
+         </nav>
+ 
+-        <div class="content-area">
++        <!-- ?묒뾽吏????-->
++        <div id="tab-work" class="content-area">
+             <div class="date-header">
+                 <input type="date" id="date-picker" class="date-picker" onchange="loadData()">
+                 <span id="date-display"></span>
+@@ -288,6 +308,19 @@
+                 <!-- JS Rendering -->
+             </div>
+         </div>
++
++        <!-- CRM 寃곗옱 ?湲고뙋 ??-->
++        <div id="tab-crm" class="content-area" style="display: none;">
++            <div class="date-header" style="justify-content: space-between;">
++                <div>
++                    <h3 style="margin:0; color:var(--color-interactive-lime);">?쨼 AI ?듯솕 ?붿빟 寃곗옱??/h3>
++                    <div style="font-size:12px; color:#aaa; margin-top:4px;">?덈줈???듯솕 ?뱀쓬??遺꾩꽍?섏뼱 寃곗옱瑜?湲곕떎由쎈땲??</div>
++                </div>
++            </div>
++            <div id="crm-grid" class="schedule-grid" style="margin-top: 16px;">
++                <!-- CRM Rendering -->
++            </div>
++        </div>
+     </div>
+ 
+     <!-- Report Modal -->
+@@ -349,10 +382,13 @@
+             <div class="form-group">
+                 <label>寃곗젣 ?섎떒</label>
+                 <select id="modal-pay-method" class="form-control">
+-                    <option value="怨꾩쥖?댁껜">怨꾩쥖?댁껜</option>
++                    <option value="怨꾩쥖?댁껜(?곕━???">怨꾩쥖?댁껜(?곕━???</option>
++                    <option value="怨꾩쥖?댁껜(?곕━??됱궗?낆옄)">怨꾩쥖?댁껜(?곕━??됱궗?낆옄)</option>
++                    <option value="移댁뭅?ㅻ콉??源?⑺깭)">移댁뭅?ㅻ콉??源?⑺깭)</option>
++                    <option value="耳?대콉???꾧만??">耳?대콉???꾧만??</option>
+                     <option value="?꾧툑">?꾧툑</option>
+                     <option value="移대뱶">移대뱶寃곗젣 (?꾩옣)</option>
+-                    <option value="?좉껐??>?좉껐???꾨즺</option>
++                    <option value="湲고?">湲고?</option>
+                 </select>
+             </div>
+ 
+@@ -365,6 +401,7 @@
+                 <button class="btn btn-secondary" onclick="closeModal()">痍⑥냼</button>
+                 <button class="btn btn-primary" onclick="saveReport()">蹂닿퀬?????/button>
+             </div>
++        </div>
+     </div>
+ 
+     <!-- 怨좉컼 ?뺣낫(?쇑룻샇???쒗뭹 ?? 蹂寃?紐⑤떖 -->
+@@ -397,10 +434,66 @@
+         </div>
+     </div>
+ 
++                <label style="color: #aaa; font-size: 12px;">?붿껌 ?쒗뭹 諛?湲고? 硫붾え</label>
++                <textarea id="crm-approve-notes" class="form-control" rows="3" style="color: #eed37f;"></textarea>
++            </div>
++            
++            <div style="display: flex; gap: 10px; margin-top: 20px;">
++                <button class="btn btn-secondary" style="flex: 1;" onclick="closeCrmApproveModal()">痍⑥냼</button>
++                <button class="btn btn-primary" style="flex: 1; border: none; cursor: pointer;" onclick="saveCrmApprove()">??罹섎┛?붿뿉 ?뺤젙</button>
++            </div>
++        </div>
++    </div>
++
++    <!-- AI ?뚯꽦 蹂닿퀬 紐⑤떖 (?묒뾽吏?쒖꽌?? -->
++    <div id="voice-report-modal" class="modal-overlay" style="display: none;">
++        <div class="modal-content" style="max-width: 400px; background:var(--color-deep-slate); padding:24px; border-radius:12px; border:1px solid #e32652; text-align: center;">
++            <h3 style="margin-top: 0; color: #fff; font-size: 18px;">?렎 AI ?뚯꽦 ?묒뾽 蹂닿퀬</h3>
++            <input type="hidden" id="voice-report-rid">
++            
++            <div style="margin: 30px 0;">
++                <button id="btn-record-toggle" style="width: 100px; height: 100px; border-radius: 50%; background: #e32652; color: #fff; font-size: 40px; border: 4px solid #ff4d6d; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; transition: 0.3s; animation: none;">
++                    ?럺截?+                </button>
++                <div id="voice-status-text" style="margin-top: 20px; color: #aaa; font-size: 14px;">
++                    踰꾪듉???꾨Ⅴ怨?留먯??섏꽭??<br>?? "?곗삤??援먯껜?덇퀬 ?꾧툑 5留뚯썝 諛쏆븯??
++                </div>
++            </div>
++            
++            <div style="display: flex; gap: 10px; margin-top: 20px;">
++                <button class="btn btn-secondary" style="flex: 1;" onclick="closeVoiceReportModal()">痍⑥냼</button>
++                <button class="btn" style="flex: 1; background: #10b981; color: #fff; border: none; cursor: pointer; font-weight: bold;" onclick="analyzeVoiceReport()">??AI 遺꾩꽍 ?쒖옉</button>
++            </div>
++        </div>
++    </div>
++
++    <!-- AI ?쒗뭹 留ㅼ묶 ?뱀씤 紐⑤떖 (4?④퀎 UI) -->
++    <div id="ai-match-modal" class="modal-overlay" style="display: none; z-index: 2000;">
++        <div class="modal-content" style="max-width: 350px; background:var(--color-deep-slate); padding:24px; border-radius:12px; border:1px solid var(--color-interactive-lime); text-align: center;">
++            <h3 style="margin-top: 0; color: #fff; font-size: 18px;">?쨼 AI ?쒗뭹 ?몄떇 ?깃났!</h3>
++            <p style="color:#aaa; font-size:14px; margin-bottom: 20px;">???쒗뭹???쒓났?섏뀲?듬땲源?</p>
++            
++            <div style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
++                <img id="ai-match-img" src="" style="width: 100%; max-height: 120px; object-fit: contain; margin-bottom: 10px; display: none; background: #fff; border-radius: 4px; padding: 4px;">
++                <div id="ai-match-name" style="color: var(--color-interactive-lime); font-weight: bold; font-size: 18px; margin-bottom: 5px;">?쒗뭹紐?/div>
++                <div id="ai-match-model" style="color: #888; font-size: 13px;">紐⑤뜽紐?/div>
++            </div>
++            
++            <div style="display: flex; flex-direction: column; gap: 10px;">
++                <button class="btn" style="background: var(--color-interactive-lime); color: #000; font-weight: bold; border: none; padding: 12px; cursor: pointer; font-size: 15px;" onclick="confirmAiMatch()">??留욎뒿?덈떎 (DB ?깅줉)</button>
++                <button class="btn btn-secondary" style="padding: 12px; font-size: 14px;" onclick="rejectAiMatch()">???꾨떃?덈떎 (湲고? 硫붾え濡??대룞)</button>
++            </div>
++        </div>
++    </div>
++
++
+     <!-- Firebase SDK -->
++    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+     <script type="module">
+         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+         import { getDatabase, ref, onValue, set, get, update, push, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
++        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
++        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+ 
+         const firebaseConfig = {
+             databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+@@ -409,28 +502,51 @@
+ 
+         const app = initializeApp(firebaseConfig);
+         const db = getDatabase(app);
++        const functions = getFunctions(app);
++        const storage = getStorage(app);
+         
+         window.db = db;
+         window.ref = ref;
+         window.set = set;
+         window.get = get;
+         window.update = update;
++        window.storage = storage;
++        window.sRef = sRef;
++        window.uploadBytes = uploadBytes;
++        window.getDownloadURL = getDownloadURL;
+         window.onValue = onValue;
+         window.push = push;
+         window.increment = increment;
+ 
++        // Supabase Initialization
++        const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
++        const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
++        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
++
+         // Global
+         window.currentData = {};
+         window.groupedTasks = [];
+         window.masterProducts = [];
+ 
+-        // Load master_products globally
+-        onValue(ref(db, 'master_products'), (snapshot) => {
+-            const data = snapshot.val();
+-            if(data) {
+-                window.masterProducts = Array.isArray(data) ? data : Object.values(data);
++        // Load master_products globally from Supabase
++        (async () => {
++            try {
++                const { data, error } = await window.supabaseClient.from('products').select('*');
++                if (data) {
++                    window.masterProducts = data.map(p => ({
++                        name: p.name,
++                        model: p.model,
++                        brandCategory: p.brand || p.category,
++                        category: p.category,
++                        costPrice: p.price_purchase,
++                        sellPrice: p.price_selling,
++                        imageUrl: (p.details && p.details.level1 && p.details.level1.images && p.details.level1.images[0]) ? p.details.level1.images[0] : ''
++                    }));
++                }
++            } catch (err) {
++                console.error("Failed to load products from Supabase:", err);
+             }
+-        });
++        })();
+ 
+         // View Toggle
+         window.setView = function(view) {
+@@ -451,6 +567,18 @@
+             }
+         };
+ 
++        // Tab Toggle (Only work tab remains in this view)
++        window.switchTab = function(tabName) {
++            document.getElementById('tab-work').style.display = 'block';
++            
++            const btnWork = document.getElementById('nav-work');
++            if (btnWork) {
++                btnWork.style.background = '#3b82f6';
++                btnWork.style.color = '#fff';
++                btnWork.style.border = 'none';
++            }
++        };
++
+         // Initialize Date
+         const today = new Date();
+         const yyyy = today.getFullYear();
+@@ -503,6 +631,248 @@
+             });
+         }
+ 
++        // CRM Data Loader
++        window.loadCRMData = function() {
++            const crmRef = ref(db, 'crm_pending');
++            onValue(crmRef, (snapshot) => {
++                const data = snapshot.val() || {};
++                const keys = Object.keys(data);
++                
++                const badge = document.getElementById('crm-badge');
++                if (badge) {
++                    if (keys.length > 0) {
++                        badge.style.display = 'inline-block';
++                        badge.innerText = keys.length;
++                    } else {
++                        badge.style.display = 'none';
++                    }
++                }
++                
++                renderCRMGrid(data);
++            });
++        };
++        
++        // Start listening to CRM data on load
++        loadCRMData();
++        
++        window.deleteCRMItem = function(key) {
++            if(confirm('???듯솕 ?붿빟????젣?섏떆寃좎뒿?덇퉴? (?ㅽ뙵/遺덊븘???듯솕)')) {
++                set(ref(db, `crm_pending/${key}`), null);
++            }
++        };
++
++        window.approveCRMItem = function(key) {
++            get(ref(db, `crm_pending/${key}`)).then(snap => {
++                const item = snap.val();
++                if (!item) return;
++                
++                document.getElementById('crm-approve-key').value = key;
++                
++                // Parse date if possible from booking_info (fallback to today)
++                let yyyy = today.getFullYear();
++                let mm = String(today.getMonth() + 1).padStart(2, '0');
++                let dd = String(today.getDate()).padStart(2, '0');
++                document.getElementById('crm-approve-date').value = `${yyyy}-${mm}-${dd}`;
++                document.getElementById('crm-approve-time').value = "10:00"; // default time
++                
++                document.getElementById('crm-approve-phone').value = item.contact_info || '';
++                document.getElementById('crm-approve-site').value = item.site_info || '';
++                document.getElementById('crm-approve-notes').value = 
++                    `[援щℓ?щ쭩] ${item.purchase_info || '?놁쓬'}\n[?붿빟] ${item.summary || ''}\n[?듬?/?쎌냽] ${item.promises || ''}`;
++                
++                document.getElementById('crm-approve-modal').style.display = 'flex';
++            });
++        };
++
++        window.closeCrmApproveModal = function() {
++            document.getElementById('crm-approve-modal').style.display = 'none';
++        };
++
++        window.saveCrmApprove = function() {
++            const key = document.getElementById('crm-approve-key').value;
++            const dateStr = document.getElementById('crm-approve-date').value;
++            const timeStr = document.getElementById('crm-approve-time').value;
++            const phone = document.getElementById('crm-approve-phone').value;
++            const site = document.getElementById('crm-approve-site').value;
++            const notes = document.getElementById('crm-approve-notes').value;
++            
++            if (!dateStr || !timeStr) {
++                alert('?좎쭨? ?쒓컙???낅젰?댁＜?몄슂.');
++                return;
++            }
++            
++            const rId = "crm_" + Date.now();
++            const resData = {
++                reservationId: rId,
++                status: 'confirmed',
++                type: 'ai_call',
++                customerInfo: {
++                    address: site,
++                    contact: phone,
++                    items: "?곷떞 ?댁뿭 李몄“",
++                    name: "AI ?묒닔 怨좉컼",
++                    notes: notes
++                }
++            };
++            
++            // 罹섎┛?붿뿉 ?덉빟 ???+            set(ref(db, `reservations/${dateStr}/${timeStr}`), resData)
++            .then(() => {
++                // CRM pending?먯꽌 ??젣
++                set(ref(db, `crm_pending/${key}`), null);
++                closeCrmApproveModal();
++                
++                alert('罹섎┛?붿뿉 ?깃났?곸쑝濡??덉빟???뺤젙?섏뿀?듬땲??');
++                
++                // 紐⑤떖 ?レ? ???묒뾽吏????쑝濡??대룞?섍퀬 ?대떦 ?좎쭨 ?뚮뜑留?+                switchTab('work');
++                document.getElementById('date-picker').value = dateStr;
++                loadData();
++            })
++            .catch(e => {
++                console.error(e);
++                alert('?ㅻ쪟 諛쒖깮: ' + e.message);
++            });
++        };
++
++        window.holdCRMItem = function(key) {
++            update(ref(db, `crm_pending/${key}`), { status: 'hold' });
++        };
++        
++        window.editCRMItem = function(key) {
++            get(ref(db, `crm_pending/${key}`)).then(snap => {
++                const item = snap.val();
++                if (!item) return;
++                
++                // 媛꾨떒??prompt濡??곕씫泥섏? ?붿빟???섏젙?????덇쾶 ?쒓났 (?먮뒗 紐⑤떖李?援ы쁽 媛?ν븯???ы뵆?섍쾶)
++                const newPhone = prompt('?곕씫泥섎? ?섏젙?섏꽭??', item.contact_info || '');
++                if (newPhone !== null) {
++                    update(ref(db, `crm_pending/${key}`), { contact_info: newPhone });
++                }
++            });
++        };
++
++        function renderCRMGrid(data) {
++            const grid = document.getElementById('crm-grid');
++            grid.innerHTML = '';
++            
++            // ?쇰컲 ?湲곗? 蹂대쪟(hold) 遺꾨━ ???뺣젹 (?쇰컲???? 蹂대쪟媛 ?꾨옒, 理쒖떊??
++            const keys = Object.keys(data).sort((a, b) => {
++                const itemA = data[a];
++                const itemB = data[b];
++                const holdA = itemA.status === 'hold' ? 1 : 0;
++                const holdB = itemB.status === 'hold' ? 1 : 0;
++                if (holdA !== holdB) return holdA - holdB;
++                return b.localeCompare(a);
++            });
++            
++            if (keys.length === 0) {
++                grid.innerHTML = `<div class="empty-state">?덈줈 遺꾩꽍???듯솕 ?뱀쓬???놁뒿?덈떎.</div>`;
++                return;
++            }
++            
++            keys.forEach(key => {
++                const item = data[key];
++                
++                let catColor = '#888';
++                if(item.category && item.category.includes('?덉빟')) catColor = 'var(--color-interactive-lime)';
++                if(item.category && item.category.includes('?곷떞')) catColor = 'var(--color-highlight-gold)';
++                if(item.category && item.category.includes('蹂寃?)) catColor = '#ef4444';
++
++                const isHold = item.status === 'hold';
++                const opacity = isHold ? '0.6' : '1';
++                const border = isHold ? '1px dashed #555' : '1px solid #333';
++                const holdLabel = isHold ? `<span style="background:#eab308; color:#000; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:8px;">蹂대쪟??/span>` : '';
++
++                // ?쒓컙, ?붿씪, ?꾪솕踰덊샇 異붿텧 (?뚯씪紐?湲곗?)
++                let callTime = "";
++                let extractedPhone = "";
++                if (item.filename) {
++                    // 踰덊샇 異붿텧
++                    const phoneMatch = item.filename.match(/(010\d{8})/);
++                    if (phoneMatch) {
++                        const p = phoneMatch[1];
++                        extractedPhone = `${p.substring(0,3)}-${p.substring(3,7)}-${p.substring(7)}`;
++                    }
++                    // ?좎쭨/?쒓컙 異붿텧 (_260805_173500)
++                    const match = item.filename.match(/_(\d{2})(\d{2})(\d{2})_(\d{2})(\d{2})/);
++                    if (match) {
++                        const yy = "20" + match[1];
++                        const mm = match[2];
++                        const dd = match[3];
++                        const hr = match[4];
++                        const min = match[5];
++                        const dObj = new Date(`${yy}-${mm}-${dd}`);
++                        const days = ['??,'??,'??,'??,'紐?,'湲?,'??];
++                        callTime = `${parseInt(mm)}/${parseInt(dd)} ${days[dObj.getDay()]} ${hr}:${min}`;
++                    }
++                }
++                if (!callTime && item.created_at) {
++                    callTime = item.created_at.split('T')[1].substring(0,5);
++                }
++                
++                // AI媛 ?곕씫泥섎? 紐?李얠븯?ㅻ㈃ ?뚯씪紐낆뿉??異붿텧??踰덊샇濡??泥?+                if ((!item.contact_info || item.contact_info === '?놁쓬' || item.contact_info.trim() === '') && extractedPhone) {
++                    item.contact_info = extractedPhone;
++                }
++
++                // ?ㅽ뙵?대굹 媛쒖씤?듯솕 ??臾닿????듯솕?몄? ?뺤씤
++                const catStr = item.category || '';
++                const isUnrelated = catStr.includes('?ㅽ뙵') || catStr.includes('湲고?') || catStr.includes('媛쒖씤') || catStr.includes('臾닿?') || catStr.includes('愿묎퀬');
++
++                const fields = [
++                    { label: '?꾩옣', key: 'site_info', color: '#fff' },
++                    { label: '?곕씫泥?, key: 'contact_info', color: '#10b981' },
++                    { label: '?덉빟?щ쭩', key: 'booking_info', color: 'var(--color-interactive-lime)' },
++                    { label: '援щℓ??, key: 'purchase_info', color: 'var(--color-highlight-gold)' },
++                    { label: '寃곗젣', key: 'payment_info', color: '#3b82f6' },
++                    { label: '?쎌냽/?듬?', key: 'promises', color: '#ccc' }
++                ];
++                
++                let fieldHtml = '';
++                if (!isUnrelated) {
++                    fields.forEach(f => {
++                        const val = item[f.key];
++                        if (val && val !== 'null' && val.trim() !== '' && val !== '?놁쓬') {
++                            fieldHtml += `<div><span style="color:#888; display:inline-block; width:65px;">${f.label}:</span> <span style="color:${f.color};">${val}</span></div>`;
++                        } else {
++                            fieldHtml += `<div><span style="color:#888; display:inline-block; width:65px;">${f.label}:</span> <span style="color:#444;">-</span></div>`;
++                        }
++                    });
++                }
++
++                const html = `
++                    <div class="card" style="opacity:${opacity}; border:${border};">
++                        <div class="card-header" style="padding-bottom:8px;">
++                            <div style="font-weight:bold; color:${catColor}; font-size:16px;">
++                                [${item.category || '誘몃텇瑜?}] ${holdLabel}
++                            </div>
++                            <div style="font-size:14px; color:#aaa;">${callTime}</div>
++                        </div>
++                        <div class="card-body" style="background:#111; padding:12px; border-radius:6px; margin-bottom:8px;">
++                            <div style="color:var(--color-pure-white); font-weight:bold; margin-bottom: ${isUnrelated ? '0' : '12px'}; font-size:14px; line-height:1.4;">
++                                "${item.summary || '?붿빟 ?놁쓬'}"
++                            </div>
++                            
++                            ${!isUnrelated ? `
++                            <div style="font-size:13px; display:grid; gap:6px;">
++                                ${fieldHtml}
++                            </div>
++                            ` : ''}
++                        </div>
++                        
++                        <div style="display:flex; gap:8px;">
++                            <button class="btn btn-secondary" style="flex:1; font-size:12px; background:#444; padding:8px;" onclick="deleteCRMItem('${key}')">?뿊截???젣</button>
++                            <button class="btn btn-secondary" style="flex:1; font-size:12px; background:#3b82f6; padding:8px;" onclick="editCRMItem('${key}')">?륅툘 ?섏젙</button>
++                            ${!isHold ? `<button class="btn btn-secondary" style="flex:1; font-size:12px; background:#eab308; color:#000; padding:8px;" onclick="holdCRMItem('${key}')">??蹂대쪟</button>` : ''}
++                            <button class="btn btn-primary" style="flex:2; font-size:12px; padding:8px;" onclick="approveCRMItem('${key}')">?뱷 罹섎┛???깅줉</button>
++                        </div>
++                    </div>
++                `;
++                grid.innerHTML += html;
++            });
++        }
++
+         function renderGrid() {
+             const grid = document.getElementById('schedule-grid');
+             grid.innerHTML = '';
+@@ -529,6 +899,7 @@
+                     timeStr = `${task.times[0]} ~ ${String(hour).padStart(2, '0')}:00`;
+                 }
+ 
++                const cInfo = task.data.customerInfo || {};
+                 let itemsStr = "-";
+                 if (Array.isArray(cInfo.items)) {
+                     itemsStr = cInfo.items.join(', ');
+@@ -588,6 +959,9 @@
+                     sourceBadgeHtml = `<span style="background:#3b82f6; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">?뙋 ?⑤씪??/span>`;
+                 }
+ 
++                const safeNotes = String(cInfo.notes || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
++                const notesShort = safeNotes.length > 30 ? safeNotes.substring(0,30) + '...' : safeNotes;
++
+                 grid.innerHTML += `
+                     <div class="card">
+                         <div class="card-header">
+@@ -598,9 +972,15 @@
+                             <div class="status-badge ${badgeClass}">${badgeText}</div>
+                         </div>
+                         <div class="card-body">
+-                            <div class="info-row"><div class="info-label">?곕씫泥?/div><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>${cInfo.phone || '-'}</span> ${cInfo.phone ? `<a href="tel:${cInfo.phone}" class="btn" style="padding:4px 8px; background:#10b981; color:#fff; text-decoration:none; font-size:12px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">?뱸 ?듯솕</a> <button class="btn" style="padding:4px 8px; background:#8b5cf6; color:#fff; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="saveToPhoneContactsFromCard('${task.rId}')">?뫀 ??二쇱냼濡????/button> <button class="btn" style="padding:4px 8px; background:#374151; color:#fff; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="copyCustomerInfo('${(cInfo.apt||'').replace(/'/g, "")}', '${cInfo.phone}')">?뱥 紐낇븿蹂듭궗</button> <select class="btn" style="padding:4px 6px; background:#f59e0b; color:#000; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onchange="if(this.value){ sendSmsFromCard('${task.rId}', this.value); this.value=''; }"><option value="">?뮠 臾몄옄諛쒖넚(4? SMS)</option><option value="receipt">?벂 ???묒닔 ?뺤씤</option><option value="confirm">?뱧 ???덉빟 ?뺤젙</option><option value="change">?봽 ???쇱젙 蹂寃?/option><option value="missing">?좑툘 ???숉샇???붿껌</option></select>` : ''}</div></div>
++                            <div class="info-row"><div class="info-label">?곕씫泥?/div><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>${cInfo.phone || '-'}</span> ${cInfo.phone ? `<a href="tel:${cInfo.phone}" class="btn" style="padding:4px 8px; background:#10b981; color:#fff; text-decoration:none; font-size:12px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">?뱸 ?듯솕</a> <button class="btn" style="padding:4px 8px; background:#8b5cf6; color:#fff; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="try{window.saveToPhoneContactsFromCard('${task.rId}');}catch(e){alert('Error: '+e.message);}">?뫀 ??二쇱냼濡????/button> <button class="btn" style="padding:4px 8px; background:#374151; color:#fff; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="copyCustomerInfo('${(cInfo.apt||'').replace(/'/g, "")}', '${cInfo.phone}')">?뱥 紐낇븿蹂듭궗</button> <select class="btn" style="padding:4px 6px; background:#f59e0b; color:#000; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onchange="if(this.value){ try{sendSmsFromCard('${task.rId}', this.value);}catch(e){alert('Error: '+e.message);} this.value=''; }"><option value="">?뮠 臾몄옄諛쒖넚(4? SMS)</option><option value="receipt">?벂 ???묒닔 ?뺤씤</option><option value="confirm">?뱧 ???덉빟 ?뺤젙</option><option value="change">?봽 ???쇱젙 蹂寃?/option><option value="missing">?좑툘 ???숉샇???붿껌</option></select>` : ''}</div></div>
+                             <div class="info-row"><div class="info-label">???몄닔</div><div>${cInfo.apt || '-'}</div></div>
+-                            <div class="info-row"><div class="info-label">湲고?(硫붾え)</div><div>${cInfo.notes || '-'}</div></div>
++                            <div class="info-row">
++                                <div class="info-label">湲고?(硫붾え)</div>
++                                <div>
++                                    <div style="margin-bottom:4px;">${notesShort || '-'}</div>
++                                    ${safeNotes ? `<button style="background:#fde68a; border:1px solid #f59e0b; border-radius:4px; padding:4px 8px; font-size:11px; cursor:pointer; color:#92400e; font-weight:bold;" onclick="alert('?뱷 湲고?(硫붾え) ?꾩껜蹂닿린:\\n\\n${safeNotes}')">?뱷 ?꾩껜 硫붾え 諛??듯솕?붿빟 蹂닿린</button>` : ''}
++                                </div>
++                            </div>
+                             <div class="info-row"><div class="info-label">?쒓났?덈ぉ</div><div style="color:var(--color-interactive-lime); font-weight:bold;">${itemsStr}</div></div>
+                             
+                             ${reportHtml}
+@@ -611,7 +991,8 @@
+                             ${isCompleted ? 
+                                 `<button class="btn btn-secondary" style="flex:1;" onclick="openModal('${task.rId}')">?뱷 蹂닿퀬???섏젙</button>
+                                  <button class="btn" style="flex:1; background:#6366f1; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="copyNotionArchive('${task.rId}')">?뱥 ?몄뀡 蹂듭궗</button>` :
+-                                `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">???묒뾽 ?꾨즺 諛?蹂닿퀬???묒꽦</button>`
++                                `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">?????묒꽦</button>
++                                 <button class="btn" style="flex:1; background:#e32652; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="startVoiceReport('${task.rId}')">?렎 ?뚯꽦 蹂닿퀬</button>`
+                             }
+                         </div>
+                     </div>
+@@ -691,6 +1072,11 @@
+             document.getElementById('report-modal').style.display = 'flex';
+             document.getElementById('modal-res-id').value = rId;
+             
++            // 誘몃뵒??泥⑤? 珥덇린??(踰꾧렇 ?쎌뒪: ?댁쟾 泥⑤? ?뚯씪 珥덇린??
++            const photosInput = document.getElementById('modal-photos');
++            if (photosInput) photosInput.value = '';
++
++            
+             const task = window.groupedTasks.find(t => t.rId === rId);
+             const report = task && task.data.report ? task.data.report : {};
+             
+@@ -725,28 +1111,48 @@
+         function populateBrandCategories() {
+             const catSelect = document.getElementById('modal-brand-cat');
+             catSelect.innerHTML = '<option value="">-- 遺꾨쪟 ?좏깮 --</option>';
+-            const brands = new Set();
+-            window.masterProducts.forEach(p => {
+-                const bc = p.brandCategory || p.category;
+-                if(bc) brands.add(bc);
++            
++            const oldCats = ['?뺤떎 ?섑뭾湲?, '?섍린 ?쒖뒪??, '二쇰갑 ?꾨뱶', '二쇰갑 媛??, '?앺솢 ?먯뼱媛??, '?뺤떎 ?섍린媛??, '?깊겕蹂??섏쟾', '鍮뚰듃???섏쟾/?깊겕蹂?, '媛???꾧린 荑≫깙', '湲고?'];
++            const allDbCats = Array.from(new Set(window.masterProducts.map(p => p.category).filter(Boolean)));
++            
++            let categoriesToShow = new Set();
++            allDbCats.forEach(c => {
++                if (!oldCats.includes(c)) {
++                    categoriesToShow.add(c);
++                }
+             });
+-            Array.from(brands).sort().forEach(b => {
++            categoriesToShow.add('湲고?移댄뀒怨좊━');
++            
++            let sortedCats = Array.from(categoriesToShow).sort();
++            
++            sortedCats.forEach(b => {
+                 catSelect.innerHTML += `<option value="${b}">${b}</option>`;
+             });
+             document.getElementById('modal-prod-select').innerHTML = '<option value="">-- 癒쇱? 遺꾨쪟瑜??좏깮 --</option>';
++        }">${b}</option>`;
++            });
++            document.getElementById('modal-prod-select').innerHTML = '<option value="">-- 癒쇱? 遺꾨쪟瑜??좏깮 --</option>';
+         }
+ 
+         window.updateModalProductList = function() {
+             const cat = document.getElementById('modal-brand-cat').value;
+             const pSelect = document.getElementById('modal-prod-select');
+-            pSelect.innerHTML = '<option value="">-- ?쒗뭹 ?좏깮 --</option>';
++            pSelect.innerHTML = '<option value="">-- ?곹뭹 ?좏깮 --</option>';
+             
+             if(!cat) return;
+             
++            const oldCats = ['?뺤떎 ?섑뭾湲?, '?섍린 ?쒖뒪??, '二쇰갑 ?꾨뱶', '二쇰갑 媛??, '?앺솢 ?먯뼱媛??, '?뺤떎 ?섍린媛??, '?깊겕蹂??섏쟾', '鍮뚰듃???섏쟾/?깊겕蹂?, '媛???꾧린 荑≫깙', '湲고?'];
++
+             window.masterProducts.forEach(p => {
+-                const bc = p.brandCategory || p.category;
+-                if(bc === cat && p.name) {
+-                    pSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.model||''})</option>`;
++                const c = p.category || "";
++                let derivedCat = "湲고?移댄뀒怨좊━";
++                
++                if (c && !oldCats.includes(c)) {
++                    derivedCat = c;
++                }
++                
++                if (derivedCat === cat) {
++                    pSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.model || '-'})</option>`;
+                 }
+             });
+         };
+@@ -760,8 +1166,14 @@
+                 return;
+             }
+             
+-            const mp = window.masterProducts.find(m => m.name === name);
+-            if(!mp) return;
++            let mp = window.masterProducts.find(m => m.name === name);
++            if(!mp) {
++                if (name === "鍮꾨벑濡앹젣??硫붾え李몄“)" || name === "異쒖옣/?섎━鍮?) {
++                    mp = { name: name, price_purchase: 0, price_selling: 0, cost: 0, sell: 0 };
++                } else {
++                    return;
++                }
++            }
+ 
+             const existing = window.currentSelectedProducts.find(p => p.name === name);
+             if(existing) {
+@@ -833,7 +1245,7 @@
+             document.getElementById('report-modal').style.display = 'none';
+         };
+ 
+-        window.saveReport = function() {
++        window.saveReport = async function() {
+             const rId = document.getElementById('modal-res-id').value;
+             const selectedDate = document.getElementById('date-picker').value;
+             const task = window.groupedTasks.find(t => t.rId === rId);
+@@ -853,13 +1265,41 @@
+             let productNamesForMemo = [];
+             
+             window.currentSelectedProducts.forEach(p => {
+-                totalCost += p.cost * p.qty;
+-                totalSell += p.sell * p.qty;
++                totalCost += (Number(p.cost) || 0) * (Number(p.qty) || 1);
++                totalSell += (Number(p.sell) || 0) * (Number(p.qty) || 1);
+                 productNamesForMemo.push(`${p.name} ${p.qty}媛?);
+             });
+             
+             const margin = totalSell - totalCost;
+ 
++            // --- 誘몃뵒???낅줈??濡쒖쭅 異붽? ---
++            const photosInput = document.getElementById('modal-photos');
++            const files = photosInput ? photosInput.files : [];
++            let uploadedUrls = [];
++
++            if (files.length > 0) {
++                // UI???낅줈??以??쒖떆 (踰꾪듉 ?띿뒪??蹂寃???
++                const saveBtn = document.querySelector('#report-modal .modal-content button.btn-primary');
++                const originalBtnText = saveBtn.innerText;
++                
++                try {
++                    for (let i = 0; i < files.length; i++) {
++                        saveBtn.innerText = `?ъ쭊 ?낅줈??以?.. (${i+1}/${files.length})`;
++                        const file = files[i];
++                        const storageRef = window.sRef(window.storage, `reports/${selectedDate}/${rId}/${Date.now()}_${file.name}`);
++                        await window.uploadBytes(storageRef, file);
++                        const downloadUrl = await window.getDownloadURL(storageRef);
++                        uploadedUrls.push(downloadUrl);
++                    }
++                } catch (err) {
++                    console.error("Storage ?낅줈???먮윭:", err);
++                    alert("?ъ쭊 ?낅줈??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
++                    saveBtn.innerText = originalBtnText;
++                    return; // ?낅줈???ㅽ뙣 ?????以묐떒
++                }
++                saveBtn.innerText = originalBtnText;
++            }
++
+             const reportData = {
+                 notes,
+                 payMethod,
+@@ -868,33 +1308,31 @@
+                 totalCost,
+                 totalSell,
+                 margin,
++                mediaUrls: uploadedUrls, // ?낅줈?쒕맂 ?대?吏 URL ???                 timestamp: Date.now()
+             };
+ 
+             const updates = {};
+-            const isFirstCompletion = task.data.status !== 'completed'; // 泥섏쓬?쇰줈 '?꾨즺' ?곹깭媛 ?섎뒗 寃껋씤吏 泥댄겕
++            const isFirstCompletion = task.data.status !== 'completed';
+ 
+             task.times.forEach(time => {
+                 updates[`reservations/${selectedDate}/${time}/report`] = reportData;
+                 updates[`reservations/${selectedDate}/${time}/status`] = 'completed';
+             });
+ 
+-            // ?ш퀬 異쒓퀬(-) 李④컧 濡쒖쭅: 泥섏쓬 ?꾨즺 泥섎━ ?쒖뿉留?李④컧
+             if (isFirstCompletion) {
+                 window.currentSelectedProducts.forEach(p => {
+-                    // Firebase Realtime DB??increment 湲곕뒫???ъ슜?섏뿬 ?숈떆??臾몄젣 諛⑹?
+                     updates[`inventory_counts/${p.name}`] = increment(-p.qty);
+                 });
+             }
+ 
+-            // ERP ?λ? ?곕룞 濡쒖쭅
+             const numericAmount = parseInt(payAmount);
+             if (!isNaN(numericAmount) && numericAmount > 0) {
+                 let ledgerAccount = '?꾧툑';
+                 if (payMethod === '怨꾩쥖?댁껜' || payMethod === '?좉껐??) ledgerAccount = '?댁껜(?곕━???';
+                 else if (payMethod === '移대뱶') ledgerAccount = '移대뱶(?由ъ젏)';
+ 
+-                const newLedgerKey = push(ref(db, 'ledger')).key;
++                const newLedgerKey = push(ref(window.db, 'ledger')).key;
+                 const cInfo = task.data.customerInfo || {};
+                 const aptInfo = cInfo.apt ? ` (${cInfo.apt})` : '';
+ 
+@@ -913,11 +1351,28 @@
+             const execRef = window.ref || ref;
+             const targetDb = window.db || db;
+ 
+-            execUpdate(execRef(targetDb), updates).then(() => {
++            try {
++                await execUpdate(execRef(targetDb), updates);
++                
++                // Supabase ?ш퀬 李④컧 (5?④퀎 濡쒖쭅)
++                if (isFirstCompletion) {
++                    for (const p of window.currentSelectedProducts) {
++                        try {
++                            const { error } = await window.supabaseClient.rpc('decrement_inventory', {
++                                product_name: p.name,
++                                qty: p.qty
++                            });
++                            if (error) console.error("Supabase Inventory Decrement Error:", error);
++                        } catch (err) {
++                            console.error("Supabase Call Error:", err);
++                        }
++                    }
++                }
++                
+                 closeModal();
+-            }).catch(e => {
++            } catch(e) {
+                 alert('????ㅽ뙣: ' + e.message);
+-            });
++            }
+         };
+ 
+         // 怨좉컼 ?앸퀎 ?뺣낫 蹂듭궗 (5?④퀎 CRM MVP)
+@@ -1012,6 +1467,205 @@
+             setTimeout(() => URL.revokeObjectURL(url), 1000);
+         };
+ 
++        // ?뚯꽦 蹂닿퀬(Voice Report) 濡쒖쭅
++        let mediaRecorder;
++        let audioChunks = [];
++        let isRecording = false;
++
++        window.startVoiceReport = function(rId) {
++            try {
++                document.getElementById('voice-report-modal').style.display = 'flex';
++                document.getElementById('voice-report-rid').value = rId;
++                document.getElementById('voice-status-text').innerHTML = '踰꾪듉???꾨Ⅴ怨?留먯??섏꽭??<br>?? "?곗삤??援먯껜?덇퀬 ?꾧툑 5留뚯썝 諛쏆븯??';
++                const btn = document.getElementById('btn-record-toggle');
++                btn.style.animation = 'none';
++                btn.style.borderColor = '#ff4d6d';
++                audioChunks = []; // 珥덇린??+            } catch (err) {
++                alert("Error in startVoiceReport: " + err.message);
++            }
++        };
++
++        window.closeVoiceReportModal = function() {
++            document.getElementById('voice-report-modal').style.display = 'none';
++            if (isRecording && mediaRecorder) {
++                mediaRecorder.stop();
++                isRecording = false;
++            }
++        };
++
++        document.getElementById('btn-record-toggle').addEventListener('click', async function() {
++            if (!isRecording) {
++                try {
++                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
++                    mediaRecorder = new MediaRecorder(stream);
++                    audioChunks = [];
++                    
++                    mediaRecorder.ondataavailable = e => {
++                        if (e.data.size > 0) audioChunks.push(e.data);
++                    };
++                    
++                    mediaRecorder.onstop = () => {
++                        console.log("?뱀쓬 ?꾨즺:", audioChunks.length, "chunks");
++                    };
++                    
++                    mediaRecorder.start();
++                    isRecording = true;
++                    
++                    // UI 蹂寃?+                    this.style.animation = 'pulse 1.5s infinite';
++                    this.style.borderColor = '#10b981';
++                    document.getElementById('voice-status-text').innerHTML = '<span style="color:#10b981; font-weight:bold;">?뱀쓬 以묒엯?덈떎... ?꾨즺?섎젮硫??ㅼ떆 ?꾨Ⅴ?몄슂.</span>';
++                } catch (err) {
++                    alert('留덉씠???묎렐 沅뚰븳???꾩슂?⑸땲?? ?ㅼ젙?먯꽌 留덉씠?щ? ?덉슜?댁＜?몄슂.');
++                }
++            } else {
++                mediaRecorder.stop();
++                isRecording = false;
++                
++                // UI 蹂寃?+                this.style.animation = 'none';
++                this.style.borderColor = '#ff4d6d';
++                document.getElementById('voice-status-text').innerHTML = '?뱀쓬???꾨즺?섏뿀?듬땲?? <br>[??AI 遺꾩꽍 ?쒖옉]???뚮윭二쇱꽭??';
++            }
++        });
++
++        window.analyzeVoiceReport = async function() {
++            if (audioChunks.length === 0) {
++                alert('?뱀쓬???뚯꽦???놁뒿?덈떎. 踰꾪듉???뚮윭 ?뱀쓬?댁＜?몄슂.');
++                return;
++            }
++            
++            document.getElementById('voice-status-text').innerHTML = '?뚯꽦 ?곗씠???꾩넚 諛?AI 遺꾩꽍 以?.. ??(??5~10珥??뚯슂)';
++            
++            try {
++                // 1. ?ㅻ뵒??泥?겕瑜??섎굹??Blob?쇰줈 蹂묓빀 (WebM ?뺤떇)
++                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
++                
++                // 2. Base64濡?蹂?섑븯???쒕쾭由ъ뒪 ?⑥닔濡??꾩넚
++                const reader = new FileReader();
++                reader.readAsDataURL(audioBlob);
++                reader.onloadend = async function() {
++                    const base64data = reader.result.split(',')[1];
++                    
++                    try {
++                        const analyzeVoiceReportFn = httpsCallable(functions, 'analyzeVoiceReport');
++                        const result = await analyzeVoiceReportFn({
++                            audioBase64: base64data,
++                            mimeType: 'audio/webm'
++                        });
++                        
++                        const aiData = result.data;
++                        closeVoiceReportModal();
++                        
++                        // 3. 寃곌낵 ?뚯떛 諛????곸슜
++                        processAIReportData(aiData, document.getElementById('voice-report-rid').value);
++                    } catch (fnErr) {
++                        console.error('Function Error:', fnErr);
++                        alert('AI 遺꾩꽍 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎: ' + fnErr.message);
++                        document.getElementById('voice-status-text').innerHTML = '遺꾩꽍 ?ㅽ뙣. ?リ퀬 ?ㅼ떆 ?쒕룄?댁＜?몄슂.';
++                    }
++                };
++            } catch (err) {
++                console.error(err);
++                alert('?ㅻ뵒??泥섎━ 以??ㅻ쪟 諛쒖깮');
++                document.getElementById('voice-status-text').innerHTML = '?ㅻ쪟 諛쒖깮.';
++            }
++        };
++        
++        function processAIReportData(data, rId) {
++            const { matchedProduct, payMethod, payAmount, notes } = data;
++            
++            // ?ㅻ쭏??留ㅼ묶 濡쒖쭅 (4?④퀎)
++            let foundProduct = null;
++            if (matchedProduct && window.masterProducts) {
++                // ?⑥닚 ?띿뒪???ы븿 ?щ?濡?媛??洹몃윺?명븳 ?쒗뭹 寃??(??뚮Ц?? ?꾩뼱?곌린 臾댁떆)
++                const searchStr = String(matchedProduct || "").replace(/ /g, '').toLowerCase();
++                foundProduct = window.masterProducts.find(p => {
++                    const pName = String(p.name || "").replace(/ /g, '').toLowerCase();
++                    const pModel = String(p.model || "").replace(/ /g, '').toLowerCase();
++                    return pName.includes(searchStr) || searchStr.includes(pName) || (pModel && (pModel.includes(searchStr) || searchStr.includes(pModel)));
++                });
++            }
++
++            if (foundProduct) {
++                // ?뱀씤 ?앹뾽 ?꾩슦湲?+                document.getElementById('ai-match-modal').style.display = 'flex';
++                document.getElementById('ai-match-name').innerText = foundProduct.name;
++                document.getElementById('ai-match-model').innerText = foundProduct.model || '?곸꽭 紐⑤뜽紐??놁쓬';
++                
++                // ?몃꽕???뚮뜑留?+                const imgEl = document.getElementById('ai-match-img');
++                if (foundProduct.imageUrl) {
++                    imgEl.src = foundProduct.imageUrl;
++                    imgEl.style.display = 'block';
++                } else {
++                    imgEl.style.display = 'none';
++                }
++                
++                // ?뺤젙 肄쒕갚
++                window.confirmAiMatch = function() {
++                    document.getElementById('ai-match-modal').style.display = 'none';
++                    applyAiDataToForm(rId, data, foundProduct);
++                };
++                
++                // 痍⑥냼 肄쒕갚
++                window.rejectAiMatch = function() {
++                    document.getElementById('ai-match-modal').style.display = 'none';
++                    applyAiDataToForm(rId, data, null);
++                };
++            } else {
++                // 留ㅼ묶 ?ㅽ뙣 ??洹몃깷 ?쇱뿉 ?ｊ린 (湲고? 硫붾え濡?
++                applyAiDataToForm(rId, data, null);
++            }
++        }
++        
++        function applyAiDataToForm(rId, aiData, foundProduct) {
++            const { matchedProduct, payMethod, payAmount, notes } = aiData;
++            
++            openModal(rId);
++            
++            setTimeout(() => {
++                let finalNotes = (notes || '') + '\n(?렎 AI ?뚯꽦 遺꾩꽍 ?꾨즺)';
++                
++                // ?쒗뭹 留ㅼ묶 ?깃났 ???λ컮援щ땲????
++                if (foundProduct) {
++                    const existing = window.currentSelectedProducts.find(p => p.name === foundProduct.name);
++                    if(existing) {
++                        existing.qty += 1;
++                    } else {
++                        window.currentSelectedProducts.push({
++                            name: foundProduct.name,
++                            qty: 1,
++                            cost: Number(foundProduct.costPrice) || 0,
++                            sell: Number(foundProduct.sellPrice) || 0
++                        });
++                    }
++                    renderAddedProducts();
++                } else if (matchedProduct && matchedProduct !== '?놁쓬' && matchedProduct !== 'null') {
++                    // 留ㅼ묶 ?ㅽ뙣 ???뱀씠?ы빆 泥?以꾩뿉 湲곕줉
++                    finalNotes = `[留ㅼ묶 ?ㅽ뙣 ?쒗뭹: ${matchedProduct}]\n` + finalNotes;
++                }
++                
++                document.getElementById('modal-notes').value = finalNotes;
++                
++                if (payMethod && payMethod !== '?놁쓬') {
++                    // ?ㅼ썙???뺢퇋??+                    let finalMethod = '怨꾩쥖?댁껜';
++                    if (payMethod.includes('?꾧툑')) finalMethod = '?꾧툑';
++                    else if (payMethod.includes('移대뱶')) finalMethod = '移대뱶';
++                    else if (payMethod.includes('?좉껐??)) finalMethod = '?좉껐??;
++                    
++                    document.getElementById('modal-pay-method').value = finalMethod;
++                }
++                
++                if (payAmount && !isNaN(parseInt(payAmount)) && parseInt(payAmount) > 0) {
++                    document.getElementById('modal-pay-amount').value = parseInt(payAmount);
++                    document.getElementById('modal-pay-amount').dataset.autoFilled = 'false';
++                }
++            }, 300);
++        }
++
+         // 珥덇린 ?ㅽ뻾
+         loadData();
+ 

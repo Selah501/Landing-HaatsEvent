@@ -1,0 +1,980 @@
+{
+  "2026-07-25": {
+    "10:00": {
+      "customerInfo": {
+        "apt": "아산 반도유보라 아파트 핫써머 ",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "",
+        "parentTime": "10:00",
+        "phone": "010-6271-3439",
+        "totalDuration": 120
+      },
+      "reservationId": "res_1784802200758",
+      "status": "pending",
+      "timestamp": 1784802200758,
+      "type": "customer"
+    },
+    "11:00": {
+      "customerInfo": {
+        "apt": "아산 반도유보라 아파트 핫써머 ",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "",
+        "parentTime": "10:00",
+        "phone": "010-6271-3439",
+        "totalDuration": 120
+      },
+      "reservationId": "res_1784802200758",
+      "status": "pending",
+      "timestamp": 1784802200758,
+      "type": "customer"
+    }
+  },
+  "2026-07-27": {
+    "09:00": {
+      "customerInfo": {
+        "apt": "내포 LH스타힐스 105동 1104호",
+        "items": [
+          "티오람미니 1대",
+          "제로크 1대"
+        ],
+        "notes": "기존 후드 탈거 후 설치 희망",
+        "phone": "010-2886-5086"
+      },
+      "reservationId": "test-res-2701",
+      "status": "confirmed",
+      "type": "customer"
+    },
+    "09:30": {
+      "customerInfo": {
+        "apt": "반도유보라 101동102호",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)",
+          "테라 주방후드"
+        ],
+        "notes": "테스트 예약",
+        "parentTime": "09:30",
+        "phone": "010-87944843",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785137844110",
+      "status": "confirmed",
+      "timestamp": 1785141760240,
+      "type": "customer"
+    },
+    "10:00": {
+      "customerInfo": {
+        "apt": "반도유보라 101동102호",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)",
+          "테라 주방후드"
+        ],
+        "notes": "테스트 예약",
+        "parentTime": "09:30",
+        "phone": "010-87944843",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785137844110",
+      "status": "confirmed",
+      "timestamp": 1785141760240,
+      "type": "customer"
+    },
+    "10:30": {
+      "customerInfo": {
+        "apt": "반도유보라 101동102호",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)",
+          "테라 주방후드"
+        ],
+        "notes": "테스트 예약",
+        "parentTime": "09:30",
+        "phone": "010-87944843",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785137844110",
+      "status": "confirmed",
+      "timestamp": 1785141760240,
+      "type": "customer"
+    },
+    "11:00": {
+      "customerInfo": {
+        "apt": "반도유보라 101동102호",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)",
+          "테라 주방후드"
+        ],
+        "notes": "테스트 예약",
+        "parentTime": "09:30",
+        "phone": "010-87944843",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785137844110",
+      "status": "confirmed",
+      "timestamp": 1785141760240,
+      "type": "customer"
+    },
+    "11:30": {
+      "customerInfo": {
+        "apt": "반도유보라 101동102호",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)",
+          "테라 주방후드"
+        ],
+        "notes": "테스트 예약",
+        "parentTime": "09:30",
+        "phone": "010-87944843",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785137844110",
+      "status": "confirmed",
+      "timestamp": 1785141760240,
+      "type": "customer"
+    },
+    "12:00": {
+      "customerInfo": {
+        "apt": "반도유보라 101동102호",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)",
+          "테라 주방후드"
+        ],
+        "notes": "테스트 예약",
+        "parentTime": "09:30",
+        "phone": "010-87944843",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785137844110",
+      "status": "confirmed",
+      "timestamp": 1785141760240,
+      "type": "customer"
+    },
+    "12:30": {
+      "customerInfo": {
+        "apt": "반도유보라 101동102호",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)",
+          "테라 주방후드"
+        ],
+        "notes": "테스트 예약",
+        "parentTime": "09:30",
+        "phone": "010-87944843",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785137844110",
+      "status": "confirmed",
+      "timestamp": 1785141760240,
+      "type": "customer"
+    },
+    "13:00": {
+      "customerInfo": {
+        "apt": "반도유보라 101동102호",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)",
+          "테라 주방후드"
+        ],
+        "notes": "테스트 예약",
+        "parentTime": "09:30",
+        "phone": "010-87944843",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785137844110",
+      "status": "confirmed",
+      "timestamp": 1785141760240,
+      "type": "customer"
+    },
+    "14:00": {
+      "customerInfo": {
+        "apt": "반도유보라 203동 502호",
+        "items": [
+          "하츠 로빈 후드 RCH-90S 1대"
+        ],
+        "notes": "공동구매 할인 적용 건",
+        "phone": "010-1234-5678"
+      },
+      "reservationId": "test-res-2702",
+      "status": "confirmed",
+      "type": "customer"
+    }
+  },
+  "2026-07-29": {
+    "10:00": {
+      "customerInfo": {
+        "apt": "이지더원 2차 301동 1205호",
+        "items": [
+          "프리미엄 싱크볼 1대",
+          "거실 환풍기 2대"
+        ],
+        "notes": "오전 방문 필수 요청",
+        "phone": "010-9988-7766"
+      },
+      "reservationId": "test-res-2901",
+      "status": "confirmed",
+      "type": "customer"
+    }
+  },
+  "2026-07-30": {
+    "09:00": {
+      "customerInfo": {
+        "apt": "래미안 퍼스티지 101동 202호",
+        "items": [
+          "테라 주방후드",
+          "사각씽크볼 세트"
+        ],
+        "name": "김테스트",
+        "notes": "강아지 있음, 방문 전 연락 요망",
+        "phone": "010-1234-5678"
+      },
+      "report": {
+        "margin": 100000,
+        "mediaUrls": [
+          "https://via.placeholder.com/150"
+        ],
+        "payAmount": 250000,
+        "payMethod": "현금",
+        "salesNotes": "고객님이 매우 만족해 하심. 다음 달에 인덕션 교체도 문의하심.",
+        "techNotes": "배관이 짧아서 연장 배관 사용함. 실리콘 마감 꼼꼼히 처리.",
+        "usedProducts": [
+          {
+            "cost": 150000,
+            "name": "테라 주방후드",
+            "qty": 1,
+            "sellPrice": 200000
+          },
+          "현장추가 공임비(5만원)"
+        ]
+      },
+      "status": "confirmed",
+      "timestamp": 1711234567890
+    },
+    "11:00": {
+      "customerInfo": {
+        "apt": "중흥S클래스 102동 801호",
+        "items": [
+          "티오람미니 1대"
+        ],
+        "notes": "부재시 비밀번호 공유 예정",
+        "phone": "010-5544-3322"
+      },
+      "reservationId": "test-res-3001",
+      "status": "confirmed",
+      "type": "customer"
+    },
+    "14:00": {
+      "customerInfo": {
+        "apt": "자이 아파트 205동 1104호",
+        "items": [
+          "티오람 미니"
+        ],
+        "name": "이샘플",
+        "notes": "빨리 끝내주세요",
+        "phone": "010-9876-5432"
+      },
+      "status": "confirmed",
+      "timestamp": 1711234567891
+    },
+    "15:00": {
+      "customerInfo": {
+        "apt": "모아엘가 108동 303호",
+        "items": [
+          "제로크 환풍기 1대"
+        ],
+        "notes": "결제는 현장에서 카드 결제 예정",
+        "phone": "010-1122-3344"
+      },
+      "reservationId": "test-res-3002",
+      "status": "confirmed",
+      "type": "customer"
+    }
+  },
+  "2026-08": {
+    "15": {
+      "09:00_crm_1786109414461": {
+        "adminMemo": "고객이 이전 통화에 이어 안방과 거실 환풍기 설치 일정을 확정하기 위해 통화한 내용입니다. 당초 8월 15일 토요일 오전 10시 설치를 희망했으나, 대표님의 제안에 따라 오전 9시로 시간을 앞당겨 예약을 확정하였습니다. 주소는 105동 103호로 확인되었습니다.",
+        "customerInfo": {
+          "address": "효성 105동 103호 (내포,해링턴플레이스 )",
+          "contact": "010-8601-3895",
+          "items": [
+            "티오람미니 2대 (안방 22만, 거실 19.5만 =41.5만 )"
+          ],
+          "name": "접수 고객",
+          "notes": "고객이 이전 통화에 이어 안방과 거실 환풍기 설치 일정을 확정하기 위해 통화한 내용입니다. 당초 8월 15일 토요일 오전 10시 설치를 희망했으나, 대표님의 제안에 따라 오전 9시로 시간을 앞당겨 예약을 확정하였습니다. 주소는 105동 103호로 확인되었습니다.",
+          "parentTime": "09:00"
+        },
+        "reservationId": "crm_1786109414461",
+        "status": "confirmed",
+        "timestamp": 1786109414461,
+        "type": "ai_call"
+      },
+      "10:00_crm_1786110135918": {
+        "adminMemo": "방금 전 통화했던 106동 902호 고객이 다시 전화를 걸어 제품 변경을 요청했습니다. 기존 규격에 맞고 설치 흔적이 모두 가려지는 45만 원 상당의 제품으로 예약을 변경하기로 확정했습니다.",
+        "customerInfo": {
+          "address": "효성 106동 1902호 내포 해링턴플레이스 ",
+          "contact": "010-4842-5142",
+          "items": [
+            "티오람 X G600s 45만원"
+          ],
+          "name": "접수 고객",
+          "notes": "방금 전 통화했던 106동 902호 고객이 다시 전화를 걸어 제품 변경을 요청했습니다. 기존 규격에 맞고 설치 흔적이 모두 가려지는 45만 원 상당의 제품으로 예약을 변경하기로 확정했습니다.",
+          "parentTime": "10:00"
+        },
+        "reservationId": "crm_1786110135918",
+        "status": "confirmed",
+        "timestamp": 1786110135918,
+        "type": "ai_call"
+      }
+    }
+  },
+  "2026-08-01": {
+    "09:00": {
+      "customerInfo": {
+        "apt": "경남아너스빌 105-301",
+        "hoursNeeded": 2,
+        "items": [
+          "테라 주방후드"
+        ],
+        "notes": "",
+        "parentTime": "09:00",
+        "phone": "010-4284-4150",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "reservationId": "res_1785190431744",
+      "status": "confirmed",
+      "timestamp": 1785190578184,
+      "type": "customer"
+    },
+    "09:30": {
+      "customerInfo": {
+        "apt": "경남아너스빌 105-301",
+        "hoursNeeded": 2,
+        "items": [
+          "테라 주방후드"
+        ],
+        "notes": "",
+        "parentTime": "09:00",
+        "phone": "010-4284-4150",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "reservationId": "res_1785190431744",
+      "status": "confirmed",
+      "timestamp": 1785190578184,
+      "type": "customer"
+    },
+    "10:00": {
+      "customerInfo": {
+        "apt": "경남아너스빌 105-301",
+        "hoursNeeded": 2,
+        "items": [
+          "테라 주방후드"
+        ],
+        "notes": "",
+        "parentTime": "09:00",
+        "phone": "010-4284-4150",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "reservationId": "res_1785190431744",
+      "status": "confirmed",
+      "timestamp": 1785190578184,
+      "type": "customer"
+    },
+    "10:30": {
+      "customerInfo": {
+        "apt": "경남아너스빌 105-301",
+        "hoursNeeded": 2,
+        "items": [
+          "테라 주방후드"
+        ],
+        "notes": "",
+        "parentTime": "09:00",
+        "phone": "010-4284-4150",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "reservationId": "res_1785190431744",
+      "status": "confirmed",
+      "timestamp": 1785190578184,
+      "type": "customer"
+    }
+  },
+  "2026-08-05": {
+    "09:00": {
+      "customerInfo": {
+        "apt": "LH 119-1101 스타힐스(내포)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (2대)"
+        ],
+        "notes": "안방 습기 냄셋ㅣㅁ함",
+        "parentTime": "09:00",
+        "phone": "010-3766-0828",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방 배관긴섭 힘펣 흡기로변경설치 15만원",
+        "payAmount": "345000",
+        "payMethod": "계좌이체",
+        "timestamp": 1786005479733,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842287909",
+      "status": "completed",
+      "timestamp": 1785842600875,
+      "type": "customer"
+    },
+    "09:30": {
+      "customerInfo": {
+        "apt": "LH 119-1101 스타힐스(내포)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (2대)"
+        ],
+        "notes": "안방 습기 냄셋ㅣㅁ함",
+        "parentTime": "09:00",
+        "phone": "010-3766-0828",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방 배관긴섭 힘펣 흡기로변경설치 15만원",
+        "payAmount": "345000",
+        "payMethod": "계좌이체",
+        "timestamp": 1786005479733,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842287909",
+      "status": "completed",
+      "timestamp": 1785842600875,
+      "type": "customer"
+    },
+    "10:00": {
+      "customerInfo": {
+        "apt": "LH 119-1101 스타힐스(내포)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (2대)"
+        ],
+        "notes": "안방 습기 냄셋ㅣㅁ함",
+        "parentTime": "09:00",
+        "phone": "010-3766-0828",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방 배관긴섭 힘펣 흡기로변경설치 15만원",
+        "payAmount": "345000",
+        "payMethod": "계좌이체",
+        "timestamp": 1786005479733,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842287909",
+      "status": "completed",
+      "timestamp": 1785842600875,
+      "type": "customer"
+    },
+    "10:30": {
+      "customerInfo": {
+        "apt": "LH 119-1101 스타힐스(내포)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (2대)"
+        ],
+        "notes": "안방 습기 냄셋ㅣㅁ함",
+        "parentTime": "09:00",
+        "phone": "010-3766-0828",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방 배관긴섭 힘펣 흡기로변경설치 15만원",
+        "payAmount": "345000",
+        "payMethod": "계좌이체",
+        "timestamp": 1786005479733,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842287909",
+      "status": "completed",
+      "timestamp": 1785842600875,
+      "type": "customer"
+    },
+    "11:00": {
+      "customerInfo": {
+        "apt": "LH 119-1101 스타힐스(내포)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (2대)"
+        ],
+        "notes": "안방 습기 냄셋ㅣㅁ함",
+        "parentTime": "09:00",
+        "phone": "010-3766-0828",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방 배관긴섭 힘펣 흡기로변경설치 15만원",
+        "payAmount": "345000",
+        "payMethod": "계좌이체",
+        "timestamp": 1786005479733,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842287909",
+      "status": "completed",
+      "timestamp": 1785842600875,
+      "type": "customer"
+    },
+    "11:30": {
+      "customerInfo": {
+        "apt": "LH 119-1101 스타힐스(내포)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (2대)"
+        ],
+        "notes": "안방 습기 냄셋ㅣㅁ함",
+        "parentTime": "09:00",
+        "phone": "010-3766-0828",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방 배관긴섭 힘펣 흡기로변경설치 15만원",
+        "payAmount": "345000",
+        "payMethod": "계좌이체",
+        "timestamp": 1786005479733,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842287909",
+      "status": "completed",
+      "timestamp": 1785842600875,
+      "type": "customer"
+    },
+    "12:00": {
+      "customerInfo": {
+        "apt": "LH 119-1101 스타힐스(내포)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (2대)"
+        ],
+        "notes": "안방 습기 냄셋ㅣㅁ함",
+        "parentTime": "09:00",
+        "phone": "010-3766-0828",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방 배관긴섭 힘펣 흡기로변경설치 15만원",
+        "payAmount": "345000",
+        "payMethod": "계좌이체",
+        "timestamp": 1786005479733,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842287909",
+      "status": "completed",
+      "timestamp": 1785842600875,
+      "type": "customer"
+    },
+    "14:00": {
+      "customerInfo": {
+        "apt": "효성 104-2501 해링턴플레이스 (내포)",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "안방 Bafer 설치상태",
+        "parentTime": "14:00",
+        "phone": "010-9754-8787",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방은 bafer ,타공이 커서 메꾸는 작업필요",
+        "payAmount": "200000",
+        "payMethod": "현금",
+        "timestamp": 1786006260572,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842454298",
+      "status": "completed",
+      "timestamp": 1785842781362,
+      "type": "customer"
+    },
+    "14:30": {
+      "customerInfo": {
+        "apt": "효성 104-2501 해링턴플레이스 (내포)",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "안방 Bafer 설치상태",
+        "parentTime": "14:00",
+        "phone": "010-9754-8787",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방은 bafer ,타공이 커서 메꾸는 작업필요",
+        "payAmount": "200000",
+        "payMethod": "현금",
+        "timestamp": 1786006260572,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842454298",
+      "status": "completed",
+      "timestamp": 1785842781362,
+      "type": "customer"
+    },
+    "15:00": {
+      "customerInfo": {
+        "apt": "효성 104-2501 해링턴플레이스 (내포)",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "안방 Bafer 설치상태",
+        "parentTime": "14:00",
+        "phone": "010-9754-8787",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방은 bafer ,타공이 커서 메꾸는 작업필요",
+        "payAmount": "200000",
+        "payMethod": "현금",
+        "timestamp": 1786006260572,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842454298",
+      "status": "completed",
+      "timestamp": 1785842781362,
+      "type": "customer"
+    },
+    "15:30": {
+      "customerInfo": {
+        "apt": "효성 104-2501 해링턴플레이스 (내포)",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "안방 Bafer 설치상태",
+        "parentTime": "14:00",
+        "phone": "010-9754-8787",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "report": {
+        "margin": 0,
+        "notes": "안방은 bafer ,타공이 커서 메꾸는 작업필요",
+        "payAmount": "200000",
+        "payMethod": "현금",
+        "timestamp": 1786006260572,
+        "totalCost": 0,
+        "totalSell": 0
+      },
+      "reservationId": "res_1785842454298",
+      "status": "completed",
+      "timestamp": 1785842781362,
+      "type": "customer"
+    }
+  },
+  "2026-08-06": {
+    "14:00": {
+      "customerInfo": {
+        "apt": "푸르지오 101동 101호",
+        "items": [
+          "테스트 환풍기 신청"
+        ],
+        "name": "AI 음성비서 테스트 고객",
+        "notes": "테스트를 위해 에이전트가 자동 생성한 데이터입니다.",
+        "phone": "010-1234-5678"
+      },
+      "reservationId": "test_voice_report_001",
+      "status": "confirmed",
+      "type": "test"
+    }
+  },
+  "2026-08-08": {
+    "09:00": {
+      "customerInfo": {
+        "apt": "중흥126-403 내포(자경마을)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "카드.안방",
+        "parentTime": "09:00",
+        "phone": "01057579901",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785139382487",
+      "status": "confirmed",
+      "timestamp": 1785771286346,
+      "type": "customer"
+    },
+    "09:30": {
+      "customerInfo": {
+        "apt": "중흥126-403 내포(자경마을)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "카드.안방",
+        "parentTime": "09:00",
+        "phone": "01057579901",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785139382487",
+      "status": "confirmed",
+      "timestamp": 1785771286346,
+      "type": "customer"
+    },
+    "10:00": {
+      "customerInfo": {
+        "apt": "중흥126-403 내포(자경마을)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "카드.안방",
+        "parentTime": "09:00",
+        "phone": "01057579901",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785139382487",
+      "status": "confirmed",
+      "timestamp": 1785771286346,
+      "type": "customer"
+    },
+    "10:30": {
+      "customerInfo": {
+        "apt": "중흥126-403 내포(자경마을)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "카드.안방",
+        "parentTime": "09:00",
+        "phone": "01057579901",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785139382487",
+      "status": "confirmed",
+      "timestamp": 1785771286346,
+      "type": "customer"
+    },
+    "11:00": {
+      "customerInfo": {
+        "apt": "중흥126-403 내포(자경마을)",
+        "hoursNeeded": 4,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "카드.안방",
+        "parentTime": "09:00",
+        "phone": "01057579901",
+        "slotsNeeded": 8,
+        "totalDuration": 240
+      },
+      "reservationId": "res_1785139382487",
+      "status": "confirmed",
+      "timestamp": 1785771286346,
+      "type": "customer"
+    }
+  },
+  "2026-08-10": {
+    "10:30": {
+      "customerInfo": {
+        "apt": "자경마을 중흥S클래스 114동602호",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "",
+        "parentTime": "10:30",
+        "phone": "010-89405769",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "reservationId": "res_1785983257779",
+      "status": "pending",
+      "timestamp": 1785983257779,
+      "type": "customer"
+    },
+    "11:00": {
+      "customerInfo": {
+        "apt": "자경마을 중흥S클래스 114동602호",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "",
+        "parentTime": "10:30",
+        "phone": "010-89405769",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "reservationId": "res_1785983257779",
+      "status": "pending",
+      "timestamp": 1785983257779,
+      "type": "customer"
+    },
+    "11:30": {
+      "customerInfo": {
+        "apt": "자경마을 중흥S클래스 114동602호",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "",
+        "parentTime": "10:30",
+        "phone": "010-89405769",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "reservationId": "res_1785983257779",
+      "status": "pending",
+      "timestamp": 1785983257779,
+      "type": "customer"
+    },
+    "12:00": {
+      "customerInfo": {
+        "apt": "자경마을 중흥S클래스 114동602호",
+        "hoursNeeded": 2,
+        "items": [
+          "티오람 미니 (1대)"
+        ],
+        "notes": "",
+        "parentTime": "10:30",
+        "phone": "010-89405769",
+        "slotsNeeded": 4,
+        "totalDuration": 120
+      },
+      "reservationId": "res_1785983257779",
+      "status": "pending",
+      "timestamp": 1785983257779,
+      "type": "customer"
+    }
+  },
+  "2026-08-15": {
+    "14:00": {
+      "adminMemo": "아파트 전단지를 보고 안방 화장실 환풍기 교체 설치를 문의한 고객입니다. 기존 타공 구멍이 커서 덧대는 작업이 필요하며, 비용은 22만 원입니다. 다음 주 토요일 예약을 접수하였으며 구체적인 시간은 내일 문자로 안내하기로 하였습니다.",
+      "customerInfo": {
+        "address": "효성 106동 1902호 [내포 해링턴플레이스] ",
+        "apt": "",
+        "contact": "010-4842-5142",
+        "items": [
+          "티오람 x G600s 45만원"
+        ],
+        "name": "접수 고객",
+        "notes": "아파트 전단지를 보고 안방 화장실 환풍기 교체 설치를 문의한 고객입니다. 기존 타공 구멍이 커서 덧대는 작업이 필요하며, 비용은 22만 원입니다. 다음 주 토요일 예약을 접수하였으며 구체적인 시간은 내일 문자로 안내하기로 하였습니다.",
+        "parentTime": "14:00",
+        "phone": ""
+      },
+      "reservationId": "crm_1786111168414",
+      "status": "confirmed",
+      "timestamp": 1786111965414,
+      "type": "ai_call"
+    },
+    "14:30": {
+      "adminMemo": "아파트 전단지를 보고 안방 화장실 환풍기 교체 설치를 문의한 고객입니다. 기존 타공 구멍이 커서 덧대는 작업이 필요하며, 비용은 22만 원입니다. 다음 주 토요일 예약을 접수하였으며 구체적인 시간은 내일 문자로 안내하기로 하였습니다.",
+      "customerInfo": {
+        "address": "효성 106동 1902호 [내포 해링턴플레이스] ",
+        "apt": "",
+        "contact": "010-4842-5142",
+        "items": [
+          "티오람 x G600s 45만원"
+        ],
+        "name": "접수 고객",
+        "notes": "아파트 전단지를 보고 안방 화장실 환풍기 교체 설치를 문의한 고객입니다. 기존 타공 구멍이 커서 덧대는 작업이 필요하며, 비용은 22만 원입니다. 다음 주 토요일 예약을 접수하였으며 구체적인 시간은 내일 문자로 안내하기로 하였습니다.",
+        "parentTime": "14:00",
+        "phone": ""
+      },
+      "reservationId": "crm_1786111168414",
+      "status": "confirmed",
+      "timestamp": 1786111965414,
+      "type": "ai_call"
+    },
+    "15:00": {
+      "adminMemo": "아파트 전단지를 보고 안방 화장실 환풍기 교체 설치를 문의한 고객입니다. 기존 타공 구멍이 커서 덧대는 작업이 필요하며, 비용은 22만 원입니다. 다음 주 토요일 예약을 접수하였으며 구체적인 시간은 내일 문자로 안내하기로 하였습니다.",
+      "customerInfo": {
+        "address": "효성 106동 1902호 [내포 해링턴플레이스] ",
+        "apt": "",
+        "contact": "010-4842-5142",
+        "items": [
+          "티오람 x G600s 45만원"
+        ],
+        "name": "접수 고객",
+        "notes": "아파트 전단지를 보고 안방 화장실 환풍기 교체 설치를 문의한 고객입니다. 기존 타공 구멍이 커서 덧대는 작업이 필요하며, 비용은 22만 원입니다. 다음 주 토요일 예약을 접수하였으며 구체적인 시간은 내일 문자로 안내하기로 하였습니다.",
+        "parentTime": "14:00",
+        "phone": ""
+      },
+      "reservationId": "crm_1786111168414",
+      "status": "confirmed",
+      "timestamp": 1786111965414,
+      "type": "ai_call"
+    },
+    "15:30": {
+      "adminMemo": "아파트 전단지를 보고 안방 화장실 환풍기 교체 설치를 문의한 고객입니다. 기존 타공 구멍이 커서 덧대는 작업이 필요하며, 비용은 22만 원입니다. 다음 주 토요일 예약을 접수하였으며 구체적인 시간은 내일 문자로 안내하기로 하였습니다.",
+      "customerInfo": {
+        "address": "효성 106동 1902호 [내포 해링턴플레이스] ",
+        "apt": "",
+        "contact": "010-4842-5142",
+        "items": [
+          "티오람 x G600s 45만원"
+        ],
+        "name": "접수 고객",
+        "notes": "아파트 전단지를 보고 안방 화장실 환풍기 교체 설치를 문의한 고객입니다. 기존 타공 구멍이 커서 덧대는 작업이 필요하며, 비용은 22만 원입니다. 다음 주 토요일 예약을 접수하였으며 구체적인 시간은 내일 문자로 안내하기로 하였습니다.",
+        "parentTime": "14:00",
+        "phone": ""
+      },
+      "reservationId": "crm_1786111168414",
+      "status": "confirmed",
+      "timestamp": 1786111965414,
+      "type": "ai_call"
+    }
+  }
+}

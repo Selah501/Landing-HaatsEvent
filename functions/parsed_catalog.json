@@ -1,0 +1,3424 @@
+{
+  "products": [
+    {
+      "id": "p_하츠_hrh90sci",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "4",
+      "model": "HRH-90SCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hsh90whci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "허리케인 스노우",
+      "model": "HSH-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_eic30hwr252",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "클레르 인덕션",
+      "model": "EIC-30HWR252",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ts200",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "폰테206",
+      "model": "TS200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_us600",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "폰테212",
+      "model": "US600",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ub300",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "폰테301",
+      "model": "UB300",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_pma90whci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "마데라",
+      "model": "PMA-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_pcs90whci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "캐슬",
+      "model": "PCS-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_pst90whci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "슬랜트",
+      "model": "PST-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_sih30whci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "싱글 스퀘어 아일랜드 화이트",
+      "model": "SIH-30WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dca46sci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "까미노",
+      "model": "DCA-46SCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_msh90sci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "모던 스퀘어",
+      "model": "MSH-90SCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_msh90whci",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "모던 스퀘어 화이트",
+      "model": "MSH-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_bar90",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "부띠크 아르떼",
+      "model": "BAR-90",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dac90msci",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "아크",
+      "model": "DAC-90MSCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_mmh90msci",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "모던 메탈",
+      "model": "MMH-90MSCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dtr90msci",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "테라",
+      "model": "DTR-90MSCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ina90whci",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "노바",
+      "model": "INA-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ih3609ttlgr",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "휠라이트 인덕션",
+      "model": "IH-3609TTLGR",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ih3603ttl",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "루인 인덕션 3구",
+      "model": "IH-3603TTL",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_eic30hbr251",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "베로 인덕션 3구",
+      "model": "EIC-30HBR251",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_eic30hwr253",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "샌드화이트 인덕션 3구",
+      "model": "EIC-30HWR253",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ih3605ttlb",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "코지 인덕션 3구",
+      "model": "IH-3605TTLB",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ih366dtl",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "하이브리드 3구",
+      "model": "IH-366DTL",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ec365cts01",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "하이라이트 3구",
+      "model": "EC-365CTS-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gic3602garh01",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "하이브리드 3구",
+      "model": "GIC-3602GARH-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gc3606edrh02",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "법랑 3구",
+      "model": "GC-3606EDRH-02",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gc3608sdrh",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "가스 3구",
+      "model": "GC-3608SDRH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gec3601garh02",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "하이브리드 3구",
+      "model": "GEC-3601GARH-02",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gc3605sdrh01",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "가스 3구",
+      "model": "GC-3605SDRH-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hgr3050sdrh",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "가스 3구",
+      "model": "HGR-3050SDRH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_nch90sci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "뉴침니",
+      "model": "NCH-90SCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cpmb90blci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "몽블랑 블랙",
+      "model": "CPMB-90BLCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cpmb90whci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "몽블랑 화이트",
+      "model": "CPMB-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_rnh90cci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "로빈",
+      "model": "RNH-90CCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_nch90whci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "뉴침니 화이트",
+      "model": "NCH-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cbst90whci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "스텝 화이트",
+      "model": "CBST-90WHCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_sma60gci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "모아",
+      "model": "SMA-60GCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cbls60sgci",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "로체",
+      "model": "CBLS-60SGCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ssl60glt",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "슬림 루나",
+      "model": "SSL-60GLT",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_swl60glt",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "화이트 루나",
+      "model": "SWL-60GLT",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_brc60gyl",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "부띠크 로망스",
+      "model": "BRC-60GYL",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_slh160slt",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "슬림 라인",
+      "model": "SLH-160SLT",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ih3606ttlw",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "부띠크 인덕션 3구",
+      "model": "IH-3606TTLW",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_eic30hwr261",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "스마트휠 인덕션 3구",
+      "model": "EIC-30HWR261",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_eic30hbr241",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "스마트휠 인덕션 3구",
+      "model": "EIC-30HBR241",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_min700max1000",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "396",
+      "model": "MIN700-MAX1000",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_min300max430",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "171",
+      "model": "MIN300-MAX430",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_psc90s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "시크릿",
+      "model": "PSC-90S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dsa90s",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "사임당",
+      "model": "DSA-90S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ids30s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "아일랜드 더블 스퀘어",
+      "model": "IDS-30S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_sih30s",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "싱글 스퀘어",
+      "model": "SIH-30S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ish46s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "스퀘어 아일랜드",
+      "model": "ISH-46S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cbst90sci",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "도장강판",
+      "model": "CBST-90SCI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hdh90s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "허리케인 도어",
+      "model": "HDH-90S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hrh80s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "허리케인",
+      "model": "HRH-80S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hrh90s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "허리케인",
+      "model": "HRH-90S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dal90ms",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "아크 라이트",
+      "model": "DAL-90MS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dsm60s",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "스마일 60",
+      "model": "DSM-60S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_mch90s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "밀레니엄 침니",
+      "model": "MCH-90S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_rnh90c",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "로빈",
+      "model": "RNH-90C",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_rnh90l",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "220V/60Hz",
+      "model": "RNH-90L",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_rnh90r",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "220V/60Hz",
+      "model": "RNH-90R",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_nch90s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "뉴침니",
+      "model": "NCH-90S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_nch90wh",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "스테인레스 스틸",
+      "model": "NCH-90WH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_kch60s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "침니",
+      "model": "KCH-60S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_kch60bl",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "5",
+      "model": "KCH-60BL",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_kch60wh",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "5",
+      "model": "KCH-60WH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_brc60g",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "부띠크 로망스",
+      "model": "BRC-60G",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ssd60bl",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "슬림 다크",
+      "model": "SSD-60BL",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ssc60s",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "슬림 카브",
+      "model": "SSC-60S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_srh60s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "뉴쉴드라운드",
+      "model": "SRH-60S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_bgc60",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "부띠크 글라쎄",
+      "model": "BGC-60",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_nbh200",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "뉴빌트인",
+      "model": "NBH-200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_nbh280",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "H 193mm",
+      "model": "NBH-280",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_elk160s",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "엘리카",
+      "model": "ELK-160S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_mp1000",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "후드 필터망 전용세제",
+      "model": "MP1000",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ms540",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "스테인레스 스틸 전용세제",
+      "model": "MS540",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_md1253c",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "보다 쾌적한 주방 환경을 유지할 수 있도록 돕습니다.",
+      "model": "MD125-3C",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_md1003c",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "보다 쾌적한 주방 환경을 유지할 수 있도록 돕습니다.",
+      "model": "MD100-3C",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hrh90",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "*\u0007탄소 필터 적용 가능 모델",
+      "model": "HRH90",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dhp90",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "*\u0007탄소 필터 적용 가능 모델",
+      "model": "DHP90",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ish46",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "*\u0007탄소 필터 적용 가능 모델",
+      "model": "ISH46",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hdh90",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "*\u0007탄소 필터 적용 가능 모델",
+      "model": "HDH90",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cbst90",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "*\u0007탄소 필터 적용 가능 모델",
+      "model": "CBST90",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ib90s",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "H 290mm",
+      "model": "IB90S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ib60s",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "H 145mm",
+      "model": "IB60S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ib60",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "배기구사이즈    ∅100, ∅125",
+      "model": "IB60",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_de361",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "• 에너지 효율등급 1등급",
+      "model": "DE361",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ih365dtl",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "하이브리드 3구",
+      "model": "IH-365DTL",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ih232s",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "인덕션 2구",
+      "model": "IH-232S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ih132s01",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "인덕션 1구",
+      "model": "IH-132S-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hec2050sh01",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "하이라이트 2구",
+      "model": "HEC-2050SH-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hec1050sh01",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "하이라이트 1구",
+      "model": "HEC-1050SH-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gc3606edbh01",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "법랑 가스 3구",
+      "model": "GC-3606EDBH-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gc3606edbh",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "법랑 가스 3구",
+      "model": "GC-3606EDBH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gc3608sdbh",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "가스 3구",
+      "model": "GC-3608SDBH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hgr3050sdbh",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "가스 3구",
+      "model": "HGR-3050SDBH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gc3605sdbh",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "가스 3구",
+      "model": "GC-3605SDBH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hgr4050ckb",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "가스 4구",
+      "model": "HGR-4050CKB",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_gc2303sdbh",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "세로 가스 2구",
+      "model": "GC-2303SDBH",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hgr2040sdb",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "가로 가스 2구",
+      "model": "HGR-2040SDB",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hgr2040sas02",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "가로 가스 2구",
+      "model": "HGR-2040SAS-02",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_us300",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "마레 204 / 205",
+      "model": "US300",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_us500",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "마레 204 / 205",
+      "model": "US500",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_us100ms",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "폰테 206 / 208 / 209",
+      "model": "US100MS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ls100ms",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "폰테 206 / 208 / 209",
+      "model": "LS100MS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ts500",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "마레 206 / 207",
+      "model": "TS500",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ts100ms",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "폰테 210 / 211 / 212",
+      "model": "TS100MS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_us400ms",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "폰테 210 / 211 / 212",
+      "model": "US400MS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ts400ms",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "폰테 210 / 211 / 212",
+      "model": "TS400MS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ub302",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "폰테 301 / 302",
+      "model": "UB302",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_sus304",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "주요재질",
+      "model": "SUS304",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ub100",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "마레 201 / 202 / 203",
+      "model": "UB100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ub200",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "마레 201 / 202 / 203",
+      "model": "UB200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_lb200",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "마레 201 / 202 / 203",
+      "model": "LB200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_yb500",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "싱크 수전",
+      "model": "YB500",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ya300",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "싱크 수전",
+      "model": "YA300",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ta200",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "싱크 수전",
+      "model": "TA200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_yb310",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "싱크 수전",
+      "model": "YB310",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_tb900",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "싱크 수전",
+      "model": "TB900",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ld164ft",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "* \u0007해당 모델은 한국향 모델로 대배수구를 적용",
+      "model": "LD164FT",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_al8501sf",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "수전 일체형 올인원 사각볼",
+      "model": "AL8501SF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_sts304",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "재질(색상)",
+      "model": "STS304",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ew9802sf",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "폰테 사각싱크볼 (엠보리폼980)",
+      "model": "EW9802SF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ew9803sf",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "폰테 사각싱크볼 (엠보리폼980)",
+      "model": "EW9803SF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ew8502sf",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "폰테 사각싱크볼 (엠보리폼850)",
+      "model": "EW8502SF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ew8503sf",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "폰테 사각싱크볼 (엠보리폼850)",
+      "model": "EW8503SF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ldsp8501",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "포켓 850",
+      "model": "LDSP8501",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ljsc8701",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "점보870",
+      "model": "LJSC8701",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_lds8501",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "점보 850",
+      "model": "LDS8501",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_lis6301",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "싱글 630",
+      "model": "LIS6301",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_js8701",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "점보 870",
+      "model": "JS8701",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_iss4801",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "싱글 480",
+      "model": "ISS4801",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ljs850",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "점보 850",
+      "model": "LJS850",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cb4425",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "싱크도마, 배수구 덮개",
+      "model": "CB4425",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dc183sj",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "싱크도마, 배수구 덮개",
+      "model": "DC183SJ",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dn4271",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "D형망, 수세미망",
+      "model": "DN4271",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ln3081",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "D형망, 수세미망",
+      "model": "LN3081",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dsp8501",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "• \u0007싱크볼 안쪽에 사용하는 바구니, 수세미망 세트",
+      "model": "DSP8501",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ds8501",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "• \u0007싱크볼 안쪽에 사용하는 바구니, 수세미망 세트",
+      "model": "DS8501",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ds01i01",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "빌트인 기타 기기",
+      "model": "DS01I-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_df06gi01",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "8",
+      "model": "DF06GI-01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_df06wi",
+      "brand": "하츠",
+      "category": "싱크볼/수전",
+      "name": "WS-F06WI",
+      "model": "DF06WI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_df06si",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "8",
+      "model": "DF06SI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_wf07si",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "무선 발판형 절수기",
+      "model": "WF07SI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hld4601b",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "리프트업 도어",
+      "model": "HLD-4601B",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hld5600b",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "리프트업 도어",
+      "model": "HLD-5600B",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hfd160sn",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "음식물 탈수기",
+      "model": "HFD-160SN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_js214bb",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "스펙",
+      "model": "JS214BB",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_js215bb",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "표준 대 배수구, 오버홀(사각)호스 44cm",
+      "model": "JS215BB",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_sm11bb",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "표준대 배수구, 오버홀(사각)호스 50cm",
+      "model": "SM11BB",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ld164fto",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "거름덮개/거름망",
+      "model": "LD164FTO",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hfd160sts",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "187",
+      "model": "HFD-160STS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dhl8243",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "식기 건조대",
+      "model": "DHL8243",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dhl8244",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "식기 건조대",
+      "model": "DHL8244",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dhm8284",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "식기 건조대",
+      "model": "DHM8284",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dhm9261",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "식기 건조대",
+      "model": "DHM9261",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_tstt01",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "주방 액세서리 3종 세트",
+      "model": "TSTT01",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dhm8243",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "스펙",
+      "model": "DHM8243",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cb300",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "CB300",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_pr300",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "PR300",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hw30",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "HW30",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cb600",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "CB600",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_db600",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "DB600",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_pr600",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "PR600",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_cb450",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "CB450",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_db450",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "DB450",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_pr450",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "6단",
+      "model": "PR450",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_ld84",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "서랍재",
+      "model": "LD84",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_lid84",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "서랍재",
+      "model": "LID84",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hd167",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "서랍재",
+      "model": "HD167",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hd199",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "서랍재",
+      "model": "HD199",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_fp84",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "스펙",
+      "model": "FP84",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_nc900r",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "코너망장 900폭",
+      "model": "NC900R",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_nc900l",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "코너망장 900폭",
+      "model": "NC900L",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_fdu45",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "풀댐핑 언더레일 2종",
+      "model": "FDU45",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_fdu50",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "• \u0007좌우 / 상하 / 깊이 방향으로 ±2mm씩 조절 가능",
+      "model": "FDU50",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_hk3000",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "• \u0007도어오픈각도 : 107도",
+      "model": "HK3000",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_fau45",
+      "brand": "하츠",
+      "category": "주방 후드",
+      "name": "풀엑세스 언더레일 3종",
+      "model": "FAU45",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_scs45",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "댐핑레일 5종",
+      "model": "SCS45",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_dsd45",
+      "brand": "하츠",
+      "category": "가스/전기 쿡탑",
+      "name": "댐핑레일 5종",
+      "model": "DSD45",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_하츠_bbs45",
+      "brand": "하츠",
+      "category": "기타",
+      "name": "볼레일 6종",
+      "model": "BBS45",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_top100",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "현관듀얼청정, 제로크H 굿디자인 수상",
+      "model": "TOP100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ir52",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "·2024 브랜드 고객충성도 대상 수상",
+      "model": "IR52",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_re100",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "·2024 브랜드 고객충성도 대상 수상",
+      "model": "RE100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_iso14001",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "내 생활을 할 수 있도록 우수한 환기 제품을 제조하고 있습니다.",
+      "model": "ISO14001",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd200epi",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 Eco",
+      "model": "HRD-200EPI",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep50ibsn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EBSN",
+      "model": "EP50IBSN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep100ibsn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EBSN",
+      "model": "EP100IBSN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep150ibsn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EBSN",
+      "model": "EP150IBSN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep100ibn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EBN",
+      "model": "EP100IBN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep150ibn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EBN",
+      "model": "EP150IBN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep200ibn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EBN",
+      "model": "EP200IBN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep250ibn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EBN",
+      "model": "EP250IBN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep150ibc",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "천장형",
+      "model": "EP150IBC",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep200ibc",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "천장형",
+      "model": "EP200IBC",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep250ibc",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "천장형",
+      "model": "EP250IBC",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep100ibc",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "슬림, 천장형",
+      "model": "EP100IBC",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ep150ibcn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "슬림, 천장형",
+      "model": "EP150IBCN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd350plcn",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 C3",
+      "model": "HRD3-50PLCN",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd3100plc",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 C3",
+      "model": "HRD3-100PLC",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd3120plc",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 C3",
+      "model": "HRD3-120PLC",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd100c",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 C2",
+      "model": "HRD-100C",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd50c",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 C1",
+      "model": "HRD-50C",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd1",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 A",
+      "model": "HRD1-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hre350",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EGI",
+      "model": "HRE-350",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hre500",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EGI",
+      "model": "HRE-500",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hre800",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EGI",
+      "model": "HRE-800",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hre1000",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 EGI",
+      "model": "HRE-1000",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd4400egs",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 S+",
+      "model": "HRD4-400EGS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd2400egs",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 S",
+      "model": "HRD2-400EGS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd2",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 S",
+      "model": "HRD2-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd21000egs",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 S",
+      "model": "HRD2-1000EGS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrd3",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "휴벤 S",
+      "model": "HRD3-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fhd3",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "휴젠뜨 루미",
+      "model": "FHD3-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fhd3c150p",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "휴젠뜨 3",
+      "model": "FHD3-C150P",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fhd2",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "휴젠뜨 노바",
+      "model": "FHD2-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fhd2c150p",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "휴젠뜨 2",
+      "model": "FHD2-C150P",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fzd1",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 패브릭",
+      "model": "FZD1-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fza2",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 E",
+      "model": "FZA2-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv370x",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크",
+      "model": "HV3-70X",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv380x",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크",
+      "model": "HV3-80X",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv380nv",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크",
+      "model": "HV3-80NV",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv380sf",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크",
+      "model": "HV3-80SF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv3100",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크",
+      "model": "HV3-100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv3120",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크",
+      "model": "HV3-120",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv3150",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크",
+      "model": "HV3-150",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv381jg",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크",
+      "model": "HV3-81JG",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fld3c150hvme",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 리보",
+      "model": "FLD3-C150HV-ME",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fld2c90",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 리보",
+      "model": "FLD2-C90",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv180",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 자이온",
+      "model": "HV-180",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv220",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 자이온",
+      "model": "HV-220",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hv250",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 자이온",
+      "model": "HV-250",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_jv201",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 싸이클론",
+      "model": "JV-201",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_jv102",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "제로크 터보",
+      "model": "JV-102",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdd2",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "바이오 후드2",
+      "model": "FDD2-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdd1",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "바이오 후드1",
+      "model": "FDD1-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_rh1900slie",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "바이오 후드1",
+      "model": "RH1-900SL-IE",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dhv5pccu",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "빌트인 제습기",
+      "model": "DHV-5PCCU",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ad1200icv",
+      "brand": "힘펠",
+      "category": "생활 에어가전",
+      "name": "빌트인 청정기/ 듀얼 에어 클리너",
+      "model": "AD1-200ICV",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_ipx3",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "적용. 제품 방수",
+      "model": "IPX3",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_awg16",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "90",
+      "model": "AWG16",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrc10",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "120",
+      "model": "HRC-10",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrc30",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "120",
+      "model": "HRC-30-",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrc30sf",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "120",
+      "model": "HRC-30-SF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hrc30",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "HRC-30 (이름 확인 필요)",
+      "model": "HRC-30",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_lgp250",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "코킹",
+      "model": "LGP-250",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_lgp200",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "FWA-S250(환풍기 벽부형)",
+      "model": "LGP-200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_rs485",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "● 욕실전용/실내환기 겸용",
+      "model": "RS485",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_sdr13",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "배수관(기울기1/100 이상)",
+      "model": "SDR13",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_sr3s100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "공동주택 욕실 층간 소음 저감장치",
+      "model": "SR3-S100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_sr100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "공동주택 욕실 층간 소음 저감장치",
+      "model": "SR-100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs100d",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "디퓨져",
+      "model": "DGS-100D",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs65d",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "디퓨져",
+      "model": "DGS-65D",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgh100c",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "디퓨져",
+      "model": "DGH-100C",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs100p",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "디퓨져",
+      "model": "DGS-100P",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs100s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "디퓨져",
+      "model": "DGS-100S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs100m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "무동력그릴",
+      "model": "DGS-100M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs100lm",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "무동력그릴",
+      "model": "DGS-100LM",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs100u",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "무동력그릴",
+      "model": "DGS-100U",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs100f",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "무동력그릴",
+      "model": "DGS-100F",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs100lf",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "무동력그릴",
+      "model": "DGS-100LF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_mda100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "전동댐퍼",
+      "model": "MDA-100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_mdd100dp",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "전동댐퍼",
+      "model": "MDD-100DP",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_mdd100dpp",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "전동댐퍼",
+      "model": "MDD100DP-P",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_mdd100d",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "전동댐퍼",
+      "model": "MDD-100D",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_jmd100h",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "전동댐퍼",
+      "model": "JMD-100H",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_jmd125hld",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "전동댐퍼",
+      "model": "JMD-125HLD",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_bdg280m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "비고",
+      "model": "BDG2-80M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_bdg2100m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "자석식",
+      "model": "BDG2-100M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_bdg2125m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "Ø97",
+      "model": "BDG2-125M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_bdg100v",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "비고",
+      "model": "BDG-100V",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_bdk125w",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "모델명",
+      "model": "BDK-125W",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_bdk80w",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "모델명",
+      "model": "BDK-80W",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_bdk100w",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "모델명",
+      "model": "BDK-100W",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_brk200",
+      "brand": "힘펠",
+      "category": "욕실 환풍기",
+      "name": "적용제품 : 제로크",
+      "model": "BRK-200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs2100nlf",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "□ 타공치수 : 160X160(±5mm)",
+      "model": "DGS2-100NLF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_dgs2100nf",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "□ 타공치수 : 160X160(±5mm)",
+      "model": "DGS2-100NF",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_mdd100dpp",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "L(mm) L1(mm) L2(mm) 소비전력(W) 중량(g)",
+      "model": "MDD-100DP-P",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdb100s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "덕트관삽입부 (조정가능)",
+      "model": "FDB-100S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdk100s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "덕트관삽입부 (조정가능)",
+      "model": "FDK-100S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdb125s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "60",
+      "model": "FDB-125S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdk125s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "60",
+      "model": "FDK-125S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdb150s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "50",
+      "model": "FDB-150S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdk150s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "50",
+      "model": "FDK-150S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdb200s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "-",
+      "model": "FDB-200S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdk200s",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "-",
+      "model": "FDK-200S",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdb100m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "길이조정가능",
+      "model": "FDB-100M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdk100m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "길이조정가능",
+      "model": "FDK-100M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdb125m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "170",
+      "model": "FDB-125M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdk125m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "170",
+      "model": "FDK-125M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdb150m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "170",
+      "model": "FDB-150M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdk150m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "170",
+      "model": "FDK-150M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdb200m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "170",
+      "model": "FDB-200M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdk200m",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "170",
+      "model": "FDK-200M",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_slp100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "상황에따라조정가능",
+      "model": "SLP-100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_slp125",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "50",
+      "model": "SLP-125",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdg1s100dl",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "L3(mm)",
+      "model": "FDG1-S100DL",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_fdg1s125dl",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "76",
+      "model": "FDG1-S125DL",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs100e",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "재질",
+      "model": "VCS-100E",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs85e",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "PP",
+      "model": "VCS-85E",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs80e",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "PP",
+      "model": "VCS-80E",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs85r",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "재질",
+      "model": "VCS-85R",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw100ds",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "용도",
+      "model": "VCW-100DS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw125ds",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "욕실",
+      "model": "VCW-125DS",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw75",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "용도",
+      "model": "VCW-75",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "-",
+      "model": "VCW-100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw100a",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "-",
+      "model": "VCW-100A",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw125",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "욕실",
+      "model": "VCW-125",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw125a",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "-",
+      "model": "VCW-125A",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw150",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "주방",
+      "model": "VCW-150",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw200",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "-",
+      "model": "VCW-200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw250",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "-",
+      "model": "VCW-250",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw100g",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "용도",
+      "model": "VCW-100G",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw125g",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "욕실용",
+      "model": "VCW-125G",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw100n",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "용도",
+      "model": "VCW-100N",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw125n",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "욕실",
+      "model": "VCW-125N",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw125l",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "용도",
+      "model": "VCW-125L",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw125r",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "좌",
+      "model": "VCW-125R",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcl75",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "L2(mm)",
+      "model": "VCL-75",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcl100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "12",
+      "model": "VCL-100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcl125",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "12",
+      "model": "VCL-125",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcl150",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "12",
+      "model": "VCL-150",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcl200",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "12",
+      "model": "VCL-200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcm50",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "L1(mm)",
+      "model": "VCM-50",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcm75",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "40",
+      "model": "VCM-75",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcm100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "40",
+      "model": "VCM-100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw100a2",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "L2(mm)",
+      "model": "VCW-100A2",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw125a2",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "100",
+      "model": "VCW-125A2",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcw150a2",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "100",
+      "model": "VCW-150A2",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_hvc75n100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "L2(mm)",
+      "model": "HVC-75N100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs50",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "L2(mm)",
+      "model": "VCS-50",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs75",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "50",
+      "model": "VCS-75",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs100",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "80",
+      "model": "VCS-100",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs125",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "80",
+      "model": "VCS-125",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs150",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "100",
+      "model": "VCS-150",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs200",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "100",
+      "model": "VCS-200",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs250",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "185",
+      "model": "VCS-250",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs300",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "185",
+      "model": "VCS-300",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_vcs350",
+      "brand": "힘펠",
+      "category": "기타",
+      "name": "200",
+      "model": "VCS-350",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    },
+    {
+      "id": "p_힘펠_kaca00267175",
+      "brand": "힘펠",
+      "category": "환기 시스템",
+      "name": "이하 같다.)을 비색법 또는 광산란적산법으로 측정하여 95퍼센트 이상",
+      "model": "KACA-0026-7175",
+      "features": "",
+      "defaultPriceText": "상담문의",
+      "isHandled": true
+    }
+  ]
+}

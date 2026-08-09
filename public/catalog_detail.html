@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제품 카탈로그 상세</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; }
+        .catalog-container { max-width: 800px; margin: 0 auto; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding-bottom: 100px; min-height: 100vh;}
+        .level-section { border-bottom: 8px solid #f1f3f5; padding: 30px 20px; }
+        .level-title { font-size: 1.1rem; font-weight: 700; color: #495057; margin-bottom: 20px; display: flex; align-items: center; }
+        .level-title span { background: #339af0; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 10px; }
+        .product-img { width: 100%; border-radius: 8px; margin-bottom: 15px; border: 1px solid #dee2e6; }
+        .sticky-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .catalog-header { padding: 30px 20px; text-align: center; border-bottom: 1px solid #e9ecef; position: relative; }
+        .brand-badge { background: #212529; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 10px; display: inline-block; }
+        .category-badge { background: #6c757d; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 10px; display: inline-block; margin-left: 5px; }
+        .price-card { background: #f8f9fa; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #e9ecef; height: 100%; }
+        .price-card.primary { background: #e7f1ff; border-color: #86b7fe; }
+        .price-label { font-size: 0.8rem; color: #6c757d; margin-bottom: 5px; }
+        .price-value { font-size: 1.1rem; font-weight: bold; color: #212529; }
+        .price-value.primary { color: #0d6efd; font-size: 1.3rem; }
+        .edit-btn { background: none; border: none; color: #0d6efd; cursor: pointer; padding: 5px; }
+        .back-btn { position: absolute; left: 20px; top: 30px; font-size: 1.5rem; color: #495057; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="catalog-container" id="catalogContent">
+    <div class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-3">카탈로그 데이터를 불러오는 중입니다...</p>
+    </div>
+</div>
+
+<div class="sticky-bottom-bar" id="bottomBar" style="display:none;">
+    <div>
+        <h5 class="mb-0 fw-bold" id="barPrice"></h5>
+        <small class="text-muted">시공비 포함 (VAT 별도)</small>
+    </div>
+    <button class="btn btn-primary btn-lg px-4" onclick="location.href='reservation_v2.html'">상담/예약하기</button>
+</div>
+
+<!-- Comprehensive Admin Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">🛠️ 관리자 통합 수정 (제품 및 가격)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <h6 class="fw-bold text-primary border-bottom pb-2">1. 기본 정보</h6>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="form-label">제품명 (Name)</label>
+                <input type="text" id="editName" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">모델명 (Model)</label>
+                <input type="text" id="editModel" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">카테고리 (Category)</label>
+                <input type="text" id="editCategory" class="form-control">
+            </div>
+        </div>
+
+        <h6 class="fw-bold text-danger border-bottom pb-2">2. 스마트 가격표 (숫자만 입력)</h6>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="form-label">매입가 (원가)</label>
+                <div class="input-group">
+                    <input type="number" id="editPricePurchase" class="form-control">
+                    <span class="input-group-text">원</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-primary fw-bold">최종 판매가 (하츠 충남)</label>
+                <div class="input-group">
+                    <input type="number" id="editPriceSelling" class="form-control border-primary">
+                    <span class="input-group-text">원</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">타사 인터넷가</label>
+                <div class="input-group">
+                    <input type="number" id="editPriceOnline" class="form-control">
+                    <span class="input-group-text">원</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">지역 타업체 추정가</label>
+                <div class="input-group">
+                    <input type="number" id="editPriceLocal" class="form-control">
+                    <span class="input-group-text">원</span>
+                </div>
+            </div>
+        </div>
+
+        <h6 class="fw-bold text-success border-bottom pb-2">3. 상세 카탈로그 이미지 연동</h6>
+        <div class="mb-3">
+            <label class="form-label">상세페이지 1 (본사 카탈로그 이미지 URL)</label>
+            <input type="text" id="editImgLevel1" class="form-control" placeholder="http://... 이미지 주소 복사하여 붙여넣기">
+            <small class="text-muted">웹상에 있는 이미지 주소를 복사해서 붙여넣으세요. (향후 파일 직접 업로드 기능 추가 가능)</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-primary" onclick="saveAllChanges()">저장 및 노션 동기화 준비</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox Modal for Fullscreen Image -->
+<div id="lightbox-modal" class="modal-overlay" style="display: none; z-index: 3000; background: rgba(0,0,0,0.9); flex-direction: column; justify-content: center; align-items: center;" onclick="closeLightbox()">
+    <button style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 30px; cursor: pointer;" onclick="closeLightbox()">&times;</button>
+    <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: auto; padding: 20px;">
+        <img id="lightbox-img" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; cursor: zoom-out;">
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-modal').style.display = 'flex';
+}
+function closeLightbox() {
+    document.getElementById('lightbox-modal').style.display = 'none';
+}
+const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentProduct = null;
+const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+
+function formatPrice(val, fallback = '-') {
+    if (!val) return fallback;
+    return parseInt(val).toLocaleString() + '원';
+}
+
+async function loadProduct() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        let productId = urlParams.get('id');
+        
+        // 🚨 Fallback: 로컬 파일(file://) 환경 등에서 브라우저가 파라미터를 날려버리는 경우를 대비하여 localStorage 활용
+        if (!productId) {
+            productId = localStorage.getItem('selectedProductId');
+        }
+        
+        if (!productId) {
+            document.getElementById('catalogContent').innerHTML = '<div class="p-5 text-center"><h5>잘못된 접근입니다.</h5><a href="catalog_search.html" class="btn btn-primary mt-3">돌아가기</a></div>';
+            return;
+        }
+
+        const { data: product, error } = await supabaseClient
+            .from('products')
+            .select('*')
+            .eq('id', productId)
+            .single();
+
+        if (error || !product) {
+            document.getElementById('catalogContent').innerHTML = '<div class="p-5 text-center"><h5>제품을 찾을 수 없거나 데이터베이스가 갱신 중입니다.</h5><p class="text-muted mt-2">이전 화면으로 돌아가서 다시 검색해 주세요.</p><a href="catalog_search.html" class="btn btn-primary mt-3">검색기로 돌아가기</a></div>';
+            return;
+        }
+
+        currentProduct = product;
+        renderProduct();
+
+    } catch (e) {
+        console.error(e);
+        document.getElementById('catalogContent').innerHTML = '<div class="p-5 text-center"><h5>오류가 발생했습니다.</h5></div>';
+    }
+}
+
+function renderProduct() {
+    const product = currentProduct;
+    const details = product.details || {};
+    const level1 = details.level1 || {};
+
+    let html = `
+        <div class="catalog-header">
+            <a href="catalog_search.html" class="back-btn"><i class="bi bi-arrow-left"></i></a>
+            <div>
+                <span class="brand-badge">${product.brand || '브랜드 미정'}</span>
+                <span class="category-badge">${product.category || '카테고리 미정'}</span>
+            </div>
+            <h2 class="fw-bold mb-2 d-flex justify-content-center align-items-center">
+                <span id="productNameText">${product.name}</span>
+                <!-- 관리자 통합 수정 펜슬 아이콘 -->
+                <button class="edit-btn ms-2" onclick="openEditModal()"><i class="bi bi-pencil-square"></i></button>
+            </h2>
+            <p class="text-muted mb-0">모델명: ${product.model || '-'}</p>
+        </div>
+    `;
+
+    // 4가지 가격 필드 섹션
+    html += `<div class="level-section bg-light">
+        <div class="level-title"><span style="background:#e83e8c">가격분석</span> 스마트 투명 견적 <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="openEditModal()">가격수정</button></div>
+        <div class="row g-2 mb-2">
+            <div class="col-6">
+                <div class="price-card">
+                    <div class="price-label">매입가 (원가)</div>
+                    <div class="price-value text-muted">${formatPrice(product.price_purchase, '데이터 없음')}</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="price-card primary">
+                    <div class="price-label text-primary">최종 판매가 (하츠 충남)</div>
+                    <div class="price-value primary">${formatPrice(product.price_selling, '상담문의')}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-2">
+            <div class="col-6">
+                <div class="price-card">
+                    <div class="price-label">타사 인터넷가 (배송비포함)</div>
+                    <div class="price-value text-danger">${formatPrice(product.price_online, '비교불가')}</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="price-card">
+                    <div class="price-label">지역 타업체 추정가</div>
+                    <div class="price-value text-warning">${formatPrice(product.price_local, '비교불가')}</div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    // 1단계 카탈로그 이미지 (클릭 시 이미지 추가 모달 연동)
+    if (level1.images && level1.images.length > 0 && level1.images[0]) {
+        html += `<div class="level-section">
+            <div class="level-title"><span>1단계</span> 본사 공식 카탈로그 상세 <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="openEditModal()">이미지 변경</button></div>`;
+        level1.images.forEach(img => {
+            if(img) html += `<img src="${img}" class="product-img" style="cursor:zoom-in;" onclick="openLightbox(this.src)" onerror="this.src='https://via.placeholder.com/800x600?text=Catalog+Image+Not+Found'">`;
+        });
+        html += `</div>`;
+    } else {
+        // 이미지가 없을 때 텅 빈 화면 대신, 클릭하면 즉시 입력창(모달)이 뜨도록 유도
+        html += `<div class="level-section text-center text-muted py-5" style="cursor:pointer; background:#f8f9fa; border-radius:8px;" onclick="openEditModal()">
+            <i class="bi bi-image fs-1"></i>
+            <p class="mt-2 mb-1">상세 카탈로그 이미지가 없습니다.</p>
+            <span class="text-primary text-decoration-underline" style="font-size:0.9rem;">클릭하여 이미지 URL 추가하기</span>
+        </div>`;
+    }
+
+    document.getElementById('catalogContent').innerHTML = html;
+    document.getElementById('bottomBar').style.display = 'flex';
+    
+    let bottomPriceText = product.default_price_text || '상담문의';
+    if (product.price_selling) bottomPriceText = parseInt(product.price_selling).toLocaleString() + '원';
+    document.getElementById('barPrice').innerText = bottomPriceText;
+}
+
+function openEditModal() {
+    const p = currentProduct;
+    document.getElementById('editName').value = p.name || '';
+    document.getElementById('editModel').value = p.model || '';
+    document.getElementById('editCategory').value = p.category || '';
+    
+    document.getElementById('editPricePurchase').value = p.price_purchase || '';
+    document.getElementById('editPriceSelling').value = p.price_selling || '';
+    document.getElementById('editPriceOnline').value = p.price_online || '';
+    document.getElementById('editPriceLocal').value = p.price_local || '';
+    
+    const details = p.details || {};
+    const level1 = details.level1 || {};
+    document.getElementById('editImgLevel1').value = (level1.images && level1.images[0]) ? level1.images[0] : '';
+    
+    editModal.show();
+}
+
+async function saveAllChanges() {
+    const newName = document.getElementById('editName').value.trim();
+    if (!newName) return alert('제품명은 필수입니다.');
+
+    const updates = {
+        name: newName,
+        model: document.getElementById('editModel').value.trim(),
+        category: document.getElementById('editCategory').value.trim(),
+        price_purchase: document.getElementById('editPricePurchase').value ? parseInt(document.getElementById('editPricePurchase').value) : null,
+        price_selling: document.getElementById('editPriceSelling').value ? parseInt(document.getElementById('editPriceSelling').value) : null,
+        price_online: document.getElementById('editPriceOnline').value ? parseInt(document.getElementById('editPriceOnline').value) : null,
+        price_local: document.getElementById('editPriceLocal').value ? parseInt(document.getElementById('editPriceLocal').value) : null,
+    };
+
+    // 기존 details 구조 유지하며 이미지 URL 업데이트
+    const details = currentProduct.details || {};
+    const level1 = details.level1 || { images: [] };
+    const imgUrl = document.getElementById('editImgLevel1').value.trim();
+    if (imgUrl) {
+        level1.images = [imgUrl];
+    } else {
+        level1.images = [];
+    }
+    details.level1 = level1;
+    updates.details = details;
+
+    try {
+        const { error } = await supabaseClient
+            .from('products')
+            .update(updates)
+            .eq('id', currentProduct.id);
+
+        if (error) throw error;
+
+        // 로컬 객체 업데이트 후 화면 다시 그리기
+        Object.assign(currentProduct, updates);
+        renderProduct();
+        editModal.hide();
+        
+        alert('모든 정보가 성공적으로 수정되었습니다.\n(노션 DB에는 향후 자동 동기화됩니다)');
+        
+    } catch (err) {
+        console.error(err);
+        alert('수정 중 오류가 발생했습니다.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadProduct);
+</script>
+
+</body>
+</html>

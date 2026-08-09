@@ -1,0 +1,186 @@
+[
+  {
+    "name": "노바 INA-90WHCI",
+    "model": "INA-90WHCI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_17_bottom_right.png",
+    "image_file": "deco_page_17_bottom_right.png",
+    "page": 17
+  },
+  {
+    "name": "아일랜드 더블 스퀘어 IDS-30S",
+    "model": "IDS-30S",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_18_top_left.png",
+    "image_file": "deco_page_18_top_left.png",
+    "page": 18
+  },
+  {
+    "name": "싱글 스퀘어 SIH-30S(T1)",
+    "model": "SIH-30S(T1)",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_18_top_right.png",
+    "image_file": "deco_page_18_top_right.png",
+    "page": 18
+  },
+  {
+    "name": "17 kg 100 W 싱글 스퀘어 아일랜드 화이트 SIH-30WHCI",
+    "model": "SIH-30WHCI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_18_bottom_left.png",
+    "image_file": "deco_page_18_bottom_left.png",
+    "page": 18
+  },
+  {
+    "name": "싱글 스퀘어 SIH-30S(T2)",
+    "model": "SIH-30S(T2)",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_18_bottom_right.png",
+    "image_file": "deco_page_18_bottom_right.png",
+    "page": 18
+  },
+  {
+    "name": "스퀘어 아일랜드 ISH-46S",
+    "model": "ISH-46S",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_19_top_left.png",
+    "image_file": "deco_page_19_top_left.png",
+    "page": 19
+  },
+  {
+    "name": "스퀘어 아일랜드 재순환형 ISH-46S (T1)",
+    "model": "ISH-46S (T1)",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_19_bottom_left.png",
+    "image_file": "deco_page_19_bottom_left.png",
+    "page": 19
+  },
+  {
+    "name": "까미노 DCA-46SCI",
+    "model": "DCA-46SCI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_19_bottom_right.png",
+    "image_file": "deco_page_19_bottom_right.png",
+    "page": 19
+  },
+  {
+    "name": "스텝 CBST-90WHCI / SCI",
+    "model": "CBST-90WHCI / SCI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_20_top_left.png",
+    "image_file": "deco_page_20_top_left.png",
+    "page": 20
+  },
+  {
+    "name": "허리케인 HRH-80S",
+    "model": "HRH-80S",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_20_top_right.png",
+    "image_file": "deco_page_20_top_right.png",
+    "page": 20
+  },
+  {
+    "name": "14 kg 97 W 허리케인 도어 HDH-90S",
+    "model": "HDH-90S",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_20_bottom_left.png",
+    "image_file": "deco_page_20_bottom_left.png",
+    "page": 20
+  },
+  {
+    "name": "허리케인 HRH-90S",
+    "model": "HRH-90S",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_20_bottom_right.png",
+    "image_file": "deco_page_20_bottom_right.png",
+    "page": 20
+  },
+  {
+    "name": "허리케인 스노우 HSH-90WHCI",
+    "model": "HSH-90WHCI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_21_top_left.png",
+    "image_file": "deco_page_21_top_left.png",
+    "page": 21
+  },
+  {
+    "name": "모던 메탈 MMH-90MSCI",
+    "model": "MMH-90MSCI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_21_top_right.png",
+    "image_file": "deco_page_21_top_right.png",
+    "page": 21
+  },
+  {
+    "name": "13 kg 95 W 부띠크 아르떼 BAR-90 (GR/PK/MT) CI",
+    "model": "BAR-90 (GR/PK/MT) CI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_21_bottom_left.png",
+    "image_file": "deco_page_21_bottom_left.png",
+    "page": 21
+  },
+  {
+    "name": "모던 스퀘어 MSH-90SCI",
+    "model": "MSH-90SCI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_21_bottom_right.png",
+    "image_file": "deco_page_21_bottom_right.png",
+    "page": 21
+  },
+  {
+    "name": "아크 DAC-90MSCI(P)",
+    "model": "DAC-90MSCI(P)",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_22_top_left.png",
+    "image_file": "deco_page_22_top_left.png",
+    "page": 22
+  },
+  {
+    "name": "테라 DTR-90MSCI(P)",
+    "model": "DTR-90MSCI(P)",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_22_top_right.png",
+    "image_file": "deco_page_22_top_right.png",
+    "page": 22
+  },
+  {
+    "name": "11.8 kg 95 W 아크 라이트 DAL-90MS",
+    "model": "DAL-90MS",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_22_bottom_left.png",
+    "image_file": "deco_page_22_bottom_left.png",
+    "page": 22
+  },
+  {
+    "name": "스마일 60 DSM-60S",
+    "model": "DSM-60S",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_22_bottom_right.png",
+    "image_file": "deco_page_22_bottom_right.png",
+    "page": 22
+  },
+  {
+    "name": "모던 스퀘어 화이트 MSH-90WHCI",
+    "model": "MSH-90WHCI",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_23_top_left.png",
+    "image_file": "deco_page_23_top_left.png",
+    "page": 23
+  },
+  {
+    "name": "로빈 RNH-90C/R/L",
+    "model": "RNH-90C/R/L",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_23_top_right.png",
+    "image_file": "deco_page_23_top_right.png",
+    "page": 23
+  },
+  {
+    "name": "10.5 kg 85 W 밀레니엄 침니 MCH-90S",
+    "model": "MCH-90S",
+    "category": "하츠후드 데코",
+    "image_path": "catalog_images\\deco_page_23_bottom_left.png",
+    "image_file": "deco_page_23_bottom_left.png",
+    "page": 23
+  }
+]

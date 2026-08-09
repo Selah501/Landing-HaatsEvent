@@ -1,0 +1,418 @@
+[
+  {
+    "product_name": "68",
+    "model": "인덕션 1구",
+    "image_path": "catalog_images\\page_35_bottom_left.png",
+    "image_file": "page_35_bottom_left.png",
+    "page": 35,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "69",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_35_bottom_right.png",
+    "image_file": "page_35_bottom_right.png",
+    "page": 35,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "GAS COOKTOP",
+    "model": "요리를 즐겁게 만드는 기술, 하츠 가스쿡탑",
+    "image_path": "catalog_images\\page_36_top_left.png",
+    "image_file": "page_36_top_left.png",
+    "page": 36,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_36_top_right.png",
+    "image_file": "page_36_top_right.png",
+    "page": 36,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "70",
+    "model": "가스 하이브리드 3구",
+    "image_path": "catalog_images\\page_36_bottom_left.png",
+    "image_file": "page_36_bottom_left.png",
+    "page": 36,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "71",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_36_bottom_right.png",
+    "image_file": "page_36_bottom_right.png",
+    "page": 36,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "가스 3구",
+    "model": "GC-3608SDBH",
+    "image_path": "catalog_images\\page_37_top_left.png",
+    "image_file": "page_37_top_left.png",
+    "page": 37,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_37_top_right.png",
+    "image_file": "page_37_top_right.png",
+    "page": 37,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "72",
+    "model": "대버너 2구, 중버너 1구",
+    "image_path": "catalog_images\\page_37_bottom_left.png",
+    "image_file": "page_37_bottom_left.png",
+    "page": 37,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "73",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_37_bottom_right.png",
+    "image_file": "page_37_bottom_right.png",
+    "page": 37,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "대버너 1구, 중버너 1구",
+    "model": "440",
+    "image_path": "catalog_images\\page_38_top_left.png",
+    "image_file": "page_38_top_left.png",
+    "page": 38,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_38_top_right.png",
+    "image_file": "page_38_top_right.png",
+    "page": 38,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "74",
+    "model": "대버너 2구",
+    "image_path": "catalog_images\\page_38_bottom_left.png",
+    "image_file": "page_38_bottom_left.png",
+    "page": 38,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "75",
+    "model": "*본 카타로그에 기재된 풍량(CMH) 및 소음(dB)은",
+    "image_path": "catalog_images\\page_38_bottom_right.png",
+    "image_file": "page_38_bottom_right.png",
+    "page": 38,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "76",
+    "model": "마레 206 / 207",
+    "image_path": "catalog_images\\page_39_bottom_left.png",
+    "image_file": "page_39_bottom_left.png",
+    "page": 39,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "77",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_39_bottom_right.png",
+    "image_file": "page_39_bottom_right.png",
+    "page": 39,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "센서형 싱크 수전",
+    "model": "FC-YD1400SI_BN, FC-YD1500SI_BN",
+    "image_path": "catalog_images\\page_40_top_left.png",
+    "image_file": "page_40_top_left.png",
+    "page": 40,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_40_top_right.png",
+    "image_file": "page_40_top_right.png",
+    "page": 40,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "78",
+    "model": "싱크 수전",
+    "image_path": "catalog_images\\page_40_bottom_left.png",
+    "image_file": "page_40_bottom_left.png",
+    "page": 40,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "79",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_40_bottom_right.png",
+    "image_file": "page_40_bottom_right.png",
+    "page": 40,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "SINK BALL",
+    "model": "하츠 빌트인 싱크볼",
+    "image_path": "catalog_images\\page_41_top_left.png",
+    "image_file": "page_41_top_left.png",
+    "page": 41,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_41_top_right.png",
+    "image_file": "page_41_top_right.png",
+    "page": 41,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "80",
+    "model": "샴보드 스테인리스 싱크볼",
+    "image_path": "catalog_images\\page_41_bottom_left.png",
+    "image_file": "page_41_bottom_left.png",
+    "page": 41,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "81",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_41_bottom_right.png",
+    "image_file": "page_41_bottom_right.png",
+    "page": 41,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "블랙 사각 싱크볼",
+    "model": "HZ-Q8303BJ",
+    "image_path": "catalog_images\\page_42_top_left.png",
+    "image_file": "page_42_top_left.png",
+    "page": 42,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_42_top_right.png",
+    "image_file": "page_42_top_right.png",
+    "page": 42,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "82",
+    "model": "수전 일체형 올인원 사각볼",
+    "image_path": "catalog_images\\page_42_bottom_left.png",
+    "image_file": "page_42_bottom_left.png",
+    "page": 42,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "83",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_42_bottom_right.png",
+    "image_file": "page_42_bottom_right.png",
+    "page": 42,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "폰테 사각싱크볼 (엠보950)",
+    "model": "HZ-E9501SF",
+    "image_path": "catalog_images\\page_43_top_left.png",
+    "image_file": "page_43_top_left.png",
+    "page": 43,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_43_top_right.png",
+    "image_file": "page_43_top_right.png",
+    "page": 43,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "84",
+    "model": "폰테 사각싱크볼 (엠보900)",
+    "image_path": "catalog_images\\page_43_bottom_left.png",
+    "image_file": "page_43_bottom_left.png",
+    "page": 43,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "85",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_43_bottom_right.png",
+    "image_file": "page_43_bottom_right.png",
+    "page": 43,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "폰테 사각싱크볼 (리폼980)",
+    "model": "HZ-W9801SF / HZ-W9802SF",
+    "image_path": "catalog_images\\page_44_top_left.png",
+    "image_file": "page_44_top_left.png",
+    "page": 44,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_44_top_right.png",
+    "image_file": "page_44_top_right.png",
+    "page": 44,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "86",
+    "model": "폰테 사각싱크볼 (리폼850)",
+    "image_path": "catalog_images\\page_44_bottom_left.png",
+    "image_file": "page_44_bottom_left.png",
+    "page": 44,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "87",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_44_bottom_right.png",
+    "image_file": "page_44_bottom_right.png",
+    "page": 44,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "폰테 사각싱크볼 (630)",
+    "model": "HZ-Q6301SF",
+    "image_path": "catalog_images\\page_45_top_left.png",
+    "image_file": "page_45_top_left.png",
+    "page": 45,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_45_top_right.png",
+    "image_file": "page_45_top_right.png",
+    "page": 45,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "88",
+    "model": "폰테 사각싱크볼 (550)",
+    "image_path": "catalog_images\\page_45_bottom_left.png",
+    "image_file": "page_45_bottom_left.png",
+    "page": 45,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "89",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_45_bottom_right.png",
+    "image_file": "page_45_bottom_right.png",
+    "page": 45,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "사각 싱크볼",
+    "model": "HZ-Q5502C",
+    "image_path": "catalog_images\\page_46_top_left.png",
+    "image_file": "page_46_top_left.png",
+    "page": 46,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_46_top_right.png",
+    "image_file": "page_46_top_right.png",
+    "page": 46,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "90",
+    "model": "점보 850",
+    "image_path": "catalog_images\\page_46_bottom_left.png",
+    "image_file": "page_46_bottom_left.png",
+    "page": 46,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "91",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_46_bottom_right.png",
+    "image_file": "page_46_bottom_right.png",
+    "page": 46,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "점보 870",
+    "model": "HZ-JS8701",
+    "image_path": "catalog_images\\page_47_top_left.png",
+    "image_file": "page_47_top_left.png",
+    "page": 47,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_47_top_right.png",
+    "image_file": "page_47_top_right.png",
+    "page": 47,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "92",
+    "model": "점보 850",
+    "image_path": "catalog_images\\page_47_bottom_left.png",
+    "image_file": "page_47_bottom_left.png",
+    "page": 47,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "93",
+    "model": "쿡탑",
+    "image_path": "catalog_images\\page_47_bottom_right.png",
+    "image_file": "page_47_bottom_right.png",
+    "page": 47,
+    "quad": "bottom_right"
+  },
+  {
+    "product_name": "싱크도마, 배수구 덮개",
+    "model": "HZ-CB4425, KA-DC183SJ",
+    "image_path": "catalog_images\\page_48_top_left.png",
+    "image_file": "page_48_top_left.png",
+    "page": 48,
+    "quad": "top_left"
+  },
+  {
+    "product_name": "연동 시스템",
+    "model": "후드",
+    "image_path": "catalog_images\\page_48_top_right.png",
+    "image_file": "page_48_top_right.png",
+    "page": 48,
+    "quad": "top_right"
+  },
+  {
+    "product_name": "94",
+    "model": "D형망, 수세미망",
+    "image_path": "catalog_images\\page_48_bottom_left.png",
+    "image_file": "page_48_bottom_left.png",
+    "page": 48,
+    "quad": "bottom_left"
+  },
+  {
+    "product_name": "95",
+    "model": "*본 카타로그에 기재된 풍량(CMH) 및 소음(dB)은",
+    "image_path": "catalog_images\\page_48_bottom_right.png",
+    "image_file": "page_48_bottom_right.png",
+    "page": 48,
+    "quad": "bottom_right"
+  }
+]

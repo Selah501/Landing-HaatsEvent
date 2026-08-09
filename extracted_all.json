@@ -1,0 +1,1018 @@
+[
+  {
+    "name": "ERA S 600/800",
+    "model": "",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p20_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p20_0.png",
+    "printed_page": 20
+  },
+  {
+    "name": "FOLD 600/800",
+    "model": "",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p21_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p21_0.png",
+    "printed_page": 21
+  },
+  {
+    "name": "ILLUSION",
+    "model": "",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p21_1.png",
+    "image_file": "catalog_하츠후드_엘리카_p21_1.png",
+    "printed_page": 21
+  },
+  {
+    "name": "니콜라테슬라 알파 NIKOLATESLA ALPHA",
+    "model": "NIKOLATESLA ALPHA",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p22_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p22_0.png",
+    "printed_page": 22
+  },
+  {
+    "name": "니콜라테슬라 NIKOLATESLA",
+    "model": "NIKOLATESLA",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p22_1.png",
+    "image_file": "catalog_하츠후드_엘리카_p22_1.png",
+    "printed_page": 22
+  },
+  {
+    "name": "문 아일랜드 MOON ISLAND",
+    "model": "MOON ISLAND",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p23_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p23_0.png",
+    "printed_page": 23
+  },
+  {
+    "name": "그레이스 GRACE",
+    "model": "GRACE",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p23_1.png",
+    "image_file": "catalog_하츠후드_엘리카_p23_1.png",
+    "printed_page": 23
+  },
+  {
+    "name": "웨이브 Ⅱ WAVE Ⅱ",
+    "model": "WAVE Ⅱ",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p24_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p24_0.png",
+    "printed_page": 24
+  },
+  {
+    "name": "갤럭시 아일랜드 GALAXY ISLAND",
+    "model": "GALAXY ISLAND",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p24_1.png",
+    "image_file": "catalog_하츠후드_엘리카_p24_1.png",
+    "printed_page": 24
+  },
+  {
+    "name": "쿠아드라 아일랜드 KUADRA ISLAND",
+    "model": "KUADRA ISLAND",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p25_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p25_0.png",
+    "printed_page": 25
+  },
+  {
+    "name": "제니스 Ⅱ ZENITH Ⅱ",
+    "model": "ZENITH Ⅱ",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p25_1.png",
+    "image_file": "catalog_하츠후드_엘리카_p25_1.png",
+    "printed_page": 25
+  },
+  {
+    "name": "오엠 에어 OM AIR",
+    "model": "OM AIR",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p26_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p26_0.png",
+    "printed_page": 26
+  },
+  {
+    "name": "쿠아드라 KUADRA",
+    "model": "KUADRA",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p26_1.png",
+    "image_file": "catalog_하츠후드_엘리카_p26_1.png",
+    "printed_page": 26
+  },
+  {
+    "name": "버티고 VERTIGO",
+    "model": "VERTIGO",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p27_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p27_0.png",
+    "printed_page": 27
+  },
+  {
+    "name": "샤이어 SHIRE 600 / 900",
+    "model": "SHIRE 600 / 900",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p27_1.png",
+    "image_file": "catalog_하츠후드_엘리카_p27_1.png",
+    "printed_page": 27
+  },
+  {
+    "name": "히든 HIDDEN",
+    "model": "HIDDEN",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p28_0.png",
+    "image_file": "catalog_하츠후드_엘리카_p28_0.png",
+    "printed_page": 28
+  },
+  {
+    "name": "에이라 씨 ERA C 600 / 800",
+    "model": "ERA C 600 / 800",
+    "category": "하츠후드 엘리카",
+    "image_path": "catalog_images\\catalog_하츠후드_엘리카_p28_1.png",
+    "image_file": "catalog_하츠후드_엘리카_p28_1.png",
+    "printed_page": 28
+  },
+  {
+    "name": "슬랜트 PST-90WHCI",
+    "model": "PST-90WHCI",
+    "category": "하츠후드 플래티늄",
+    "image_path": "catalog_images\\catalog_하츠후드_플래티늄_p30_0.png",
+    "image_file": "catalog_하츠후드_플래티늄_p30_0.png",
+    "printed_page": 30
+  },
+  {
+    "name": "마데라 PMA-90WHCI",
+    "model": "PMA-90WHCI",
+    "category": "하츠후드 플래티늄",
+    "image_path": "catalog_images\\catalog_하츠후드_플래티늄_p30_1.png",
+    "image_file": "catalog_하츠후드_플래티늄_p30_1.png",
+    "printed_page": 30
+  },
+  {
+    "name": "캐슬 PCS-90WHCI",
+    "model": "PCS-90WHCI",
+    "category": "하츠후드 플래티늄",
+    "image_path": "catalog_images\\catalog_하츠후드_플래티늄_p31_0.png",
+    "image_file": "catalog_하츠후드_플래티늄_p31_0.png",
+    "printed_page": 31
+  },
+  {
+    "name": "시크릿 PSC-90S",
+    "model": "PSC-90S",
+    "category": "하츠후드 플래티늄",
+    "image_path": "catalog_images\\catalog_하츠후드_플래티늄_p31_1.png",
+    "image_file": "catalog_하츠후드_플래티늄_p31_1.png",
+    "printed_page": 31
+  },
+  {
+    "name": "사임당 DSA-90S",
+    "model": "DSA-90S",
+    "category": "하츠후드 플래티늄",
+    "image_path": "catalog_images\\catalog_하츠후드_플래티늄_p33_0.png",
+    "image_file": "catalog_하츠후드_플래티늄_p33_0.png",
+    "printed_page": 33
+  },
+  {
+    "name": "모아 SMA-60GCI",
+    "model": "SMA-60GCI",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p50_0.png",
+    "image_file": "catalog_하츠후드_시스템_p50_0.png",
+    "printed_page": 50
+  },
+  {
+    "name": "로체 CBLS-60SGCI",
+    "model": "CBLS-60SGCI",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p50_1.png",
+    "image_file": "catalog_하츠후드_시스템_p50_1.png",
+    "printed_page": 50
+  },
+  {
+    "name": "부띠크 로망스 BRC-60G (GR/PK/MT) CI",
+    "model": "BRC-60G (GR/PK/MT) CI",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p51_0.png",
+    "image_file": "catalog_하츠후드_시스템_p51_0.png",
+    "printed_page": 51
+  },
+  {
+    "name": "화이트 루나 SWL-60GLT",
+    "model": "SWL-60GLT",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p51_1.png",
+    "image_file": "catalog_하츠후드_시스템_p51_1.png",
+    "printed_page": 51
+  },
+  {
+    "name": "슬림 루나 SSL-60GLT",
+    "model": "SSL-60GLT",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p52_0.png",
+    "image_file": "catalog_하츠후드_시스템_p52_0.png",
+    "printed_page": 52
+  },
+  {
+    "name": "슬림 라인 SLH-160SLT",
+    "model": "SLH-160SLT",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p52_1.png",
+    "image_file": "catalog_하츠후드_시스템_p52_1.png",
+    "printed_page": 52
+  },
+  {
+    "name": "슬림 다크 SSD-60BL",
+    "model": "SSD-60BL",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p53_0.png",
+    "image_file": "catalog_하츠후드_시스템_p53_0.png",
+    "printed_page": 53
+  },
+  {
+    "name": "슬림 카브 SSC-60S",
+    "model": "SSC-60S",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p53_1.png",
+    "image_file": "catalog_하츠후드_시스템_p53_1.png",
+    "printed_page": 53
+  },
+  {
+    "name": "뉴쉴드라운드 SRH-60S",
+    "model": "SRH-60S",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p54_0.png",
+    "image_file": "catalog_하츠후드_시스템_p54_0.png",
+    "printed_page": 54
+  },
+  {
+    "name": "K60S",
+    "model": "",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p54_1.png",
+    "image_file": "catalog_하츠후드_시스템_p54_1.png",
+    "printed_page": 54
+  },
+  {
+    "name": "K60WH",
+    "model": "",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p55_0.png",
+    "image_file": "catalog_하츠후드_시스템_p55_0.png",
+    "printed_page": 55
+  },
+  {
+    "name": "부띠크 글라쎄 BGC-60 (GR/PK/MT)",
+    "model": "BGC-60 (GR/PK/MT)",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p55_1.png",
+    "image_file": "catalog_하츠후드_시스템_p55_1.png",
+    "printed_page": 55
+  },
+  {
+    "name": "뉴빌트인 NBH-200 / 280",
+    "model": "NBH-200 / 280",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p56_0.png",
+    "image_file": "catalog_하츠후드_시스템_p56_0.png",
+    "printed_page": 56
+  },
+  {
+    "name": "엘리카 ELK-160S",
+    "model": "ELK-160S",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p56_1.png",
+    "image_file": "catalog_하츠후드_시스템_p56_1.png",
+    "printed_page": 56
+  },
+  {
+    "name": "B60-AL",
+    "model": "",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p57_0.png",
+    "image_file": "catalog_하츠후드_시스템_p57_0.png",
+    "printed_page": 57
+  },
+  {
+    "name": "G60 G60-AL / BL / G70-BL",
+    "model": "G60-AL / BL / G70-BL",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p57_1.png",
+    "image_file": "catalog_하츠후드_시스템_p57_1.png",
+    "printed_page": 57
+  },
+  {
+    "name": "I60WHT",
+    "model": "",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p57_2.png",
+    "image_file": "catalog_하츠후드_시스템_p57_2.png",
+    "printed_page": 57
+  },
+  {
+    "name": "IB90S",
+    "model": "",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p58_0.png",
+    "image_file": "catalog_하츠후드_시스템_p58_0.png",
+    "printed_page": 58
+  },
+  {
+    "name": "IB60S",
+    "model": "",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p58_1.png",
+    "image_file": "catalog_하츠후드_시스템_p58_1.png",
+    "printed_page": 58
+  },
+  {
+    "name": "S60-WHHZ 59 58",
+    "model": "59 58",
+    "category": "하츠후드 시스템",
+    "image_path": "catalog_images\\catalog_하츠후드_시스템_p58_2.png",
+    "image_file": "catalog_하츠후드_시스템_p58_2.png",
+    "printed_page": 58
+  },
+  {
+    "name": "알리아스 ALIAS 603 BM",
+    "model": "ALIAS 603 BM",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p61_0.png",
+    "image_file": "catalog_하츠_전기레인지_p61_0.png",
+    "printed_page": 61
+  },
+  {
+    "name": "샌드화이트 인덕션 EIC-30HWR253",
+    "model": "EIC-30HWR253",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p62_0.png",
+    "image_file": "catalog_하츠_전기레인지_p62_0.png",
+    "printed_page": 62
+  },
+  {
+    "name": "부띠크 인덕션 63 62",
+    "model": "63 62",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p62_1.png",
+    "image_file": "catalog_하츠_전기레인지_p62_1.png",
+    "printed_page": 62
+  },
+  {
+    "name": "스마트휠 인덕션 EIC-30HWR261",
+    "model": "EIC-30HWR261",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p63_0.png",
+    "image_file": "catalog_하츠_전기레인지_p63_0.png",
+    "printed_page": 63
+  },
+  {
+    "name": "스마트휠 인덕션 EIC-30HBR241",
+    "model": "EIC-30HBR241",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p63_1.png",
+    "image_file": "catalog_하츠_전기레인지_p63_1.png",
+    "printed_page": 63
+  },
+  {
+    "name": "휠라이트 인덕션 IH-3609TTLGR",
+    "model": "IH-3609TTLGR",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p64_0.png",
+    "image_file": "catalog_하츠_전기레인지_p64_0.png",
+    "printed_page": 64
+  },
+  {
+    "name": "루인 인덕션 65 64",
+    "model": "65 64",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p64_1.png",
+    "image_file": "catalog_하츠_전기레인지_p64_1.png",
+    "printed_page": 64
+  },
+  {
+    "name": "코지 인덕션 IH-3605TTLB",
+    "model": "IH-3605TTLB",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p65_0.png",
+    "image_file": "catalog_하츠_전기레인지_p65_0.png",
+    "printed_page": 65
+  },
+  {
+    "name": "베로 인덕션 EIC-30HBR251",
+    "model": "EIC-30HBR251",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p65_1.png",
+    "image_file": "catalog_하츠_전기레인지_p65_1.png",
+    "printed_page": 65
+  },
+  {
+    "name": "클레르 인덕션 EIC-30HWR252",
+    "model": "EIC-30HWR252",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p66_0.png",
+    "image_file": "catalog_하츠_전기레인지_p66_0.png",
+    "printed_page": 66
+  },
+  {
+    "name": "하이브리드 3구 IH-366DTL (2 IH + 1 HL)",
+    "model": "IH-366DTL (2 IH + 1 HL)",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p66_1.png",
+    "image_file": "catalog_하츠_전기레인지_p66_1.png",
+    "printed_page": 66
+  },
+  {
+    "name": "하이브리드 3구 IH-365DTL (2 IH + 1 HL)",
+    "model": "IH-365DTL (2 IH + 1 HL)",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p67_0.png",
+    "image_file": "catalog_하츠_전기레인지_p67_0.png",
+    "printed_page": 67
+  },
+  {
+    "name": "하이라이트 3구 67 66",
+    "model": "67 66",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p67_1.png",
+    "image_file": "catalog_하츠_전기레인지_p67_1.png",
+    "printed_page": 67
+  },
+  {
+    "name": "인덕션 2구 IH-232S",
+    "model": "IH-232S",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p68_0.png",
+    "image_file": "catalog_하츠_전기레인지_p68_0.png",
+    "printed_page": 68
+  },
+  {
+    "name": "인덕션 1구 69 68",
+    "model": "69 68",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p68_1.png",
+    "image_file": "catalog_하츠_전기레인지_p68_1.png",
+    "printed_page": 68
+  },
+  {
+    "name": "하이라이트 2구 HEC-2050SH-01",
+    "model": "HEC-2050SH-01",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p69_0.png",
+    "image_file": "catalog_하츠_전기레인지_p69_0.png",
+    "printed_page": 69
+  },
+  {
+    "name": "하이라이트 1구 HEC-1050SH-01",
+    "model": "HEC-1050SH-01",
+    "category": "하츠 전기레인지",
+    "image_path": "catalog_images\\catalog_하츠_전기레인지_p69_1.png",
+    "image_file": "catalog_하츠_전기레인지_p69_1.png",
+    "printed_page": 69
+  },
+  {
+    "name": "가스 하이브리드 3구 71 70",
+    "model": "71 70",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p70_0.png",
+    "image_file": "catalog_하츠_가스레인지_p70_0.png",
+    "printed_page": 70
+  },
+  {
+    "name": "가스 하이브리드 3구 GEC-3601GARH-02 (1GAS + 2HL)",
+    "model": "GEC-3601GARH-02 (1GAS + 2HL)",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p71_0.png",
+    "image_file": "catalog_하츠_가스레인지_p71_0.png",
+    "printed_page": 71
+  },
+  {
+    "name": "법랑 가스 3구 GC-3606EDBH-01",
+    "model": "GC-3606EDBH-01",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p71_1.png",
+    "image_file": "catalog_하츠_가스레인지_p71_1.png",
+    "printed_page": 71
+  },
+  {
+    "name": "가스 3구 GC-3608SDBH",
+    "model": "GC-3608SDBH",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p72_0.png",
+    "image_file": "catalog_하츠_가스레인지_p72_0.png",
+    "printed_page": 72
+  },
+  {
+    "name": "가스 3구 73 72",
+    "model": "73 72",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p72_1.png",
+    "image_file": "catalog_하츠_가스레인지_p72_1.png",
+    "printed_page": 72
+  },
+  {
+    "name": "가스 3구 HGR-3050SDBH",
+    "model": "HGR-3050SDBH",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p73_0.png",
+    "image_file": "catalog_하츠_가스레인지_p73_0.png",
+    "printed_page": 73
+  },
+  {
+    "name": "가스 4구 HGR-4050CKB",
+    "model": "HGR-4050CKB",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p73_1.png",
+    "image_file": "catalog_하츠_가스레인지_p73_1.png",
+    "printed_page": 73
+  },
+  {
+    "name": "세로 가스 2구 GC-2303SDBH",
+    "model": "GC-2303SDBH",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p74_0.png",
+    "image_file": "catalog_하츠_가스레인지_p74_0.png",
+    "printed_page": 74
+  },
+  {
+    "name": "가로 가스 2구 HGR-2040SDB / HGR-2040SAS-02",
+    "model": "HGR-2040SDB / HGR-2040SAS-02",
+    "category": "하츠 가스레인지",
+    "image_path": "catalog_images\\catalog_하츠_가스레인지_p74_1.png",
+    "image_file": "catalog_하츠_가스레인지_p74_1.png",
+    "printed_page": 74
+  },
+  {
+    "name": "마레 204 / 205 FC-US300 / FC-US500",
+    "model": "FC-US300 / FC-US500",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p76_0.png",
+    "image_file": "catalog_하츠_수전빌트인_p76_0.png",
+    "printed_page": 76
+  },
+  {
+    "name": "마레 201 / 202 / 203",
+    "model": "",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p76_1.png",
+    "image_file": "catalog_하츠_수전빌트인_p76_1.png",
+    "printed_page": 76
+  },
+  {
+    "name": "마레 206 / 207 77 76",
+    "model": "77 76",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p76_2.png",
+    "image_file": "catalog_하츠_수전빌트인_p76_2.png",
+    "printed_page": 76
+  },
+  {
+    "name": "폰테 301 / 302 FC-UB300 / FC-UB302",
+    "model": "FC-UB300 / FC-UB302",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p77_0.png",
+    "image_file": "catalog_하츠_수전빌트인_p77_0.png",
+    "printed_page": 77
+  },
+  {
+    "name": "폰테 206 / 208 / 209",
+    "model": "",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p77_1.png",
+    "image_file": "catalog_하츠_수전빌트인_p77_1.png",
+    "printed_page": 77
+  },
+  {
+    "name": "폰테 210 / 211 / 212",
+    "model": "",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p77_2.png",
+    "image_file": "catalog_하츠_수전빌트인_p77_2.png",
+    "printed_page": 77
+  },
+  {
+    "name": "센서형 싱크 수전 비접촉식 모션감지",
+    "model": "비접촉식 모션감지",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p78_0.png",
+    "image_file": "catalog_하츠_수전빌트인_p78_0.png",
+    "printed_page": 78
+  },
+  {
+    "name": "싱크 수전 79 78",
+    "model": "79 78",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p78_1.png",
+    "image_file": "catalog_하츠_수전빌트인_p78_1.png",
+    "printed_page": 78
+  },
+  {
+    "name": "싱크 수전 FC-TB900, TB900_S",
+    "model": "FC-TB900, TB900_S",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p79_0.png",
+    "image_file": "catalog_하츠_수전빌트인_p79_0.png",
+    "printed_page": 79
+  },
+  {
+    "name": "싱크 수전 FC-YB310",
+    "model": "FC-YB310",
+    "category": "하츠 수전빌트인",
+    "image_path": "catalog_images\\catalog_하츠_수전빌트인_p79_1.png",
+    "image_file": "catalog_하츠_수전빌트인_p79_1.png",
+    "printed_page": 79
+  },
+  {
+    "name": "샴보드 스테인리스 싱크볼 81 80",
+    "model": "81 80",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p80_0.png",
+    "image_file": "catalog_하츠_씽크볼_p80_0.png",
+    "printed_page": 80
+  },
+  {
+    "name": "샴보드 그라나이트 싱크볼 블랙",
+    "model": "",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p81_0.png",
+    "image_file": "catalog_하츠_씽크볼_p81_0.png",
+    "printed_page": 81
+  },
+  {
+    "name": "샴보드 그라나이트 싱크볼 그레이",
+    "model": "",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p81_1.png",
+    "image_file": "catalog_하츠_씽크볼_p81_1.png",
+    "printed_page": 81
+  },
+  {
+    "name": "블랙 사각 싱크볼 HZ-Q8303BJ",
+    "model": "HZ-Q8303BJ",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p82_0.png",
+    "image_file": "catalog_하츠_씽크볼_p82_0.png",
+    "printed_page": 82
+  },
+  {
+    "name": "수전 일체형 올인원 사각볼 83 82",
+    "model": "83 82",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p82_1.png",
+    "image_file": "catalog_하츠_씽크볼_p82_1.png",
+    "printed_page": 82
+  },
+  {
+    "name": "폰테 사각싱크볼 (엠보리폼980) HZ-EW9802SF / HZ-EW9803SF",
+    "model": "HZ-EW9802SF / HZ-EW9803SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p83_0.png",
+    "image_file": "catalog_하츠_씽크볼_p83_0.png",
+    "printed_page": 83
+  },
+  {
+    "name": "폰테 사각싱크볼 (엠보리폼850) HZ-EW8502SF / HZ-EW8503SF",
+    "model": "HZ-EW8502SF / HZ-EW8503SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p83_1.png",
+    "image_file": "catalog_하츠_씽크볼_p83_1.png",
+    "printed_page": 83
+  },
+  {
+    "name": "HZ-E8301SF 폰테 사각싱크볼 (엠보950) HZ-E9501SF",
+    "model": "HZ-E9501SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p84_0.png",
+    "image_file": "catalog_하츠_씽크볼_p84_0.png",
+    "printed_page": 84
+  },
+  {
+    "name": "폰테 사각싱크볼 (엠보900) 85 84",
+    "model": "85 84",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p84_1.png",
+    "image_file": "catalog_하츠_씽크볼_p84_1.png",
+    "printed_page": 84
+  },
+  {
+    "name": "폰테 사각싱크볼 (엠보830) 나노코팅 적용 EASY CLEAN",
+    "model": "나노코팅 적용 EASY CLEAN",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p85_0.png",
+    "image_file": "catalog_하츠_씽크볼_p85_0.png",
+    "printed_page": 85
+  },
+  {
+    "name": "폰테 사각싱크볼 (엠보630) HZ-E6301SF",
+    "model": "HZ-E6301SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p85_1.png",
+    "image_file": "catalog_하츠_씽크볼_p85_1.png",
+    "printed_page": 85
+  },
+  {
+    "name": "폰테 사각싱크볼 (엠보550) HZ-E5501SF",
+    "model": "HZ-E5501SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p85_2.png",
+    "image_file": "catalog_하츠_씽크볼_p85_2.png",
+    "printed_page": 85
+  },
+  {
+    "name": "폰테 사각싱크볼 (리폼980) HZ-W9801SF / HZ-W9802SF",
+    "model": "HZ-W9801SF / HZ-W9802SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p86_0.png",
+    "image_file": "catalog_하츠_씽크볼_p86_0.png",
+    "printed_page": 86
+  },
+  {
+    "name": "폰테 사각싱크볼 (리폼850) HZ-W8501SF / HZ-W8502SF",
+    "model": "HZ-W8501SF / HZ-W8502SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p86_1.png",
+    "image_file": "catalog_하츠_씽크볼_p86_1.png",
+    "printed_page": 86
+  },
+  {
+    "name": "폰테 사각싱크볼 (950) HZ-Q9501SF",
+    "model": "HZ-Q9501SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p87_0.png",
+    "image_file": "catalog_하츠_씽크볼_p87_0.png",
+    "printed_page": 87
+  },
+  {
+    "name": "폰테 사각싱크볼 (900) HZ-Q9001SF",
+    "model": "HZ-Q9001SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p87_1.png",
+    "image_file": "catalog_하츠_씽크볼_p87_1.png",
+    "printed_page": 87
+  },
+  {
+    "name": "폰테 사각싱크볼 (830) 87 86",
+    "model": "87 86",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p87_2.png",
+    "image_file": "catalog_하츠_씽크볼_p87_2.png",
+    "printed_page": 87
+  },
+  {
+    "name": "폰테 사각싱크볼 (630) HZ-Q6301SF",
+    "model": "HZ-Q6301SF",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p88_0.png",
+    "image_file": "catalog_하츠_씽크볼_p88_0.png",
+    "printed_page": 88
+  },
+  {
+    "name": "폰테 사각싱크볼 (550) 89 88",
+    "model": "89 88",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p88_1.png",
+    "image_file": "catalog_하츠_씽크볼_p88_1.png",
+    "printed_page": 88
+  },
+  {
+    "name": "사각 싱크볼 HZ-Q8302CC / NC / NCN",
+    "model": "HZ-Q8302CC / NC / NCN",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p89_0.png",
+    "image_file": "catalog_하츠_씽크볼_p89_0.png",
+    "printed_page": 89
+  },
+  {
+    "name": "사각 싱크볼 HZ-Q8401C / EC",
+    "model": "HZ-Q8401C / EC",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p89_1.png",
+    "image_file": "catalog_하츠_씽크볼_p89_1.png",
+    "printed_page": 89
+  },
+  {
+    "name": "HZ-LDSP8501 사각 싱크볼 HZ-Q5502C",
+    "model": "HZ-Q5502C",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p90_0.png",
+    "image_file": "catalog_하츠_씽크볼_p90_0.png",
+    "printed_page": 90
+  },
+  {
+    "name": "HZ-LJSC8701 점보 850 91 90",
+    "model": "91 90",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p90_1.png",
+    "image_file": "catalog_하츠_씽크볼_p90_1.png",
+    "printed_page": 90
+  },
+  {
+    "name": "포켓 850 사이즈(외관) W\t 850mm D\t   515mm",
+    "model": "사이즈(외관) W\t 850mm D\t   515mm",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p91_0.png",
+    "image_file": "catalog_하츠_씽크볼_p91_0.png",
+    "printed_page": 91
+  },
+  {
+    "name": "점보870 사이즈(외관) W\t 870mm D\t   480mm",
+    "model": "사이즈(외관) W\t 870mm D\t   480mm",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p91_1.png",
+    "image_file": "catalog_하츠_씽크볼_p91_1.png",
+    "printed_page": 91
+  },
+  {
+    "name": "HZ-LIS6301 점보 870 HZ-JS8701",
+    "model": "HZ-JS8701",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p92_0.png",
+    "image_file": "catalog_하츠_씽크볼_p92_0.png",
+    "printed_page": 92
+  },
+  {
+    "name": "HZ-ISS4801 점보 850 93 92",
+    "model": "93 92",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p92_1.png",
+    "image_file": "catalog_하츠_씽크볼_p92_1.png",
+    "printed_page": 92
+  },
+  {
+    "name": "싱글 630 사이즈(외관) W\t 630mm D\t   460mm",
+    "model": "사이즈(외관) W\t 630mm D\t   460mm",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p93_0.png",
+    "image_file": "catalog_하츠_씽크볼_p93_0.png",
+    "printed_page": 93
+  },
+  {
+    "name": "싱글 480 사이즈(외관) W\t 478mm D\t   428mm",
+    "model": "사이즈(외관) W\t 478mm D\t   428mm",
+    "category": "하츠 씽크볼",
+    "image_path": "catalog_images\\catalog_하츠_씽크볼_p93_1.png",
+    "image_file": "catalog_하츠_씽크볼_p93_1.png",
+    "printed_page": 93
+  },
+  {
+    "name": "센서형 절수기 WS-S01I-01, WS-DS01I-01",
+    "model": "WS-S01I-01, WS-DS01I-01",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p96_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p96_0.png",
+    "printed_page": 96
+  },
+  {
+    "name": "무선 발판형 절수기 WS-WF07SI",
+    "model": "WS-WF07SI",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p96_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p96_1.png",
+    "printed_page": 96
+  },
+  {
+    "name": "발판형 절수기 WS-F06WI, WS-DF06WI",
+    "model": "WS-F06WI, WS-DF06WI",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p97_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p97_0.png",
+    "printed_page": 97
+  },
+  {
+    "name": "발판형 절수기 97 96",
+    "model": "97 96",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p97_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p97_1.png",
+    "printed_page": 97
+  },
+  {
+    "name": "플랫 히든 콘센트(USB 형) MC-T2061B",
+    "model": "MC-T2061B",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p98_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p98_0.png",
+    "printed_page": 98
+  },
+  {
+    "name": "플랫 히든 콘센트(무선충전 형) 99 98",
+    "model": "99 98",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p98_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p98_1.png",
+    "printed_page": 98
+  },
+  {
+    "name": "슬라이드 콘센트 MC-S1994QWCM",
+    "model": "MC-S1994QWCM",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p99_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p99_0.png",
+    "printed_page": 99
+  },
+  {
+    "name": "팝업 콘센트 MC-P1321QWCM",
+    "model": "MC-P1321QWCM",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p99_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p99_1.png",
+    "printed_page": 99
+  },
+  {
+    "name": "전동 콘센트 MC-A1201CB / NB",
+    "model": "MC-A1201CB / NB",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p100_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p100_0.png",
+    "printed_page": 100
+  },
+  {
+    "name": "전동 콘센트 101 100",
+    "model": "101 100",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p100_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p100_1.png",
+    "printed_page": 100
+  },
+  {
+    "name": "템바 콘센트 MC-S1802QWD",
+    "model": "MC-S1802QWD",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p101_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p101_0.png",
+    "printed_page": 101
+  },
+  {
+    "name": "부띠크 콘센트 MC-S1801QWD_G / P / M",
+    "model": "MC-S1801QWD_G / P / M",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p101_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p101_1.png",
+    "printed_page": 101
+  },
+  {
+    "name": "슬라이드 콘센트 MC-S1996QWCM / QCM / QGCM",
+    "model": "MC-S1996QWCM / QCM / QGCM",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p102_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p102_0.png",
+    "printed_page": 102
+  },
+  {
+    "name": "슬라이드 콘센트 103 102",
+    "model": "103 102",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p102_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p102_1.png",
+    "printed_page": 102
+  },
+  {
+    "name": "회전형 콘센트 (고속충전) MC-R1201CM-01, MC-R1201WCM-01",
+    "model": "MC-R1201CM-01, MC-R1201WCM-01",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p103_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p103_0.png",
+    "printed_page": 103
+  },
+  {
+    "name": "리프트업 도어",
+    "model": "",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p103_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p103_1.png",
+    "printed_page": 103
+  },
+  {
+    "name": "폰테 배수구",
+    "model": "",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p104_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p104_0.png",
+    "printed_page": 104
+  },
+  {
+    "name": "뱅뱅 배수구 105 104",
+    "model": "105 104",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p104_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p104_1.png",
+    "printed_page": 104
+  },
+  {
+    "name": "음식물 탈수기 HFD-160SN(S)/STS",
+    "model": "HFD-160SN(S)/STS",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p105_0.png",
+    "image_file": "catalog_하츠_기타빌트인_p105_0.png",
+    "printed_page": 105
+  },
+  {
+    "name": "전동식 빨래 건조대 CD-D950DU",
+    "model": "CD-D950DU",
+    "category": "하츠 기타빌트인",
+    "image_path": "catalog_images\\catalog_하츠_기타빌트인_p105_1.png",
+    "image_file": "catalog_하츠_기타빌트인_p105_1.png",
+    "printed_page": 105
+  }
+]

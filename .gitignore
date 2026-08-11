@@ -1,0 +1,10 @@
+.env
+*.env
+functions/.env
+node_modules/
+__pycache__/
+*.log
+*.txt
+ai_edits.json
+*.pyc
+temp_*.html

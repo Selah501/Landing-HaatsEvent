@@ -10,7 +10,7 @@ import requests
 from google import genai
 from dotenv import load_dotenv
 
-env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+env_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=env_path)
 
 API_KEY = os.getenv("GEMINI_API_KEY")

@@ -7,3 +7,6 @@
 
 1. [📞 통화 AI 요약 및 웹 상담 DB 결재판](file:///c:/dev/전단지이벤트/.agents/manuals/CRM_APPROVAL_BOARD.md)
    - *스마트폰 통화 녹음 자동 분석 및 웹 예약 연동 관련 가이드*
+
+2. [🗄️ 3대 데이터베이스 체계 (Notion/Supabase/Firebase)](file:///c:/dev/전단지이벤트/.agents/manuals/DB_ARCHITECTURE.md)
+   - *각 DB의 역할, 동기화 흐름, 운영 원칙 가이드*

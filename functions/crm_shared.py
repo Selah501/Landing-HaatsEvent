@@ -3,6 +3,8 @@ import time
 import json
 import logging
 import requests
+import re
+import datetime
 from dotenv import load_dotenv
 from google import genai
 
@@ -136,6 +138,26 @@ def process_audio_file(filepath):
         data['filename'] = os.path.basename(filepath)
         data['created_at'] = time.strftime('%Y-%m-%dT%H:%M:%S%z')
         
+        # [성능 측정] 통화 종료 후 요약 완료까지 총 소요시간 계산
+        match = re.search(r'_(\d{6})_(\d{6})\.', data['filename'])
+        if match:
+            date_str, time_str = match.groups()
+            try:
+                # 파일명 예: 260817_190732 -> 2026-08-17 19:07:32
+                call_end_time = datetime.datetime.strptime(f"{date_str} {time_str}", "%y%m%d %H%M%S")
+                now_time = datetime.datetime.now()
+                delay = now_time - call_end_time
+                delay_sec = int(delay.total_seconds())
+                
+                # 업무시간(04시~18시) 통화 여부 확인
+                if 4 <= call_end_time.hour < 18:
+                    logger.info(f"[성능 측정] 업무시간(04~18시) 내 통화 ({call_end_time.strftime('%H:%M:%S')} 종료)")
+                
+                logger.info(f"[성능 측정] 통화 종료 후 요약 완료까지 총 소요시간: {delay_sec // 60}분 {delay_sec % 60}초 ({delay_sec}초)")
+                data['total_delay_sec'] = delay_sec
+            except Exception as e:
+                logger.error(f"시간 측정 중 오류: {e}")
+
         logger.info("3. 분석 완료! Firebase로 전송합니다.")
         res = requests.post(FIREBASE_DB_URL, json=data)
         

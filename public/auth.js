@@ -57,7 +57,8 @@ function renderAdminNav(activePageId) {
     const pages = [
         { id: 'admin', name: '⚙️ 기본설정', url: './admin.html', color: '#2563eb' },
         { id: 'admin_v2', name: '📋 작업지시', url: './admin_v2.html', color: '#8b5cf6' },
-        { id: 'erp', name: '📊 재무장부', url: './erp.html', color: '#10b981' }
+        { id: 'erp', name: '📊 재무장부', url: './erp.html', color: '#10b981' },
+        { id: 'price_calculator', name: '💰 판매가계산', url: './price_calculator.html', color: '#c9ff00' }
     ];
 
     let navHTML = `<div style="display: flex; gap: 8px; flex-wrap: wrap;" id="admin-unified-nav">`;

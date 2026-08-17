@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💰 판매가 계산기 | HAATZ 충남대리점</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./auth.js"></script>
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --surface: #18181b;
+      --surface2: #27272a;
+      --border: #3f3f46;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --lime: #c9ff00;
+      --lime-dim: #a3cc00;
+      --red: #ef4444;
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --gold: #f59e0b;
+      --purple: #8b5cf6;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--lime);
+      white-space: nowrap;
+    }
+    .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-link {
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 12px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .nav-link:hover { background: var(--border); color: var(--text); }
+    .nav-link.active { background: var(--lime); color: #000; border-color: var(--lime); }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 280px 280px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 57px);
+    }
+    .col {
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .col:last-child { border-right: none; }
+
+    /* ── Section titles ── */
+    .col-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .col-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px; height: 20px;
+      background: var(--lime);
+      color: #000;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 800;
+      margin-right: 6px;
+    }
+
+    /* ── Search ── */
+    .search-wrap { position: relative; margin-bottom: 10px; }
+    .search-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px 8px 32px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--lime); }
+    .search-icon {
+      position: absolute; left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted); font-size: 14px;
+    }
+
+    /* ── Product list ── */
+    .product-list {
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+    }
+    .product-item {
+      padding: 8px 10px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .product-item:last-child { border-bottom: none; }
+    .product-item:hover { background: var(--surface2); }
+    .product-item.selected { background: rgba(201,255,0,0.1); border-left: 3px solid var(--lime); }
+    .product-name { font-weight: 600; font-size: 13px; }
+    .product-meta { font-size: 11px; color: var(--text-muted); }
+
+    /* ── Selected product info ── */
+    .selected-box {
+      background: var(--surface2);
+      border: 1px solid var(--lime);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .selected-label { font-size: 11px; color: var(--lime); margin-bottom: 4px; font-weight: 600; }
+    .selected-name { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+
+    /* ── Inputs ── */
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field input:focus, .field select:focus { border-color: var(--lime); }
+    .field select option { background: var(--surface2); }
+
+    /* ── Options checkboxes ── */
+    .options-list { display: flex; flex-direction: column; gap: 6px; }
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px;
+      background: var(--surface2);
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .option-item:hover { border-color: var(--border); }
+    .option-item.checked { border-color: var(--lime); background: rgba(201,255,0,0.06); }
+    .option-item input[type=checkbox] { margin-top: 2px; accent-color: var(--lime); width: 14px; height: 14px; }
+    .option-item-info { flex: 1; }
+    .option-label { font-size: 12px; font-weight: 600; }
+    .option-note { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+    .option-fee { font-size: 12px; font-weight: 700; color: var(--gold); white-space: nowrap; }
+
+    /* ── Result cards ── */
+    .result-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .result-card-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 13px;
+    }
+    .result-row .lbl { color: var(--text-muted); }
+    .result-row .val { font-weight: 600; }
+    .result-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+    .result-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 800;
+    }
+    .result-total .val { color: var(--lime); }
+    .rounded-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+    .rounded-badge.lime { background: rgba(201,255,0,0.15); color: var(--lime); }
+
+    /* ── Compare section ── */
+    .compare-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .compare-badge.green { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); }
+    .compare-badge.red { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); }
+    .compare-badge .icon { font-size: 20px; }
+    .compare-badge .msg { flex: 1; }
+    .compare-badge .diff { font-size: 16px; }
+    .compare-badge.green .diff { color: var(--green); }
+    .compare-badge.red .diff { color: var(--red); }
+
+    /* ── Confirm section ── */
+    .confirm-box {
+      background: var(--surface2);
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .confirm-box-title {
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+    .adjust-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .adjust-row label { font-size: 12px; color: var(--text-muted); white-space: nowrap; min-width: 80px; }
+    .adjust-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .adjust-input:focus { border-color: var(--gold); }
+    .final-price-display {
+      background: var(--bg);
+      border: 2px solid var(--lime);
+      border-radius: var(--radius);
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .final-price-display .lbl { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    .final-price-display .price { font-size: 28px; font-weight: 800; color: var(--lime); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-lime { background: var(--lime); color: #000; }
+    .btn-lime:hover { background: var(--lime-dim); }
+    .btn-lime:disabled { background: #555; color: #888; cursor: not-allowed; }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); }
+    .btn-gold { background: var(--gold); color: #000; }
+    .btn-gold:hover { background: #d97706; }
+    .btn-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+    .btn-apply {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      background: var(--lime);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-apply:hover { background: var(--lime-dim); transform: translateY(-1px); }
+    .btn-apply:disabled { background: #444; color: #777; cursor: not-allowed; transform: none; }
+    .btn-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+
+    /* ── History ── */
+    .history-list { display: flex; flex-direction: column; gap: 6px; }
+    .history-item {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      border: 1px solid var(--border);
+    }
+    .history-name { font-weight: 600; }
+    .history-price { color: var(--lime); font-weight: 700; }
+    .history-date { color: var(--text-muted); font-size: 11px; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--lime);
+      color: var(--lime);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 13px;
+      z-index: 9999;
+      transition: transform 0.3s ease;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Loading ── */
+    .loading-spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(201,255,0,0.3);
+      border-top-color: var(--lime);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Mobile ── */
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .col { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">💰 판매가 계산기</div>
+  <div class="nav-links">
+    <a href="./admin_v2.html" class="nav-link">📋 작업지시</a>
+    <a href="./admin.html" class="nav-link">⚙️ 관리자</a>
+    <a href="./erp.html" class="nav-link">📊 재무장부</a>
+    <a href="./catalog_search.html" class="nav-link">🔍 상품검색</a>
+    <a href="./price_calculator.html" class="nav-link active">💰 판매가계산</a>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- ══ COL A: 제품 선택 ══ -->
+  <div class="col" id="col-a">
+    <div class="col-title"><span class="col-num">1</span>제품 선택</div>
+
+    <div class="field" style="margin-bottom: 8px;">
+      <select id="productCategoryFilter" onchange="filterProducts()" style="padding: 6px 10px; font-size: 12px;">
+        <option value="">-- 대분류(전체) --</option>
+      </select>
+    </div>
+
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input"
+        placeholder="제품명·브랜드·모델 검색..." autocomplete="off" oninput="filterProducts()">
+    </div>
+
+    <div class="product-list" id="productList">
+      <div style="padding:20px; text-align:center; color:var(--text-muted);">
+        <div class="loading-spinner" style="margin:0 auto 8px;"></div>
+        <div style="font-size:12px;">제품 목록 로딩 중...</div>
+      </div>
+    </div>
+
+    <!-- 선택된 제품 정보 -->
+    <div class="selected-box" id="selectedBox" style="display:none;">
+      <div class="selected-label">✅ 선택된 제품</div>
+      <div class="selected-name" id="selectedName">-</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;" id="selectedMeta">-</div>
+
+      <div class="field">
+        <label>제품 원가 (매입가) ₩</label>
+        <input type="number" id="costInput" placeholder="0" step="1000"
+          oninput="recalc()" style="font-size:15px; font-weight:700;">
+      </div>
+    </div>
+
+    <div id="emptyHint" style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:20px;">
+      위 목록에서 제품을 선택하세요
+    </div>
+  </div>
+
+  <!-- ══ COL B: 설치비 구성 ══ -->
+  <div class="col" id="col-b">
+    <div class="col-title"><span class="col-num">2</span>설치비 구성</div>
+
+    <div class="field">
+      <label>카테고리 선택</label>
+      <select id="categorySelect" onchange="onCategoryChange()">
+        <option value="">-- 카테고리 선택 --</option>
+        <option value="후드">후드 (레인지후드)</option>
+        <option value="쿡탑">쿡탑 (가스/전기)</option>
+        <option value="수전/절수기">수전 / 절수기</option>
+        <option value="싱크볼">싱크볼</option>
+        <option value="빨래건조대">전동빨래건조대</option>
+      </select>
+    </div>
+
+    <div class="field" id="baseInstallWrap" style="display:none;">
+      <label>기본 설치비</label>
+      <select id="baseInstallSelect" onchange="recalc()"></select>
+    </div>
+
+    <div id="optionsSection" style="display:none;">
+      <div class="col-title" style="margin-top:16px;">추가 옵션 (복수 선택)</div>
+      <div class="options-list" id="optionsList"></div>
+    </div>
+
+    <div id="categoryHint" style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:20px;">
+      카테고리를 선택하면 설치비 항목이 표시됩니다
+    </div>
+  </div>
+
+  <!-- ══ COL C: 분석 & 확정 ══ -->
+  <div class="col" id="col-c">
+    <div class="col-title"><span class="col-num">3</span>비교 분석 &amp; 최종 확정</div>
+
+    <!-- 우리 계산 결과 -->
+    <div class="result-card">
+      <div class="result-card-title">🏪 우리 계산 결과</div>
+      <div class="result-row">
+        <span class="lbl">제품 원가</span>
+        <span class="val" id="r-cost">0원</span>
+      </div>
+      <div class="result-row">
+        <span class="lbl">기본 설치비</span>
+        <span class="val" id="r-install">0원</span>
+      </div>
+      <div class="result-row">
+        <span class="lbl">옵션 합계</span>
+        <span class="val" id="r-options">0원</span>
+      </div>
+      <hr class="result-divider">
+      <div class="result-row">
+        <span class="lbl">소계</span>
+        <span class="val" id="r-subtotal">0원</span>
+      </div>
+      <div class="result-total" style="margin-top:6px;">
+        <span>단수정리 (5천원)</span>
+        <span class="val" id="r-rounded">
+          <span class="rounded-badge lime">0원</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 온라인 참고가격 조사 -->
+    <div class="result-card">
+      <div class="result-card-title">
+        🛒 온라인 참고가격 (직접 조사 입력)
+        <button class="btn btn-ghost" style="float:right; padding:3px 8px; font-size:11px;"
+          onclick="openNaverSearch()" id="naverSearchBtn">네이버 검색↗</button>
+      </div>
+      <div style="clear:both; margin-bottom:8px;"></div>
+
+      <div class="field">
+        <label>온라인 제품 판매가 ₩ (쿠팡/네이버)</label>
+        <input type="number" id="onlinePrice" placeholder="0" step="1000" oninput="recalcOnline()">
+      </div>
+      <div class="field">
+        <label>배송비 ₩ (무료배송이면 0)</label>
+        <input type="number" id="shippingFee" placeholder="0" step="1000" value="0" oninput="recalcOnline()">
+      </div>
+
+      <hr class="result-divider">
+
+      <div class="result-row">
+        <span class="lbl">온라인 제품+배송</span>
+        <span class="val" id="r-online-prod">-</span>
+      </div>
+      <div class="result-row">
+        <span class="lbl">+ 우리 설치비만</span>
+        <span class="val" id="r-install-only">-</span>
+      </div>
+      <div class="result-total" style="margin-top:6px;">
+        <span>고객 총부담 예상</span>
+        <span class="val" id="r-customer-total" style="color:var(--gold);">-</span>
+      </div>
+    </div>
+
+    <!-- 비교 분석 뱃지 -->
+    <div id="compareBadge" style="display:none;"></div>
+
+    <!-- 최종 확정 -->
+    <div class="confirm-box">
+      <div class="confirm-box-title">⚖️ 관리자 최종 조정 &amp; 확정</div>
+
+      <div class="adjust-row">
+        <label>조정 금액 ₩</label>
+        <input type="number" id="adjustAmount" class="adjust-input"
+          placeholder="+5000 또는 -5000" step="5000" oninput="recalcFinal()">
+        <span style="font-size:11px; color:var(--text-muted);">(+/-)</span>
+      </div>
+      <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
+        현장 특성·위치·조건 등을 감안하여 가감하세요
+      </div>
+
+      <div class="final-price-display">
+        <div class="lbl">최종 확정 판매가</div>
+        <div class="price" id="finalPriceDisplay">0원</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="applyRounded()" style="flex:1;">단수정리 적용</button>
+        <button class="btn btn-ghost" onclick="resetAdjust()" style="flex:1;">조정 초기화</button>
+      </div>
+
+      <div class="field">
+        <label>현장 메모 (옵션)</label>
+        <input type="text" id="priceNotes" placeholder="예: 아파트 고층, 타공 추가 예상 등">
+      </div>
+
+      <button class="btn-apply" id="applyBtn" onclick="saveToDb()" disabled>
+        💾 DB에 판매가 저장 (적용)
+      </button>
+    </div>
+
+    <!-- 최근 저장 내역 -->
+    <div class="result-card">
+      <div class="result-card-title">🕐 최근 저장 내역</div>
+      <div class="history-list" id="historyList">
+        <div style="text-align:center; color:var(--text-muted); font-size:12px; padding:10px;">
+          저장 기록이 없습니다
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /col-c -->
+</div><!-- /grid -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SUPABASE INIT
+// ═══════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ═══════════════════════════════════════════════════════
+// 설치비 데이터 (이미지 기준표 코드화)
+// ═══════════════════════════════════════════════════════
+const INSTALL_FEE_DATA = {
+  '후드': {
+    base: [
+      { label: '슬라이딩 후드', fee: 45000 },
+      { label: '통후드', fee: 63000 },
+      { label: '침니 후드', fee: 63000 },
+      { label: '아일랜드 / 플라테님 후드', fee: 150000 },
+    ],
+    options: [
+      { label: '소화기 재설치', fee: 27000, note: '신규설치 불가 · 기존 소화기 재설치만 가능' },
+      { label: '기존 제품 폐기', fee: 9000, note: '슬라이딩 후드 제외' },
+      { label: '기존 제품 철거', fee: 18000, note: '슬라이딩 후드 제외' },
+    ]
+  },
+  '쿡탑': {
+    base: [
+      { label: '가스쿡탑 / 전기쿡탑', fee: 40000 },
+    ],
+    options: [
+      { label: '상판 따내기 (한면 당)', fee: 18000, note: '타공 없을 시 시공비 100,000원' },
+      { label: '기존 제품 폐기', fee: 9000, note: '슬라이딩 후드 제외' },
+    ]
+  },
+  '수전/절수기': {
+    base: [
+      { label: '주방수전 기본 설치', fee: 45000 },
+      { label: '절수기 기본 설치', fee: 45000 },
+      { label: '수전 + 절수기 동시 설치', fee: 45000 },
+    ],
+    options: [
+      { label: '랜딩필터 추가 설치', fee: 9000, note: '단독 교체 시 40,000원' },
+      { label: '싱크대 타공 1개', fee: 9000 },
+      { label: '인조대리석 타공 1개', fee: 18000 },
+      { label: '천연대리석 타공 1개', fee: 45000 },
+      { label: '수전+절수기 신규 설치 추가', fee: 30000 },
+    ]
+  },
+  '싱크볼': {
+    base: [
+      { label: '싱크볼 기본 설치 (싱크볼+수전 포함)', fee: 150000, note: '지역별 차등 없음' },
+    ],
+    options: [
+      { label: '투홀 타입 주방수전 타공', fee: 30000 },
+      { label: '스톤 재질 2면 타공', fee: 0, note: '무료' },
+      { label: '스톤 재질 3면 타공', fee: 30000 },
+      { label: '세라믹/천연대리석 2면 타공', fee: 70000 },
+      { label: '세라믹/천연대리석 3면 타공', fee: 100000 },
+      { label: '기존 싱크볼 폐기', fee: 10000 },
+      { label: '음식물 처리기/분쇄기 재설치', fee: 30000, note: '이전 불가 시 해당 브랜드 시공' },
+    ]
+  },
+  '빨래건조대': {
+    base: [
+      { label: '전동빨래건조대 (천장에 전등 설치 기준)', fee: 46000 },
+    ],
+    options: [
+      { label: '기존 수동/자동 건조대 탈거', fee: 20000 },
+      { label: '기존 수동/자동 건조대 폐기', fee: 10000 },
+      { label: '천장 마감이 콘크리트 아닐 시', fee: 40000, note: '40,000원 이상' },
+      { label: '전기배선 공사 시', fee: 20000, note: '20,000원 이상' },
+    ]
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let allProducts = [];
+let selectedProduct = null;
+let history5 = JSON.parse(localStorage.getItem('priceCalcHistory') || '[]');
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+const fmt = n => Number(n || 0).toLocaleString('ko-KR') + '원';
+const roundTo5K = n => Math.round(n / 5000) * 5000;
+
+function showToast(msg, color = 'var(--lime)') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = color;
+  t.style.color = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════════
+// LOAD PRODUCTS
+// ═══════════════════════════════════════════════════════
+async function loadProducts() {
+  try {
+    const { data, error } = await sb.from('products')
+      .select('*')
+      .order('brand', { ascending: true });
+    if (error) throw error;
+    allProducts = data || [];
+    
+    // Populate category dropdown
+    const categories = [...new Set(allProducts.map(p => p.category).filter(Boolean))].sort();
+    const catSelect = document.getElementById('productCategoryFilter');
+    categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      catSelect.appendChild(opt);
+    });
+    
+    filterProducts();
+  } catch (e) {
+    document.getElementById('productList').innerHTML =
+      `<div style="padding:16px;text-align:center;color:var(--red);font-size:12px;">⚠️ 로드 실패: ${e.message}</div>`;
+  }
+}
+
+function renderProductList(list) {
+  const el = document.getElementById('productList');
+  if (list.length === 0) {
+    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px;">검색 결과 없음</div>';
+    return;
+  }
+  el.innerHTML = list.slice(0, 100).map(p => `
+    <div class="product-item ${selectedProduct && selectedProduct.id === p.id ? 'selected' : ''}"
+         onclick="selectProduct('${p.id}')">
+      <div class="product-name">${p.name}</div>
+      <div class="product-meta">${p.brand || '-'} · ${p.category || '-'}${p.model ? ' · ' + p.model : ''}</div>
+    </div>
+  `).join('');
+}
+
+function selectProduct(id) {
+  selectedProduct = allProducts.find(p => p.id === id);
+  if (!selectedProduct) return;
+
+  filterProducts();
+
+  document.getElementById('selectedBox').style.display = 'block';
+  document.getElementById('emptyHint').style.display = 'none';
+  document.getElementById('selectedName').textContent = selectedProduct.name;
+  document.getElementById('selectedMeta').textContent =
+    [selectedProduct.brand, selectedProduct.category, selectedProduct.model].filter(Boolean).join(' · ');
+
+  // 기존 원가 있으면 채우기
+  if (selectedProduct.price_purchase) {
+    document.getElementById('costInput').value = selectedProduct.price_purchase;
+  }
+  // 기존 온라인 가격 있으면 채우기
+  if (selectedProduct.price_online) {
+    document.getElementById('onlinePrice').value = selectedProduct.price_online;
+    recalcOnline();
+  }
+
+  document.getElementById('naverSearchBtn').onclick = openNaverSearch;
+  document.getElementById('applyBtn').disabled = false;
+  recalc();
+}
+
+function matchProduct(p, term, category) {
+  if (category && p.category !== category) return false;
+  if (!term) return true;
+  const t = term.toLowerCase();
+  return (p.name || '').toLowerCase().includes(t) ||
+         (p.brand || '').toLowerCase().includes(t) ||
+         (p.category || '').toLowerCase().includes(t) ||
+         (p.model || '').toLowerCase().includes(t);
+}
+
+function filterProducts() {
+  const term = document.getElementById('searchInput').value;
+  const category = document.getElementById('productCategoryFilter').value;
+  renderProductList(allProducts.filter(p => matchProduct(p, term, category)));
+}
+
+// ═══════════════════════════════════════════════════════
+// CATEGORY & OPTIONS
+// ═══════════════════════════════════════════════════════
+function onCategoryChange() {
+  const cat = document.getElementById('categorySelect').value;
+  const baseWrap = document.getElementById('baseInstallWrap');
+  const optSec = document.getElementById('optionsSection');
+  const hint = document.getElementById('categoryHint');
+
+  if (!cat) {
+    baseWrap.style.display = 'none';
+    optSec.style.display = 'none';
+    hint.style.display = 'block';
+    recalc();
+    return;
+  }
+
+  hint.style.display = 'none';
+  const data = INSTALL_FEE_DATA[cat];
+
+  // Base install dropdown
+  const baseSelect = document.getElementById('baseInstallSelect');
+  baseSelect.innerHTML = data.base.map(b =>
+    `<option value="${b.fee}">${b.label} — ${fmt(b.fee)}${b.note ? ' (' + b.note + ')' : ''}</option>`
+  ).join('');
+  baseWrap.style.display = 'block';
+
+  // Options checkboxes
+  const optList = document.getElementById('optionsList');
+  optList.innerHTML = data.options.map((o, i) => `
+    <label class="option-item" id="opt-label-${i}" onclick="toggleOpt(${i})">
+      <input type="checkbox" id="opt-${i}" value="${o.fee}" onchange="recalc()" onclick="event.stopPropagation()">
+      <div class="option-item-info">
+        <div class="option-label">${o.label}</div>
+        ${o.note ? `<div class="option-note">${o.note}</div>` : ''}
+      </div>
+      <div class="option-fee">${o.fee === 0 ? '무료' : '+' + fmt(o.fee)}</div>
+    </label>
+  `).join('');
+  optSec.style.display = 'block';
+
+  recalc();
+}
+
+function toggleOpt(i) {
+  const cb = document.getElementById(`opt-${i}`);
+  cb.checked = !cb.checked;
+  const lbl = document.getElementById(`opt-label-${i}`);
+  lbl.classList.toggle('checked', cb.checked);
+  recalc();
+}
+
+// ═══════════════════════════════════════════════════════
+// CALCULATION
+// ═══════════════════════════════════════════════════════
+function recalc() {
+  const cost = parseInt(document.getElementById('costInput').value) || 0;
+  const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
+
+  let optTotal = 0;
+  document.querySelectorAll('[id^="opt-"]').forEach(cb => {
+    if (cb.checked) optTotal += parseInt(cb.value) || 0;
+  });
+
+  const subtotal = cost + installFee + optTotal;
+  const rounded = roundTo5K(subtotal);
+
+  document.getElementById('r-cost').textContent = fmt(cost);
+  document.getElementById('r-install').textContent = fmt(installFee);
+  document.getElementById('r-options').textContent = fmt(optTotal);
+  document.getElementById('r-subtotal').textContent = fmt(subtotal);
+  document.getElementById('r-rounded').innerHTML =
+    `<span class="rounded-badge lime">${fmt(rounded)}</span>`;
+  document.getElementById('r-install-only').textContent = fmt(installFee + optTotal);
+
+  recalcOnline();
+  recalcFinal();
+}
+
+function recalcOnline() {
+  const onlinePrice = parseInt(document.getElementById('onlinePrice').value) || 0;
+  const shipping = parseInt(document.getElementById('shippingFee').value) || 0;
+  const installOnly = (parseInt(document.getElementById('baseInstallSelect').value) || 0) +
+    Array.from(document.querySelectorAll('[id^="opt-"]')).reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
+
+  if (onlinePrice === 0) {
+    document.getElementById('r-online-prod').textContent = '-';
+    document.getElementById('r-customer-total').textContent = '-';
+    document.getElementById('compareBadge').style.display = 'none';
+    return;
+  }
+
+  const customerTotal = onlinePrice + shipping + installOnly;
+  document.getElementById('r-online-prod').textContent = fmt(onlinePrice + shipping);
+  document.getElementById('r-customer-total').textContent = fmt(customerTotal);
+
+  // Compare
+  const cost = parseInt(document.getElementById('costInput').value) || 0;
+  const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
+  const optTotal = Array.from(document.querySelectorAll('[id^="opt-"]'))
+    .reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
+  const ourPrice = roundTo5K(cost + installFee + optTotal);
+
+  const diff = customerTotal - ourPrice;
+  const badge = document.getElementById('compareBadge');
+  badge.style.display = 'block';
+
+  if (diff > 0) {
+    badge.innerHTML = `
+      <div class="compare-badge green">
+        <span class="icon">🟢</span>
+        <div class="msg">우리 판매가가 경쟁력 있음</div>
+        <div class="diff">+${fmt(diff)} 저렴</div>
+      </div>`;
+  } else if (diff < 0) {
+    badge.innerHTML = `
+      <div class="compare-badge red">
+        <span class="icon">🔴</span>
+        <div class="msg">온라인 총비용 대비 비쌈 → 재검토</div>
+        <div class="diff">${fmt(Math.abs(diff))} 비쌈</div>
+      </div>`;
+  } else {
+    badge.innerHTML = `
+      <div class="compare-badge" style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);">
+        <span class="icon">🟡</span>
+        <div class="msg">온라인 총비용과 동일</div>
+        <div class="diff" style="color:var(--gold);">동일</div>
+      </div>`;
+  }
+
+  recalcFinal();
+}
+
+function recalcFinal() {
+  const cost = parseInt(document.getElementById('costInput').value) || 0;
+  const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
+  const optTotal = Array.from(document.querySelectorAll('[id^="opt-"]'))
+    .reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
+  const base = roundTo5K(cost + installFee + optTotal);
+  const adjust = parseInt(document.getElementById('adjustAmount').value) || 0;
+  const final = base + adjust;
+  document.getElementById('finalPriceDisplay').textContent = fmt(final > 0 ? final : 0);
+}
+
+function applyRounded() {
+  const cost = parseInt(document.getElementById('costInput').value) || 0;
+  const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
+  const optTotal = Array.from(document.querySelectorAll('[id^="opt-"]'))
+    .reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
+  const rounded = roundTo5K(cost + installFee + optTotal);
+  document.getElementById('adjustAmount').value = 0;
+  recalcFinal();
+  showToast(`단수정리 ${fmt(rounded)} 적용됨`);
+}
+
+function resetAdjust() {
+  document.getElementById('adjustAmount').value = '';
+  recalcFinal();
+}
+
+function openNaverSearch() {
+  const name = selectedProduct ? selectedProduct.name : '';
+  window.open(`https://search.shopping.naver.com/search/all?query=${encodeURIComponent(name)}`, '_blank');
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVE TO DB
+// ═══════════════════════════════════════════════════════
+async function saveToDb() {
+  if (!selectedProduct) { showToast('⚠️ 제품을 먼저 선택하세요', 'var(--red)'); return; }
+
+  const cost = parseInt(document.getElementById('costInput').value) || 0;
+  const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
+  const optTotal = Array.from(document.querySelectorAll('[id^="opt-"]'))
+    .reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
+  const base = roundTo5K(cost + installFee + optTotal);
+  const adjust = parseInt(document.getElementById('adjustAmount').value) || 0;
+  const finalPrice = base + adjust;
+
+  if (finalPrice <= 0) { showToast('⚠️ 판매가를 확인하세요', 'var(--red)'); return; }
+
+  const onlinePrice = parseInt(document.getElementById('onlinePrice').value) || 0;
+  const shipping = parseInt(document.getElementById('shippingFee').value) || 0;
+  const notes = document.getElementById('priceNotes').value.trim();
+  const catVal = document.getElementById('categorySelect').value;
+  const baseLabel = document.getElementById('baseInstallSelect').options[document.getElementById('baseInstallSelect').selectedIndex]?.text || '';
+
+  const btn = document.getElementById('applyBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+
+  const updateData = {
+    price_purchase: cost || null,
+    price_selling: finalPrice,
+    price_online: (onlinePrice + shipping) || null,
+    install_fee_tier: catVal ? `${catVal} / ${baseLabel}` : null,
+  };
+
+  // price_install, price_options 컬럼이 있으면 저장 (없어도 무시)
+  try {
+    updateData.price_install = installFee;
+    updateData.price_options = optTotal;
+    if (notes) updateData.price_notes = notes;
+  } catch(e) {}
+
+  try {
+    const { error } = await sb.from('products').update(updateData).eq('id', selectedProduct.id);
+    if (error) throw error;
+
+    showToast(`✅ ${selectedProduct.name} 판매가 ${fmt(finalPrice)} 저장!`);
+
+    // 히스토리
+    const now = new Date();
+    const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+    history5.unshift({ name: selectedProduct.name, price: finalPrice, date: dateStr });
+    history5 = history5.slice(0, 5);
+    localStorage.setItem('priceCalcHistory', JSON.stringify(history5));
+    renderHistory();
+
+    // 선택된 제품 업데이트
+    selectedProduct.price_selling = finalPrice;
+    selectedProduct.price_purchase = cost;
+
+  } catch (e) {
+    showToast(`❌ 저장 실패: ${e.message}`, 'var(--red)');
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 DB에 판매가 저장 (적용)';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════════════════
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (history5.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">저장 기록이 없습니다</div>';
+    return;
+  }
+  el.innerHTML = history5.map(h => `
+    <div class="history-item">
+      <div>
+        <div class="history-name">${h.name}</div>
+        <div class="history-date">${h.date}</div>
+      </div>
+      <div class="history-price">${fmt(h.price)}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  initAdminAuth(() => {
+    loadProducts();
+    renderHistory();
+  });
+});
+</script>
+
+</body>
+</html>

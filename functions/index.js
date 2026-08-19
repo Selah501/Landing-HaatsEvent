@@ -224,3 +224,10 @@ exports.analyzeVoiceReport = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError("internal", error.message);
     }
 });
+
+// =========================================================================
+// Cloud Functions v2: 통화 녹음 자동 분석 (Firebase Storage 트리거)
+// 스마트폰 → Firebase Storage 업로드 → Gemini AI 분석 → RTDB crm_pending 저장
+// =========================================================================
+const { processCallRecording } = require("./processCallRecording");
+exports.processCallRecording = processCallRecording;

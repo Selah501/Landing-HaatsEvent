@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 통화 녹음 업로드: call_records/ 폴더에만 쓰기 허용
+    // MacroDroid에서 HTTP로 직접 업로드하므로 인증 없이 허용 (파일 크기 제한으로 보안)
+    match /call_records/{fileName} {
+      allow read: if false; // 외부에서 읽기 불가
+      allow write: if request.resource.size < 50 * 1024 * 1024  // 50MB 이하만
+                   && request.resource.contentType.matches('audio/.*'); // 오디오만
+    }
+    
+    // 처리 완료/실패 파일: Cloud Functions만 접근
+    match /call_records_done/{fileName} {
+      allow read, write: if false;
+    }
+    match /call_records_failed/{fileName} {
+      allow read, write: if false;
+    }
+    
+    // 기존 다른 경로는 기본 차단
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

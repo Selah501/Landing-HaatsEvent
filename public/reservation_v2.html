@@ -230,6 +230,7 @@
             <!-- 1. 날짜 선택 -->
             <div class="section-title">🗓 날짜를 선택해 주세요</div>
             <div class="calendar-header" id="current-month-label">2026.07</div>
+            <div style="text-align:center; font-size:13px; color:#ef4444; margin-bottom:12px; font-weight:bold;">⚠️ 다른 날짜 예약이 필요하면 관리자에게 전화로 협의해 주세요.</div>
             <div class="calendar-grid">
                 <div class="cal-header">일</div>
                 <div class="cal-header">월</div>
@@ -341,7 +342,7 @@
         // 날짜 관련 유틸
         const today = new Date();
         // V2 요구사항: 14일 달력
-        const displayDays = 14; 
+        let displayDays = 14; 
         
         // 30분 단위 시간 계산 유틸 (step 1 = 30분)
         function addStepToTimeString(timeStr, stepCount) {

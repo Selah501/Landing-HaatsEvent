@@ -407,6 +407,10 @@
             <label>가격 표시 문구 (리스트에 보일 문구)</label>
             <input type="text" id="ev-price">
         </div>
+        <div class="form-group">
+            <label>예약 노출 기간 (기본 14일)</label>
+            <input type="number" id="ev-displayDays" value="14" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+        </div>
         
         <div class="product-select-grid">
             <div class="product-box">
@@ -830,10 +834,20 @@
         const priceText = document.getElementById('ev-price').value || '';
         const periodText = document.getElementById('ev-period').value || '';
 
+        window._editMainProds.forEach(p => {
+            const prEl = document.getElementById('price-main-'+p.id); if(prEl) p.customText = prEl.value;
+            const lkEl = document.getElementById('link-main-'+p.id); if(lkEl) p.customLink = lkEl.value;
+        });
+        window._editAddonProds.forEach(p => {
+            const prEl = document.getElementById('price-addon-'+p.id); if(prEl) p.customText = prEl.value;
+            const lkEl = document.getElementById('link-addon-'+p.id); if(lkEl) p.customLink = lkEl.value;
+        });
+
         const evObj = {
             id: index >= 0 ? window.currentData[index].id : 'site_' + Date.now(),
             title: title,
             priceText: priceText,
+            displayDays: parseInt(document.getElementById('ev-displayDays').value) || 14,
             periodText: periodText,
             managerId: managerId,
             mainProducts: window._editMainProds || [],
@@ -862,6 +876,7 @@
         
         document.getElementById('ev-title').value = ev.title;
         document.getElementById('ev-price').value = ev.priceText || '';
+        document.getElementById('ev-displayDays').value = ev.displayDays || 14;
         document.getElementById('ev-period').value = ev.periodText || '';
         
         // 담당자 세팅
@@ -905,7 +920,8 @@
                         const prod = window.currentProducts.find(x=>x.id===p.id);
                         return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                             <span>${prod ? prod.name : p.id}</span>
-                            <input type="text" id="price-main-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+                            <input type="text" id="price-main-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+                            <input type="text" id="link-main-${p.id}" placeholder="상세링크" value="${p.customLink||''}" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
                             <button onclick="removeMainProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
                         </div>`;
                     }).join('')}
@@ -926,7 +942,8 @@
                         const prod = window.currentProducts.find(x=>x.id===p.id);
                         return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                             <span>${prod ? prod.name : p.id}</span>
-                            <input type="text" id="price-addon-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+                            <input type="text" id="price-addon-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+                            <input type="text" id="link-addon-${p.id}" placeholder="상세링크" value="${p.customLink||''}" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
                             <button onclick="removeAddonProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
                         </div>`;
                     }).join('')}
@@ -940,11 +957,12 @@
         const id = sel.value; const name = sel.options[sel.selectedIndex]?.dataset?.name || '';
         if(!id) return;
         if(window._editMainProds.find(p=>p.id===id)) { alert('이미 추가된 상품입니다.'); return; }
-        window._editMainProds.push({id, customText:''});
+        window._editMainProds.push({id, customText:'', customLink:''});
         const list = document.getElementById('main-prod-list');
         list.innerHTML += `<div id="mainrow-${id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
             <span>${name}</span>
-            <input type="text" id="price-main-${id}" placeholder="현장가" value="" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+            <input type="text" id="price-main-${id}" placeholder="현장가" value="" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+            <input type="text" id="link-main-${id}" placeholder="상세링크" value="" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
             <button onclick="removeMainProduct('${id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
         </div>`;
     }
@@ -960,11 +978,12 @@
         const id = sel.value; const name = sel.options[sel.selectedIndex]?.dataset?.name || '';
         if(!id) return;
         if(window._editAddonProds.find(p=>p.id===id)) { alert('이미 추가된 상품입니다.'); return; }
-        window._editAddonProds.push({id, customText:''});
+        window._editAddonProds.push({id, customText:'', customLink:''});
         const list = document.getElementById('addon-prod-list');
         list.innerHTML += `<div id="addonrow-${id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
             <span>${name}</span>
-            <input type="text" id="price-addon-${id}" placeholder="현장가" value="" style="width:150px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+            <input type="text" id="price-addon-${id}" placeholder="현장가" value="" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
+            <input type="text" id="link-addon-${id}" placeholder="상세링크" value="" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
             <button onclick="removeAddonProduct('${id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
         </div>`;
     }

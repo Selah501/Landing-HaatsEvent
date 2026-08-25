@@ -704,6 +704,12 @@
                     const eventProducts = [...(currentEvent.mainProducts || []), ...(currentEvent.addonProducts || [])];
                     const prodIds = eventProducts.map(p => p.id);
                     productsToRender = window.globalProducts.filter(p => prodIds.includes(p.id));
+
+                    // displayDays 현장별 반영 (기본 14일)
+                    if(currentEvent.displayDays && currentEvent.displayDays > 0) {
+                        displayDays = currentEvent.displayDays;
+                        renderCalendar(); // 달력 재렌더링
+                    }
                 }
             }
             

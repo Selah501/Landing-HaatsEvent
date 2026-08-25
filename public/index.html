@@ -128,9 +128,10 @@
                             const text = getProductText(prod);
                             
                             let linkHtml = '';
-                            if (mProd.detailLink) {
-                                const sep = mProd.detailLink.includes('?') ? '&' : '?';
-                                const dynamicLink = `${mProd.detailLink}${sep}phone=${managerPhone}`;
+                            const effectiveLink = prod.customLink || mProd.detailLink;
+                            if (effectiveLink) {
+                                const sep = effectiveLink.includes('?') ? '&' : '?';
+                                const dynamicLink = `${effectiveLink}${sep}phone=${managerPhone}`;
                                 linkHtml = `<a href="${dynamicLink}" style="display: inline-block; color: var(--color-interactive-lime); text-decoration: none; font-size: 13px; font-weight: bold;">👉 자세히 보기</a>`;
                             }
                             
@@ -161,9 +162,10 @@
                             if(!mProd) return;
                             const text = getProductText(prod);
                             
-                            if(mProd.detailLink) {
-                                const sep = mProd.detailLink.includes('?') ? '&' : '?';
-                                const dynamicLink = `${mProd.detailLink}${sep}phone=${managerPhone}`;
+                            const effectiveAddonLink = prod.customLink || mProd.detailLink;
+                            if(effectiveAddonLink) {
+                                const sep = effectiveAddonLink.includes('?') ? '&' : '?';
+                                const dynamicLink = `${effectiveAddonLink}${sep}phone=${managerPhone}`;
                                 addonProductsHtml += `
                                     <a href="${dynamicLink}" style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-graphite-base); padding: 14px; border-radius: 8px; text-decoration: none; border: 1px solid #555;">
                                         <div>

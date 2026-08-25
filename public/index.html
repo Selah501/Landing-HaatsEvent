@@ -234,7 +234,7 @@
                             <span class="badge-status" style="margin-bottom: 0; margin-right: 8px; background-color: #10b981; color: white;">진행중</span>
                             <div id="card-title-${ev.id}" class="card-title" style="margin-bottom: 0; transition: all 0.3s ease;">${ev.title}</div>
                         </div>
-                        <div class="card-price">${ev.priceText}</div>
+                        <div class="card-price">${ev.priceText || ''}</div>
                         <div class="card-period">${ev.periodText}</div>
                         <div id="click-arrow-${ev.id}" class="click-arrow">▼ 클릭하여 신청하기</div>
                     </div>

@@ -219,16 +219,24 @@
         <div class="content-area">
             
             <div id="customer-notice" style="background-color: #222; padding: 15px; border-radius: 8px; border: 1px solid #444; color: #ddd; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">
-                <strong>안내</strong><br>
+                <strong>📢 안내</strong><br>
                 희망일 시간을 선택해 주세요. 확정되면 확정문자를 보내드립니다.<br>조정 필요시 조정요청 문자를 보내드립니다.
+                <div id="customer-custom-notice" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #555; color: var(--color-interactive-lime); font-weight: bold; display: none;"></div>
             </div>
             <div id="admin-panel" class="admin-panel">
-                <div style="color: var(--color-action-raspberry); font-weight: bold; margin-bottom: 8px;">👑 관리자 모드 활성화됨</div>
-                <p style="font-size: 13px; color: #ccc;">대기(Pending) 상태의 예약을 클릭하여 확정하거나, 빈 슬롯을 클릭하여 강제 차단할 수 있습니다.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+                    <div style="color: var(--color-action-raspberry); font-weight: bold;">👑 관리자 모드 활성화됨</div>
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+                        <label for="admin-cal-start" style="color: #ccc; font-weight: bold;">📅 달력 시작일:</label>
+                        <input type="date" id="admin-cal-start" style="background: #111; color: #fff; border: 1px solid #666; padding: 6px 10px; border-radius: 4px; font-size: 13px;" onchange="renderCalendar()">
+                    </div>
+                </div>
+                <p style="font-size: 13px; color: #ccc; margin: 0;">빈 슬롯을 클릭하여 통화협의 예약, AS일정, 관리작업을 등록하거나 기존 예약을 클릭하여 변경할 수 있습니다. (선택일 기준 4주 노출, 과거 날짜도 등록 가능)</p>
             </div>
 
             <!-- 1. 날짜 선택 -->
             <div class="section-title">🗓 날짜를 선택해 주세요</div>
+            <div id="custom-date-range-badge" style="text-align: center; font-size: 14px; color: var(--color-highlight-gold); font-weight: bold; margin-bottom: 8px; display: none;"></div>
             <div class="calendar-header" id="current-month-label">2026.07</div>
             <div style="text-align:center; font-size:13px; color:#ef4444; margin-bottom:12px; font-weight:bold;">⚠️ 다른 날짜 예약이 필요하면 관리자에게 전화로 협의해 주세요.</div>
             <div class="calendar-grid">
@@ -246,9 +254,9 @@
 
             <!-- 2. 시간 선택 -->
             <div class="time-section" id="time-section">
-                <div class="section-title">⏰ 시간을 선택해 주세요</div>
+                <div class="section-title">⏰ 시간을 선택해 주세요 (1시간 단위)</div>
                 <div style="font-size: 12px; color: var(--color-silver-mist); margin-bottom: 8px;">
-                    <span style="color:var(--color-highlight-gold)">■ 대기중</span> | <span style="color:#555">■ 확정완료</span>
+                    <span style="color:var(--color-highlight-gold)">■ 대기중</span> | <span style="color:#555">■ 확정/일정완료</span>
                 </div>
                 <div class="time-grid" id="time-grid">
                     <!-- 시간 슬롯 렌더링 -->
@@ -335,86 +343,143 @@
         // Global State
         window.reservationsDB = {};
         window.globalProducts = [];
+        window.eventsData = [];
+        window.currentEvent = null;
         window.selectedDate = null;
         window.selectedTime = null;
         window.isAdmin = false;
         
-        // 날짜 관련 유틸
-        const today = new Date();
-        // V2 요구사항: 14일 달력
+        // 날짜 유틸
+        const todayObj = new Date();
+        const yyyy = todayObj.getFullYear();
+        const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(todayObj.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+
         let displayDays = 14; 
-        
-        // 30분 단위 시간 계산 유틸 (step 1 = 30분)
+        let eventStartDate = '';
+
+        // 1시간 단위 시간 계산 유틸 (step 1 = 60분)
         function addStepToTimeString(timeStr, stepCount) {
             let [h, m] = timeStr.split(':').map(Number);
-            m += stepCount * 30;
-            h += Math.floor(m / 60);
-            m = m % 60;
+            h += stepCount;
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
         }
+        window.addStepToTimeString = addStepToTimeString;
+
+        // 1시간 단위 마스터 슬롯 (09:00 ~ 18:00)
+        window.MASTER_TIME_SLOTS = [
+            "09:00", "10:00", "11:00", "12:00", "13:00", 
+            "14:00", "15:00", "16:00", "17:00", "18:00"
+        ];
         
-        function renderCalendar() {
+        window.renderCalendar = function() {
             const calBody = document.getElementById('calendar-body');
+            if(!calBody) return;
             calBody.innerHTML = '';
             
-            // 오늘 날짜의 요일을 구해서 앞에 빈 칸 채우기 (일요일이 0)
-            const startDayOfWeek = today.getDay();
+            let startDate = new Date();
+            let totalDays = displayDays;
+
+            if (window.isAdmin) {
+                // 관리자 모드: admin-cal-start 입력값 기준 28일(4주) 노출
+                const adminStartInput = document.getElementById('admin-cal-start');
+                if (adminStartInput && adminStartInput.value) {
+                    const parts = adminStartInput.value.split('-');
+                    startDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+                } else if (adminStartInput) {
+                    adminStartInput.value = todayStr;
+                }
+                totalDays = 28; // 4주 노출
+            } else {
+                // 고객 모드: 이벤트 시작일 기준 + displayDays 노출
+                if (eventStartDate) {
+                    const parts = eventStartDate.split('-');
+                    startDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+                }
+            }
+
+            // 시작 요일 앞 빈 칸 채우기 (일요일=0)
+            const startDayOfWeek = startDate.getDay();
             for(let i=0; i<startDayOfWeek; i++) {
                 calBody.innerHTML += `<div></div>`;
             }
 
-            for(let i=0; i<displayDays; i++) {
-                let d = new Date(today);
-                d.setDate(today.getDate() + i);
+            for(let i=0; i<totalDays; i++) {
+                let d = new Date(startDate);
+                d.setDate(startDate.getDate() + i);
                 
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                const dateStr = `${yyyy}-${mm}-${dd}`;
+                const cY = d.getFullYear();
+                const cM = String(d.getMonth() + 1).padStart(2, '0');
+                const cD = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${cY}-${cM}-${cD}`;
                 
-                // 오늘 표시
                 let classNames = "cal-day";
-                if(i === 0) classNames += " today";
+                if(dateStr === todayStr) classNames += " today";
+                
+                // 고객 모드일 때 오늘 이전 날짜는 비활성화
+                const isPast = dateStr < todayStr;
+                let clickAttr = `onclick="selectDate('${dateStr}')"`;
+
+                if (!window.isAdmin && isPast) {
+                    classNames += " disabled";
+                    clickAttr = `onclick="alert('⚠️ 오늘 이전 날짜는 예약할 수 없습니다.')"`;
+                }
 
                 calBody.innerHTML += `
-                    <div class="${classNames}" id="cal-${dateStr}" onclick="selectDate('${dateStr}')">
+                    <div class="${classNames}" id="cal-${dateStr}" ${clickAttr}>
                         <div class="cal-month-badge">${d.getMonth() + 1}월</div>
                         <div class="cal-date-num">${d.getDate()}</div>
                     </div>
                 `;
             }
             
-            document.getElementById('current-month-label').innerText = `${today.getFullYear()}.${today.getMonth() + 1}`;
-        }
+            const monthLabel = document.getElementById('current-month-label');
+            if (monthLabel) {
+                monthLabel.innerText = `${startDate.getFullYear()}.${startDate.getMonth() + 1}`;
+            }
+        };
 
         window.selectDate = function(dateStr) {
-            // UI 업데이트
             document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
-            document.getElementById(`cal-${dateStr}`).classList.add('selected');
+            const selectedEl = document.getElementById(`cal-${dateStr}`);
+            if (selectedEl) selectedEl.classList.add('selected');
             
             window.selectedDate = dateStr;
-            window.selectedTime = null; // 초기화
+            window.selectedTime = null;
             
-            // 폼 닫기
             document.getElementById('form-section').style.display = 'none';
-            
-            // 시간표 렌더링
             renderTimeSlots(dateStr);
             document.getElementById('time-section').style.display = 'block';
-        }
+        };
 
         function renderTimeSlots(dateStr) {
             const timeGrid = document.getElementById('time-grid');
             timeGrid.innerHTML = '';
             
-            // 09:00 ~ 18:00 (30분 단위)
-            const times = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
+            const times = window.MASTER_TIME_SLOTS;
             const dayReservations = window.reservationsDB[dateStr] || {};
 
             times.forEach(time => {
-                const res = dayReservations[time];
+                // 1시간 슬롯 (:00) 및 기존 30분 슬롯 (:30) 병합 처리
+                const res00 = dayReservations[time];
+                const [hStr, mStr] = time.split(':');
+                const time30 = `${hStr}:30`;
+                const res30 = dayReservations[time30];
+
+                let mainRes = res00 || res30 || null;
                 let status = "available"; // available, pending, confirmed, blocked
-                if(res) status = res.status;
+                let slotType = "";
+                let hasExtra = false;
+
+                if (res00 && res30 && (res00.reservationId !== res30.reservationId)) {
+                    hasExtra = true;
+                }
+
+                if (mainRes) {
+                    status = mainRes.status || "confirmed";
+                    slotType = mainRes.type || "";
+                }
 
                 let classNames = "time-slot";
                 let statusText = "예약가능";
@@ -422,34 +487,45 @@
 
                 if (status === "confirmed") {
                     classNames += " disabled confirmed";
-                    statusText = "확정완료";
+                    if (slotType === "admin_as") statusText = "🔧 AS 일정";
+                    else if (slotType === "admin_task") statusText = "📋 관리 일정";
+                    else if (slotType === "admin_phone") statusText = "📞 통화 협의";
+                    else statusText = "확정완료";
                     isDisabled = true;
                 } else if (status === "pending") {
                     classNames += " pending";
                     statusText = "예약대기";
-                    // 고객 모드에서는 클릭 불가, 관리자 모드에서는 클릭 가능
                     if (!window.isAdmin) {
                         classNames += " disabled";
                         isDisabled = true;
                     }
                 } else if (status === "blocked") {
                     classNames += " disabled blocked";
-                    statusText = "차단됨";
+                    statusText = "차단/관리일정";
                     isDisabled = true;
                 }
 
-                // 관리자는 blocked 상태도 클릭해서 해제할 수 있게 만들 수 있지만, 현재는 pending 확정/빈칸 차단에 집중
+                if (hasExtra) {
+                    statusText += " (+30분)";
+                }
+
                 let onClickStr = `onclick="selectTime('${time}', '${status}')"`;
-                if(isDisabled && !window.isAdmin) onClickStr = "";
+                if (window.isAdmin) {
+                    // 관리자는 빈 슬롯, 예약 슬롯 모두 클릭하여 관리
+                    onClickStr = `onclick="adminHandleTimeClick('${time}', '${status}')"`;
+                } else if (isDisabled) {
+                    onClickStr = "";
+                }
 
                 timeGrid.innerHTML += `
                     <div class="${classNames}" id="time-${time.replace(':','')}" ${onClickStr}>
-                        <div>${time}</div>
+                        <div style="font-size: 16px;">${time}</div>
                         <div class="status-badge">${statusText}</div>
                     </div>
                 `;
             });
         }
+        window.renderTimeSlots = renderTimeSlots;
 
         window.selectTime = function(time, currentStatus) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -460,19 +536,16 @@
                 return;
             }
 
-            // 일반 고객 모드
             if (currentStatus !== "available") return;
 
-            // UI 업데이트
             document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
-            document.getElementById(`time-${time.replace(':','')}`).classList.add('selected');
+            const slotEl = document.getElementById(`time-${time.replace(':','')}`);
+            if (slotEl) slotEl.classList.add('selected');
             
             window.selectedTime = time;
-            
-            // 폼 열기
             document.getElementById('form-section').style.display = 'block';
             document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
-        }
+        };
 
         // --- 관리자 기능 ---
         window.addEventListener('DOMContentLoaded', () => {
@@ -493,42 +566,34 @@
                 if(btnAdminReturn) btnAdminReturn.style.display = "inline-block";
                 const btnAdminV2 = document.getElementById('btn-admin-v2');
                 if(btnAdminV2) btnAdminV2.style.display = "inline-block";
+                
+                const adminStartInput = document.getElementById('admin-cal-start');
+                if (adminStartInput) adminStartInput.value = todayStr;
             }
         });
 
         window.adminHandleTimeClick = function(time, currentStatus) {
             const dateStr = window.selectedDate;
             const dayReservations = window.reservationsDB[dateStr] || {};
-            const slotData = dayReservations[time];
             
-            // 그룹핑된 예약일 경우 (reservationId 확인)
-            let slotsToProcess = [time];
-            if (slotData && slotData.reservationId) {
-                const rId = slotData.reservationId;
-                slotsToProcess = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
-            }
+            // 00분 및 30분 슬롯 확인
+            const [hStr] = time.split(':');
+            const time30 = `${hStr}:30`;
+            const slotData = dayReservations[time] || dayReservations[time30] || null;
             
-            const slotsText = slotsToProcess.join(', ');
-            
-            if (currentStatus === "pending" || currentStatus === "confirmed") {
-                window.openAdminAdjustModal(slotsToProcess, slotData, dateStr);
-            } else if (currentStatus === "available") {
-                if (confirm(`${time} 슬롯을 차단하시겠습니까? (개인 용무 등)`)) {
-                    set(ref(db, `reservations/${dateStr}/${time}`), {
-                        status: "blocked",
-                        type: "admin",
-                        timestamp: Date.now()
-                    });
+            if (currentStatus === "available" && !slotData) {
+                // 빈 슬롯 클릭 -> 관리자 신규 일정 등록 모달
+                window.openAdminAdjustModal([time], null, dateStr, true);
+            } else {
+                // 기존 일정/차단/예약 슬롯 클릭 -> 일정 열람 및 수정 모달
+                let slotsToProcess = [time];
+                if (slotData && slotData.reservationId) {
+                    const rId = slotData.reservationId;
+                    slotsToProcess = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
                 }
-            } else if (currentStatus === "blocked") {
-                if (confirm(`선택된 슬롯: [${slotsText}]\n현재 상태: 차단됨\n해당 시간대의 차단을 해제(예약가능) 하시겠습니까?`)) {
-                    let updates = {};
-                    slotsToProcess.forEach(t => { updates[`reservations/${dateStr}/${t}`] = null; });
-                    update(ref(db), updates);
-                }
+                window.openAdminAdjustModal(slotsToProcess, slotData, dateStr, false);
             }
-        }
-        // -------------------
+        };
 
         window.submitReservation = function() {
             if (!window.selectedDate || !window.selectedTime) {
@@ -562,7 +627,6 @@
                 return;
             }
 
-            // 동호수 검증: 숫자가 포함되어 있지 않거나 너무 짧으면(아파트 이름만 있는 경우) 차단
             if (!apt || apt.trim().length < 3 || !/\d/.test(apt)) {
                 alert("⚠️ 아파트 동과 호수를 이어서 정확히 입력해주세요 (예: 101동 102호).");
                 document.getElementById('customer-apt').focus();
@@ -574,24 +638,25 @@
                 return;
             }
 
-            const slotsNeeded = Math.max(1, Math.ceil(totalDuration / 30));
+            // 1시간 단위 슬롯 계산
+            const slotsNeeded = Math.max(1, Math.ceil(totalDuration / 60));
             const dayReservations = window.reservationsDB[window.selectedDate] || {};
             
-            // 다중 슬롯 검증 로직 (30분 단위)
             const slotsToBook = [];
             for (let i = 0; i < slotsNeeded; i++) {
                 const targetTime = addStepToTimeString(window.selectedTime, i);
                 
-                // 18시 이후거나 유효하지 않은 시간일 때 (예: 18:30, 19:00)
                 if (targetTime > "18:00") {
                     alert(`시공 소요 시간이 길어 18:00 영업 종료 시간을 초과합니다. 더 이른 시간을 선택해주세요.`);
                     return;
                 }
                 
-                // 이미 예약된 슬롯인지 확인
                 const slot = dayReservations[targetTime];
-                if (slot && slot.status && slot.status !== 'available') {
-                    alert(`${targetTime}에 이미 다른 예약이나 차단된 일정이 있어 해당 시간에 연속으로 예약할 수 없습니다. 다른 시간을 선택해주세요.`);
+                const [hStr] = targetTime.split(':');
+                const slot30 = dayReservations[`${hStr}:30`];
+
+                if ((slot && slot.status && slot.status !== 'available') || (slot30 && slot30.status && slot30.status !== 'available')) {
+                    alert(`${targetTime}에 이미 다른 예약이나 일정이 있어 해당 시간에 연속으로 예약할 수 없습니다. 다른 시간을 선택해주세요.`);
                     return;
                 }
                 
@@ -617,7 +682,7 @@
                         notes: notes,
                         items: selectedProducts,
                         totalDuration: totalDuration,
-                        hoursNeeded: slotsNeeded * 0.5,
+                        hoursNeeded: slotsNeeded,
                         slotsNeeded: slotsNeeded,
                         parentTime: window.selectedTime
                     }
@@ -625,7 +690,6 @@
             });
 
             update(ref(db), updates).then(() => {
-                // 구글 시트 및 텔레그램 연동 Webhook
                 const GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby4sFDQcQ8BWX0jLdKZq86Ob3z537xSaHZ7Xl2ecg1k4kLO9Qw0TtMPG8BgUIiiUfekRQ/exec";
                 const productStr = selectedProducts.length > 0 ? selectedProducts.join(' + ') : "미선택";
                 const payload = {
@@ -635,7 +699,6 @@
                     eventName: `[V2 설치예약] ${productStr}`
                 };
                 
-                // 백그라운드로 쏘기만 함 (no-cors)
                 fetch(GOOGLE_WEBAPP_URL, {
                     method: "POST",
                     mode: "no-cors",
@@ -645,7 +708,6 @@
 
                 alert("고객님의 상담/예약 신청이 접수되었습니다!\n\n※ 관리자 최종 확정 후 확인 문자를 발송해 드립니다.");
                 
-                // 리셋
                 document.getElementById('customer-phone').value = "010-";
                 document.getElementById('customer-apt').value = document.getElementById('customer-apt').getAttribute('data-default') || "";
                 document.getElementById('customer-notes').value = "";
@@ -660,14 +722,13 @@
                 btn.disabled = false;
                 
             }).catch(err => {
-                alert("오류가 발생했습니다.");
-                console.error(err);
+                alert("오류가 발생했습니다: " + err.message);
                 btn.innerText = "예약 신청하기";
                 btn.disabled = false;
             });
-        }
+        };
 
-        // DB에서 불러온 상품을 화면에 렌더링 (현장 이벤트에 할당된 상품만)
+        // DB 상품 및 현장 이벤트 설정 로드
         function renderProducts() {
             const listDiv = document.getElementById('product-list');
             listDiv.innerHTML = '';
@@ -680,15 +741,15 @@
             if (eventId && window.eventsData) {
                 const currentEvent = window.eventsData.find(ev => ev.id === eventId);
                 if (currentEvent) {
-                    // 아파트 디폴트 값 설정 (DB에 저장된 구조화된 aptName 최우선 사용)
+                    window.currentEvent = currentEvent;
+                    
+                    // 아파트 디폴트 값 설정
                     const aptInput = document.getElementById('customer-apt');
                     let defaultApt = currentEvent.aptName;
                     if (!defaultApt) {
                         defaultApt = currentEvent.title.replace(/(아파트|주방후드|환풍기|전동댐퍼|인덕션|수전|싱크볼|씽크볼|특가|이벤트|공동구매|교체|설치|핫써머|핫썸머|썸머|써머|여름|스멜|행사|할인|초특가|사전예약|모집|프로모션|패키지|혜택|지원|사은품|202\d).*$/i, '').trim();
                         const words = defaultApt.split(/\s+/);
-                        if (words.length >= 2) {
-                            defaultApt = words.slice(1).join(' ');
-                        }
+                        if (words.length >= 2) defaultApt = words.slice(1).join(' ');
                         if (!defaultApt) {
                             const origWords = currentEvent.title.split(/\s+/);
                             defaultApt = origWords.length >= 2 ? origWords[1] : origWords[0];
@@ -696,20 +757,37 @@
                     }
                     aptInput.value = defaultApt + " ";
                     aptInput.setAttribute('data-default', defaultApt + " ");
-                    const hintEl = document.getElementById('apt-hint-text');
-                    if(hintEl) {
-                        hintEl.innerHTML = `💡 동과 호수를 이어서 적어주세요 (예: 101동 102호).`;
+
+                    // 현장별 예약 안내문구 노출
+                    if (currentEvent.reservationNotice) {
+                        const noticeEl = document.getElementById('customer-custom-notice');
+                        if (noticeEl) {
+                            noticeEl.innerHTML = `📌 현장 안내: ${currentEvent.reservationNotice.replace(/\n/g, '<br>')}`;
+                            noticeEl.style.display = "block";
+                        }
+                    }
+
+                    // 현장별 설치예약 기간 문구 노출
+                    if (currentEvent.reservationDateRange) {
+                        const badgeEl = document.getElementById('custom-date-range-badge');
+                        if (badgeEl) {
+                            badgeEl.innerText = `[설치예약 기간] ${currentEvent.reservationDateRange}`;
+                            badgeEl.style.display = "block";
+                        }
                     }
 
                     const eventProducts = [...(currentEvent.mainProducts || []), ...(currentEvent.addonProducts || [])];
                     const prodIds = eventProducts.map(p => p.id);
                     productsToRender = window.globalProducts.filter(p => prodIds.includes(p.id));
 
-                    // displayDays 현장별 반영 (기본 14일)
+                    // displayDays 및 eventStartDate 반영
                     if(currentEvent.displayDays && currentEvent.displayDays > 0) {
                         displayDays = currentEvent.displayDays;
-                        renderCalendar(); // 달력 재렌더링
                     }
+                    if(currentEvent.eventStartDate) {
+                        eventStartDate = currentEvent.eventStartDate;
+                    }
+                    renderCalendar();
                 }
             }
             
@@ -719,7 +797,7 @@
             }
             
             productsToRender.forEach(prod => {
-                const duration = prod.duration || 60; // 값이 없으면 기본 60분
+                const duration = prod.duration || 60;
                 const isFan = prod.name.includes('환풍기') || prod.name.includes('티오람') || prod.name.includes('댐퍼') || prod.name.includes('제로크');
                 let qtyHtml = '';
                 if(isFan) {
@@ -740,19 +818,17 @@
             });
         }
 
-        // 전체 데이터 리스너 (루트에서 한번에 불러오기)
+        // 전체 데이터 리스너
         onValue(ref(db, '/'), (snapshot) => {
             const data = snapshot.val() || {};
             window.reservationsDB = data.reservations || {};
             window.globalProducts = data.products || [];
             window.eventsData = data.events || [];
             
-            // 처음 데이터를 불러왔을 때 상품 렌더링
             if (document.getElementById('product-list').innerHTML.trim() === '<!-- JS로 동적 렌더링 됩니다 -->') {
                 renderProducts();
             }
             
-            // 날짜가 선택되어 있으면 시간표 리렌더링
             if (window.selectedDate) {
                 renderTimeSlots(window.selectedDate);
             }
@@ -764,8 +840,6 @@
         // UI Interaction
         window.toggleProdStyle = function(labelEl) {
             const checkbox = labelEl.querySelector('input[type="checkbox"]');
-            
-            // setTimeout으로 틱 이후 체크 상태 반영된걸 읽음
             setTimeout(() => {
                 if(checkbox.checked) {
                     labelEl.classList.add('selected-prod');
@@ -773,7 +847,6 @@
                     labelEl.classList.remove('selected-prod');
                 }
                 
-                // 총 시간 재계산
                 let totalDuration = 0;
                 document.querySelectorAll('input[name="v2-prod"]:checked').forEach(box => {
                     let duration = parseInt(box.getAttribute('data-time') || '0');
@@ -792,19 +865,20 @@
                 } else {
                     durationInfo.style.display = 'none';
                 }
-                
             }, 10);
-        }
+        };
 
-        // 관리자 시간 조정 및 SMS 모달 제어
+        // 관리자 일정 / 예약 제어 모달
         window.currentAdjSlots = [];
         window.currentAdjData = null;
         window.currentAdjDate = "";
+        window.isNewAdminBooking = false;
 
-        window.openAdminAdjustModal = function(slots, data, dateStr) {
+        window.openAdminAdjustModal = function(slots, data, dateStr, isNew = false) {
             window.currentAdjSlots = [...(slots || [])].sort();
             window.currentAdjData = data || {};
             window.currentAdjDate = dateStr || '';
+            window.isNewAdminBooking = isNew;
 
             const cInfo = (data && data.customerInfo) ? data.customerInfo : {};
             const setVal = (id, val) => {
@@ -814,6 +888,7 @@
                     else el.innerText = val;
                 }
             };
+
             setVal('adj-customer-apt', cInfo.apt || cInfo.address || '');
             setVal('adj-customer-phone', cInfo.phone || cInfo.contact || '');
             
@@ -823,64 +898,50 @@
             } else if (cInfo.items) {
                 itemsStr = String(cInfo.items);
             }
-            setVal('adj-customer-items', itemsStr);
+            setVal('adj-customer-items', itemsStr || (isNew ? '' : ''));
             setVal('adj-customer-notes', cInfo.notes || '');
             document.getElementById('adj-date-str').value = dateStr || '';
-            document.getElementById('adj-res-id').value = (data && data.reservationId) ? data.reservationId : '';
+            document.getElementById('adj-res-id').value = (data && data.reservationId) ? data.reservationId : ('adm_' + Date.now());
 
-            // 3가지 예약 경로 배지 표시 (단어 자동 인지 판별식 강화 및 레거시 데이터 안전 변환)
-            const resType = (data && data.type) ? data.type : "";
-            const notesText = String(cInfo.notes || "").toLowerCase();
-            const aptText = String(cInfo.apt || "").toLowerCase();
-            let badgeHtml = "";
-            if (resType === "test" || notesText.includes("테스트") || aptText.includes("테스트")) {
-                badgeHtml = `<span style="background:#8b5cf6; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">🧪 테스트 예약</span>`;
-            } else if (resType === "admin_phone" || resType === "phone" || resType === "admin" || notesText.includes("통화") || notesText.includes("전화") || notesText.includes("협의") || notesText.includes("관리자") || aptText.includes("통화") || aptText.includes("전화")) {
-                badgeHtml = `<span style="background:#f97316; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">📞 통화협의 관리자 예약</span>`;
-            } else {
-                badgeHtml = `<span style="background:#3b82f6; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">🌐 온라인 랜딩페이지 예약</span>`;
-            }
+            // 일정 유형 라디오 버튼 세팅
+            let resType = (data && data.type) ? data.type : "admin_phone";
+            if (isNew) resType = "admin_phone";
+            const radioEl = document.querySelector(`input[name="adj-type"][value="${resType}"]`);
+            if (radioEl) radioEl.checked = true;
+
+            // 상단 배지
             const badgeEl = document.getElementById('adj-source-badge');
-            if (badgeEl) badgeEl.innerHTML = badgeHtml;
+            if (badgeEl) {
+                if (isNew) {
+                    badgeEl.innerHTML = `<span style="background:#10b981; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">✨ 신규 관리자 일정 등록</span>`;
+                } else if (resType === "admin_as") {
+                    badgeEl.innerHTML = `<span style="background:#ef4444; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">🔧 AS 일정</span>`;
+                } else if (resType === "admin_task" || resType === "admin") {
+                    badgeEl.innerHTML = `<span style="background:#8b5cf6; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">📋 관리/내부 일정</span>`;
+                } else if (resType === "admin_phone" || resType === "phone") {
+                    badgeEl.innerHTML = `<span style="background:#f97316; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">📞 통화협의 관리자 예약</span>`;
+                } else {
+                    badgeEl.innerHTML = `<span style="background:#3b82f6; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">🌐 온라인 고객 예약</span>`;
+                }
+            }
 
             renderAdjustSlots();
             document.getElementById('admin-adjust-modal').style.display = 'flex';
         };
 
-        window.MASTER_TIME_SLOTS = [
-            "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", 
-            "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", 
-            "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", 
-            "17:00", "17:30", "18:00", "18:30", "19:00"
-        ];
-
         window.renderAdjustSlots = function() {
             window.currentAdjSlots.sort();
             document.getElementById('adj-slots-display').innerText = window.currentAdjSlots.join(', ');
             
-            // 30분 단위 시간 계산 (기본 1개 슬롯 = 30분)
-            let totalMin = window.currentAdjSlots.length * 30;
-            if (window.currentAdjSlots.length >= 2) {
-                const first = window.currentAdjSlots[0].split(':').map(Number);
-                const last = window.currentAdjSlots[window.currentAdjSlots.length - 1].split(':').map(Number);
-                const diffMin = (last[0] * 60 + last[1]) - (first[0] * 60 + first[1]) + 30;
-                if (diffMin > 0) totalMin = diffMin;
-            }
-            const h = Math.floor(totalMin / 60);
-            const m = totalMin % 60;
-            let timeStr = "";
-            if (h > 0) timeStr += `${h}시간 `;
-            if (m > 0) timeStr += `${m}분`;
-            if (!timeStr) timeStr = "30분";
-            
-            document.getElementById('adj-duration-text').innerText = `예상: ${timeStr} (${window.currentAdjSlots.length}칸)`;
+            const hours = window.currentAdjSlots.length;
+            document.getElementById('adj-duration-text').innerText = `총 ${hours}시간 (${hours}칸)`;
         };
 
         window.adjustSlotHours = function(delta) {
-            // delta: -1 이면 30분 줄이기, 1 이면 30분 늘리기
+            // delta: -1 이면 1시간 줄이기, 1 이면 1시간 늘리기
             if (delta === -1) {
                 if (window.currentAdjSlots.length <= 1) {
-                    alert("최소 1개 칸(30분~1시간) 이상은 유지되어야 합니다.");
+                    alert("최소 1시간(1칸) 이상은 유지되어야 합니다.");
                     return;
                 }
                 window.currentAdjSlots.pop();
@@ -895,17 +956,16 @@
                     nextTimeStr = window.MASTER_TIME_SLOTS[idx + 1];
                 } else {
                     let [h, m] = lastTime.split(':').map(Number);
-                    m += 30;
-                    if (m >= 60) { h += 1; m -= 60; }
-                    if (h >= 19) {
-                        alert("19:00 영업 종료 시간을 초과하여 늘릴 수 없습니다.");
+                    h += 1;
+                    if (h > 18) {
+                        alert("18:00 영업 종료 시간을 초과하여 늘릴 수 없습니다.");
                         return;
                     }
                     nextTimeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
                 }
 
-                if (nextTimeStr >= "19:00") {
-                    alert("19:00 영업 종료 시간을 초과하여 늘릴 수 없습니다.");
+                if (nextTimeStr > "18:00") {
+                    alert("18:00 영업 종료 시간을 초과하여 늘릴 수 없습니다.");
                     return;
                 }
                 
@@ -913,7 +973,7 @@
                 const targetSlot = dayReservations[nextTimeStr];
                 
                 if (targetSlot && targetSlot.status && targetSlot.reservationId !== (window.currentAdjData.reservationId || '')) {
-                    alert(`${nextTimeStr} 슬롯에 이미 다른 예약이나 차단 일정이 있어 30분 연장이 불가합니다.`);
+                    alert(`⚠️ ${nextTimeStr} 슬롯에 이미 다른 예약이나 일정이 있어 연장이 불가합니다.`);
                     return;
                 }
                 window.currentAdjSlots.push(nextTimeStr);
@@ -923,21 +983,12 @@
 
         window.saveAdjustedSlots = function() {
             const dateStr = window.currentAdjDate;
-            const rId = window.currentAdjData.reservationId || 'res_' + Date.now();
+            const rId = document.getElementById('adj-res-id').value || ('adm_' + Date.now());
             const dayReservations = window.reservationsDB[dateStr] || {};
             
-            // 기존에 이 rId를 가지고 있던 슬롯 전부 찾기
-            const oldSlots = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
-            
-            let updates = {};
-            // 기존 슬롯들 중 새로 선택된 currentAdjSlots에 없으면 null(초기화)
-            oldSlots.forEach(t => {
-                if (!window.currentAdjSlots.includes(t)) {
-                    updates[`reservations/${dateStr}/${t}`] = null;
-                }
-            });
-            
-            // 새 슬롯들 confirmed 저장 (고객 폼 데이터 자동 병합)
+            const selectedTypeEl = document.querySelector('input[name="adj-type"]:checked');
+            const selectedType = selectedTypeEl ? selectedTypeEl.value : "admin_phone";
+
             const getVal = id => {
                 const el = document.getElementById(id);
                 return el ? (el.value !== undefined ? el.value : el.innerText) : '';
@@ -948,12 +999,28 @@
             const newNotes = getVal('adj-customer-notes').trim();
             const newItems = newItemsStr.split(',').map(s => s.trim()).filter(Boolean);
             
+            if (!newApt && !newNotes && selectedType !== 'admin_task') {
+                if(!confirm("동/호수나 메모가 비어있습니다. 그래도 저장하시겠습니까?")) return;
+            }
+
+            const oldSlots = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
+            
+            let updates = {};
+            oldSlots.forEach(t => {
+                if (!window.currentAdjSlots.includes(t)) {
+                    updates[`reservations/${dateStr}/${t}`] = null;
+                }
+            });
+            
             const autoUpdatedCustomerInfo = {
                 ...(window.currentAdjData.customerInfo || {}),
-                apt: newApt,
+                apt: newApt || "관리자 등록 일정",
                 phone: newPhone,
-                items: newItems.length > 0 ? newItems : [newItemsStr],
-                notes: newNotes
+                items: newItems.length > 0 ? newItems : (newItemsStr ? [newItemsStr] : ["관리자 지정 품목"]),
+                notes: newNotes,
+                hoursNeeded: window.currentAdjSlots.length,
+                slotsNeeded: window.currentAdjSlots.length,
+                parentTime: window.currentAdjSlots[0]
             };
 
             window.currentAdjSlots.forEach(t => {
@@ -961,17 +1028,14 @@
                     ...window.currentAdjData,
                     customerInfo: autoUpdatedCustomerInfo,
                     status: "confirmed",
+                    type: selectedType,
                     reservationId: rId,
                     timestamp: Date.now()
                 };
             });
             
-            const execUpdate = window.update || update;
-            const execRef = window.ref || ref;
-            const targetDb = window.db || db;
-
-            execUpdate(execRef(targetDb), updates).then(() => {
-                alert("📍 일정이 성공적으로 조정되고 최종 확정되었습니다!");
+            update(ref(db), updates).then(() => {
+                alert("📍 일정이 성공적으로 저장되고 달력 및 작업지시서에 반영되었습니다!");
                 closeAdjustModal();
             }).catch(e => {
                 alert("저장 실패: " + e.message);
@@ -981,29 +1045,33 @@
         window.deleteReservation = function() {
             if(!confirm("이 일정을 완전히 삭제(취소)하시겠습니까?")) return;
             const dateStr = window.currentAdjDate;
-            const rId = window.currentAdjData.reservationId || '';
+            const rId = document.getElementById('adj-res-id').value || (window.currentAdjData && window.currentAdjData.reservationId) || '';
             const dayReservations = window.reservationsDB[dateStr] || {};
             const oldSlots = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
             
             let updates = {};
-            oldSlots.forEach(t => { updates[`reservations/${dateStr}/${t}`] = null; });
-            const execUpdate = window.update || update;
-            const execRef = window.ref || ref;
-            const targetDb = window.db || db;
+            if (oldSlots.length > 0) {
+                oldSlots.forEach(t => { updates[`reservations/${dateStr}/${t}`] = null; });
+            } else {
+                window.currentAdjSlots.forEach(t => { updates[`reservations/${dateStr}/${t}`] = null; });
+            }
 
-            execUpdate(execRef(targetDb), updates).then(() => {
-                alert("🗑️ 예약이 삭제되었습니다.");
+            update(ref(db), updates).then(() => {
+                alert("🗑️ 일정이 삭제되었습니다.");
                 closeAdjustModal();
             });
         };
 
         window.saveCustomerInfo = function() {
-            if(!confirm("고객 정보(동/호수, 연락처, 상품, 메모)를 변경하시겠습니까?")) return;
+            if(!confirm("고객/일정 정보(동/호수, 연락처, 품목, 메모)를 저장하시겠습니까?")) return;
             const dateStr = window.currentAdjDate;
-            const rId = window.currentAdjData.reservationId || '';
+            const rId = document.getElementById('adj-res-id').value || (window.currentAdjData && window.currentAdjData.reservationId) || '';
             const dayReservations = window.reservationsDB[dateStr] || {};
             const targetSlots = Object.keys(dayReservations).filter(k => dayReservations[k].reservationId === rId);
             
+            const selectedTypeEl = document.querySelector('input[name="adj-type"]:checked');
+            const selectedType = selectedTypeEl ? selectedTypeEl.value : "admin_phone";
+
             const getVal = id => {
                 const el = document.getElementById(id);
                 return el ? (el.value !== undefined ? el.value : el.innerText) : '';
@@ -1013,30 +1081,28 @@
             const newPhone = getVal('adj-customer-phone').trim();
             const newItemsStr = getVal('adj-customer-items').trim();
             const newNotes = getVal('adj-customer-notes').trim();
-            
             const newItems = newItemsStr.split(',').map(s => s.trim()).filter(Boolean);
             
             const updatedCustomerInfo = {
                 ...(window.currentAdjData.customerInfo || {}),
-                apt: newApt,
+                apt: newApt || "관리자 등록 일정",
                 phone: newPhone,
-                items: newItems.length > 0 ? newItems : [newItemsStr],
+                items: newItems.length > 0 ? newItems : (newItemsStr ? [newItemsStr] : ["관리자 지정 품목"]),
                 notes: newNotes
             };
             
             window.currentAdjData.customerInfo = updatedCustomerInfo;
+            window.currentAdjData.type = selectedType;
             
             let updates = {};
-            targetSlots.forEach(t => {
+            const slotsToUpdate = targetSlots.length > 0 ? targetSlots : window.currentAdjSlots;
+            slotsToUpdate.forEach(t => {
                 updates[`reservations/${dateStr}/${t}/customerInfo`] = updatedCustomerInfo;
+                updates[`reservations/${dateStr}/${t}/type`] = selectedType;
             });
             
-            const execUpdate = window.update || update;
-            const execRef = window.ref || ref;
-            const targetDb = window.db || db;
-
-            execUpdate(execRef(targetDb), updates).then(() => {
-                alert("✅ 고객 정보(동·호수 및 신청제품)가 성공적으로 변경되었습니다!");
+            update(ref(db), updates).then(() => {
+                alert("✅ 일정 정보가 성공적으로 변경되었습니다!");
             }).catch(e => {
                 alert("저장 실패: " + e.message);
             });
@@ -1103,55 +1169,81 @@
         };
     </script>
 
-    <!-- 관리자 시간 조정 및 4대 SMS 모달 -->
+    <!-- 관리자 시간 조정 / 일정 등록 및 4대 SMS 모달 -->
     <div id="admin-adjust-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center;">
         <div style="background:#1e1e20; width:90%; max-width:480px; padding:24px; border-radius:12px; border:1px solid #444; color:#fff; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
             <div id="adj-source-badge" style="margin-bottom:12px;"></div>
-            <h3 style="margin-top:0; color:#c9ff00; border-bottom:1px solid #333; padding-bottom:12px; font-size:18px;">⚙️ 통합 예약 제어 패널</h3>
+            <h3 style="margin-top:0; color:#c9ff00; border-bottom:1px solid #333; padding-bottom:12px; font-size:18px;">⚙️ 관리자 일정 / 예약 제어 패널</h3>
             <input type="hidden" id="adj-res-id">
             <input type="hidden" id="adj-date-str">
             
+            <!-- 일정 유형 선택 -->
+            <div style="background:#111; padding:12px; border-radius:8px; margin-bottom:14px; border:1px solid #333;">
+                <div style="font-size:12px; color:#aaa; font-weight:bold; margin-bottom:8px;">📌 일정 유형 선택</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:13px;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" name="adj-type" value="admin_phone" checked>
+                        <span>📞 통화협의 예약</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" name="adj-type" value="admin_as">
+                        <span>🔧 AS 일정</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" name="adj-type" value="admin_task">
+                        <span>📋 관리/내부 일정</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" name="adj-type" value="customer">
+                        <span>🌐 온라인 예약</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 고객 및 일정 정보 입력 -->
             <div style="background:#111; padding:14px; border-radius:8px; margin-bottom:16px; border:1px solid #333;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <div style="font-size:13px; color:#c9ff00; font-weight:bold;">👤 고객 접수 정보 (동·호수/제품 자유 수정)</div>
+                    <div style="font-size:13px; color:#c9ff00; font-weight:bold;">👤 현장 및 고객 정보 (작업지시서 연동)</div>
                     <button class="btn" style="background:#3b82f6; color:#fff; padding:6px 12px; font-size:12px; font-weight:bold; border-radius:4px; border:none; cursor:pointer;" onclick="saveCustomerInfo()">💾 정보수정 저장</button>
                 </div>
                 <div style="display:grid; gap:8px;">
                     <div>
-                        <label style="font-size:11px; color:#aaa;">아파트 / 동·호수</label>
-                        <input type="text" id="adj-customer-apt" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px; font-weight:bold;">
+                        <label style="font-size:11px; color:#aaa;">아파트 / 현장명 / 동·호수</label>
+                        <input type="text" id="adj-customer-apt" placeholder="예: [내포] 효성해링턴 109-1204" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px; font-weight:bold; box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11px; color:#aaa;">연락처 (하이픈 제외 숫자만 등)</label>
-                        <input type="text" id="adj-customer-phone" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#10b981; border-radius:4px; font-size:14px;">
+                        <label style="font-size:11px; color:#aaa;">연락처 (하이픈 포함/제외 무관)</label>
+                        <input type="text" id="adj-customer-phone" placeholder="예: 010-2886-5086" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#10b981; border-radius:4px; font-size:14px; box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="font-size:11px; color:#aaa;">신청 제품</label>
-                        <input type="text" id="adj-customer-items" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#eed37f; border-radius:4px; font-size:13px; font-weight:bold;">
+                        <label style="font-size:11px; color:#aaa;">시공 / 작업 품목</label>
+                        <input type="text" id="adj-customer-items" placeholder="예: 미니 1대 안방, 티오람 미니 AS, 프로젝트 개선작업 등" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#eed37f; border-radius:4px; font-size:13px; font-weight:bold; box-sizing:border-box;">
                     </div>
                     <div>
                         <label style="font-size:11px; color:#aaa;">메모 / 특기사항</label>
-                        <input type="text" id="adj-customer-notes" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#ccc; border-radius:4px; font-size:12px;">
+                        <input type="text" id="adj-customer-notes" placeholder="상세 내용 및 통화 협의 메모 기재" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#ccc; border-radius:4px; font-size:12px; box-sizing:border-box;">
                     </div>
                 </div>
             </div>
 
+            <!-- 시간 배정 및 확정 -->
             <div style="background:#2a2a2c; padding:16px; border-radius:8px; margin-bottom:16px; border:1px solid #444;">
-                <div style="color:#c9ff00; font-weight:bold; font-size:14px; margin-bottom:8px;">【 1단계: 시공 팀장 실제 배정 시간 조정 】</div>
+                <div style="color:#c9ff00; font-weight:bold; font-size:14px; margin-bottom:8px;">【 1단계: 배정 시간 확인 및 1시간 단위 조정 】</div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-weight:bold; font-size:14px;">⏰ 소요 시간 조정 (30분 단위)</span>
-                    <span style="color:#eed37f; font-weight:bold; font-size:14px;" id="adj-duration-text">총 0분</span>
+                    <span style="font-weight:bold; font-size:14px;">⏰ 소요 시간 (1시간 단위)</span>
+                    <span style="color:#eed37f; font-weight:bold; font-size:14px;" id="adj-duration-text">총 1시간</span>
                 </div>
                 <div style="font-size:15px; font-weight:bold; color:#fff; background:#111; padding:10px 14px; border-radius:6px; margin-bottom:12px; text-align:center; border:1px dashed #555;" id="adj-slots-display">
                     -
                 </div>
                 <div style="display:flex; gap:8px; margin-bottom:12px;">
-                    <button class="btn" style="flex:1; background:#ef4444; color:white; padding:10px; font-weight:bold; border-radius:6px; border:none; cursor:pointer;" onclick="adjustSlotHours(-1)">➖ 30분 줄이기</button>
-                    <button class="btn" style="flex:1; background:#3b82f6; color:white; padding:10px; font-weight:bold; border-radius:6px; border:none; cursor:pointer;" onclick="adjustSlotHours(1)">➕ 30분 늘리기</button>
+                    <button class="btn" style="flex:1; background:#ef4444; color:white; padding:10px; font-weight:bold; border-radius:6px; border:none; cursor:pointer;" onclick="adjustSlotHours(-1)">➖ 1시간 줄이기</button>
+                    <button class="btn" style="flex:1; background:#3b82f6; color:white; padding:10px; font-weight:bold; border-radius:6px; border:none; cursor:pointer;" onclick="adjustSlotHours(1)">➕ 1시간 늘리기</button>
                 </div>
-                <button class="btn" style="width:100%; background:#c9ff00; color:#000; font-weight:bold; padding:12px; border-radius:6px; border:none; cursor:pointer; font-size:15px;" onclick="saveAdjustedSlots()">🟢 시스템 예약 확정 저장 (달력 반영)</button>
+                <button class="btn" style="width:100%; background:#c9ff00; color:#000; font-weight:bold; padding:12px; border-radius:6px; border:none; cursor:pointer; font-size:15px;" onclick="saveAdjustedSlots()">🟢 일정 저장 / 확정 (달력 & 작업지시서 반영)</button>
             </div>
 
+            <!-- 폰 연락처 & SMS 발송 -->
             <div style="background:#111; padding:14px; border-radius:8px; margin-bottom:20px; border:1px solid #333;">
                 <div style="font-weight:bold; color:#eed37f; margin-bottom:10px; font-size:14px;">【 2단계: 폰 주소록 저장 ➡️ 문자 발송 】</div>
                 
@@ -1167,9 +1259,10 @@
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <button style="background:transparent; color:#ef4444; border:1px solid #ef4444; padding:8px 12px; border-radius:6px; font-size:12px; cursor:pointer;" onclick="deleteReservation()">🗑️ 예약 취소(삭제)</button>
+                <button style="background:transparent; color:#ef4444; border:1px solid #ef4444; padding:8px 12px; border-radius:6px; font-size:12px; cursor:pointer;" onclick="deleteReservation()">🗑️ 일정 취소(삭제)</button>
                 <button class="btn" style="background:#444; color:#fff; padding:8px 16px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;" onclick="closeAdjustModal()">🚪 닫기</button>
             </div>
         </div>
     </div>
+</body>
 </html>

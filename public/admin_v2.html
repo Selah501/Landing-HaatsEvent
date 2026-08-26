@@ -662,7 +662,9 @@
             // Group by reservationId
             Object.keys(dayData).forEach(time => {
                 const slot = dayData[time];
-                if (slot.type === 'admin') return; // 차단된 슬롯 무시
+                if (!slot) return;
+                // 내용이 전혀 없는 단순 blocked 빈 슬롯만 제외하고, 관리자 일정은 모두 표시
+                if (slot.status === 'blocked' && !slot.customerInfo && !slot.memo && !slot.notes) return;
                 
                 const rId = slot.reservationId || time; // id가 없으면 시간으로 대체
                 if (!map.has(rId)) {
@@ -997,14 +999,18 @@
                     `;
                 }
 
-                // 3가지 예약 경로 판별 (단어 자동 인지 판별식 강화 및 레거시 데이터 안전 변환)
+                // 예약 경로 및 일정 유형 판별
                 let sourceBadgeHtml = "";
                 const resType = task.data.type || "";
                 const notesText = String(cInfo.notes || "").toLowerCase();
                 const aptText = String(cInfo.apt || "").toLowerCase();
                 if (resType === "test" || notesText.includes("테스트") || aptText.includes("테스트")) {
                     sourceBadgeHtml = `<span style="background:#8b5cf6; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">🧪 테스트</span>`;
-                } else if (resType === "admin_phone" || resType === "phone" || resType === "admin" || notesText.includes("통화") || notesText.includes("전화") || notesText.includes("협의") || notesText.includes("관리자") || aptText.includes("통화") || aptText.includes("전화")) {
+                } else if (resType === "admin_as" || notesText.includes("as") || notesText.includes("a/s") || aptText.includes("as")) {
+                    sourceBadgeHtml = `<span style="background:#ef4444; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">🔧 AS 일정</span>`;
+                } else if (resType === "admin_task" || resType === "admin") {
+                    sourceBadgeHtml = `<span style="background:#8b5cf6; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">📋 관리자 일정</span>`;
+                } else if (resType === "admin_phone" || resType === "phone" || notesText.includes("통화") || notesText.includes("전화") || notesText.includes("협의") || notesText.includes("관리자") || aptText.includes("통화") || aptText.includes("전화")) {
                     sourceBadgeHtml = `<span style="background:#f97316; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">📞 통화협의</span>`;
                 } else {
                     sourceBadgeHtml = `<span style="background:#3b82f6; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">🌐 온라인</span>`;

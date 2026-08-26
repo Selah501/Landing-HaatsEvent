@@ -406,9 +406,23 @@
             <label>가격 표시 문구 (리스트에 보일 문구)</label>
             <input type="text" id="ev-price">
         </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+                <label>이벤트 시작일 (달력 기준 시작일)</label>
+                <input type="date" id="ev-eventStartDate" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div class="form-group">
+                <label>예약 노출 기간 (기본 14일)</label>
+                <input type="number" id="ev-displayDays" value="14" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+        </div>
         <div class="form-group">
-            <label>예약 노출 기간 (기본 14일)</label>
-            <input type="number" id="ev-displayDays" value="14" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+            <label>설치예약 기간 문구 (예: 2026.08.22 ~ 08.29)</label>
+            <input type="text" id="ev-reservationDateRange" placeholder="예: 2026.08.22 ~ 08.29" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+            <label>현장별 예약 안내문 (고객 예약창 상단 노출)</label>
+            <textarea id="ev-reservationNotice" rows="2" placeholder="예: 접수기간: ~ 08/29(토) (고객 예약창 상단 박스에 추가 표시됩니다)" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;"></textarea>
         </div>
         
         <div class="product-select-grid">
@@ -866,6 +880,9 @@
             id: index >= 0 ? window.currentData[index].id : 'site_' + Date.now(),
             title: title,
             priceText: priceText,
+            eventStartDate: document.getElementById('ev-eventStartDate').value || '',
+            reservationDateRange: document.getElementById('ev-reservationDateRange').value || '',
+            reservationNotice: document.getElementById('ev-reservationNotice').value || '',
             displayDays: parseInt(document.getElementById('ev-displayDays').value) || 14,
             periodText: periodText,
             managerId: managerId,
@@ -891,10 +908,13 @@
         document.getElementById('modal-title').innerText = isEdit ? '현장 수정' : '신규 현장 추가';
         document.getElementById('modal-index').value = index;
 
-        const ev = isEdit ? window.currentData[index] : { title: '', priceText: '', periodText: '', managerId: '', mainProducts: [], addonProducts: [] };
+        const ev = isEdit ? window.currentData[index] : { title: '', priceText: '', periodText: '', managerId: '', mainProducts: [], addonProducts: [], eventStartDate: '', reservationDateRange: '', reservationNotice: '', displayDays: 14 };
         
         document.getElementById('ev-title').value = ev.title;
         document.getElementById('ev-price').value = ev.priceText || '';
+        document.getElementById('ev-eventStartDate').value = ev.eventStartDate || '';
+        document.getElementById('ev-reservationDateRange').value = ev.reservationDateRange || '';
+        document.getElementById('ev-reservationNotice').value = ev.reservationNotice || '';
         document.getElementById('ev-displayDays').value = ev.displayDays || 14;
         document.getElementById('ev-period').value = ev.periodText || '';
         

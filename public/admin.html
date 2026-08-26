@@ -704,9 +704,11 @@
     }
 
     window.addMasterRow = function() {
+        const catFilter = document.getElementById('master-category-filter').value;
+        const defaultCat = catFilter === 'ALL' ? '기타카테고리' : catFilter;
         window.currentProducts.push({
             id: 'p_' + Date.now(),
-            name: '', model: '', features: '', duration: '', remarks: '', defaultPriceText: '', detailLink: ''
+            name: '', model: '', features: '', duration: '', remarks: '', defaultPriceText: '', detailLink: '', category: defaultCat
         });
         window.renderMasterList();
     }
@@ -725,7 +727,10 @@
 
     window.saveMasterList = function() {
         const rows = document.querySelectorAll('#master-tbody tr');
-        rows.forEach((row, idx) => {
+        rows.forEach((row) => {
+            const idx = parseInt(row.id.replace('m-row-', ''));
+            if (isNaN(idx) || !window.currentProducts[idx]) return;
+            
             window.currentProducts[idx].name = row.querySelector('.m-name').value;
             window.currentProducts[idx].model = row.querySelector('.m-model').value;
             window.currentProducts[idx].features = row.querySelector('.m-features').value;

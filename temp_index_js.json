@@ -1,0 +1,15 @@
+{
+  "name": "replace_file_content",
+  "args": {
+    "AllowMultiple": false,
+    "Description": "index.js에 diagnoseCallStatus 익스포트 추가",
+    "EndLine": 234,
+    "Instruction": "index.js 맨 끝에 diagnoseCallStatus 모듈을 require 하여 내보냅니다.",
+    "ReplacementContent": "const { processCallRecording } = require(\"./processCallRecording\");\nexports.processCallRecording = processCallRecording;\n\nconst { diagnoseCallStatus } = require(\"./diagnoseCallStatus\");\nexports.diagnoseCallStatus = diagnoseCallStatus;\n",
+    "StartLine": 232,
+    "TargetContent": "const { processCallRecording } = require(\"./processCallRecording\");\nexports.processCallRecording = processCallRecording;\n",
+    "TargetFile": "c:\\dev\\전단지이벤트\\landing\\functions\\index.js",
+    "toolAction": "Replacing file content",
+    "toolSummary": "Export diagnoseCallStatus"
+  }
+}

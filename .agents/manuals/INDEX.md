@@ -15,3 +15,6 @@
    - *일반 고객과 관리자의 진입 동선 및 화면 표시 차이 안내*
 4. [📱 MacroDroid 통화녹음 직접 전송 설정](file:///c:/dev/전단지이벤트/.agents/manuals/MACRODROID_SETUP.md)
    - *통화 종료 즉시 Firebase Storage로 녹음 파일을 전송하는 안드로이드 매크로 설정 가이드*
+
+5. [🏗 프로젝트 페이지 구조 안내](file:///c:/dev/전단지이벤트/.agents/manuals/PAGE_STRUCTURE.md)
+   - *관리자, 실무자용 각 페이지들의 역할과 용도 가이드*

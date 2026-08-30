@@ -238,7 +238,7 @@
             <div class="section-title">🗓 날짜를 선택해 주세요</div>
             <div id="custom-date-range-badge" style="text-align: center; font-size: 14px; color: var(--color-highlight-gold); font-weight: bold; margin-bottom: 8px; display: none;"></div>
             <div class="calendar-header" id="current-month-label">2026.07</div>
-            <div style="text-align:center; font-size:13px; color:#ef4444; margin-bottom:12px; font-weight:bold;">⚠️ 다른 날짜 예약이 필요하면 관리자에게 전화로 협의해 주세요.</div>
+            <div id="contact-manager-notice" style="text-align:center; font-size:13px; color:#ef4444; margin-bottom:12px; font-weight:bold;">⚠️ 다른 날짜 예약이 필요하면 관리자에게 전화로 협의해 주세요.</div>
             <div class="calendar-grid">
                 <div class="cal-header">일</div>
                 <div class="cal-header">월</div>
@@ -296,10 +296,11 @@
                             <label class="form-field-label" for="customer-apt">🏢 아파트 동·호수</label>
                             <span class="form-field-badge">✎ 입력하기</span>
                         </div>
+                        <div id="apt-site-name" style="font-size: 15px; font-weight: bold; color: white; margin-bottom: 8px;"></div>
                         <div class="form-field-input-box">
-                            <input type="text" id="customer-apt" placeholder="예: 101동 102호">
+                            <input type="text" id="customer-apt" placeholder="예: 123동 4567호">
                         </div>
-                        <div class="form-field-hint" id="apt-hint-text">💡 동과 호수를 이어서 적어주세요 (예: 101동 102호).</div>
+                        <div class="form-field-hint" id="apt-hint-text">💡 동과 호수만 적어주세요 (예: 101동 102호).</div>
                     </div>
 
                     <!-- 기타 요청사항 -->
@@ -602,7 +603,8 @@
             }
 
             const phone = document.getElementById('customer-phone').value;
-            const apt = document.getElementById('customer-apt').value;
+            let apt = document.getElementById('customer-apt').value;
+            const defaultApt = document.getElementById('customer-apt').getAttribute('data-default') || "";
             const notes = document.getElementById('customer-notes').value;
             
             const checkedBoxes = document.querySelectorAll('input[name="v2-prod"]:checked');
@@ -628,10 +630,13 @@
             }
 
             if (!apt || apt.trim().length < 3 || !/\d/.test(apt)) {
-                alert("⚠️ 아파트 동과 호수를 이어서 정확히 입력해주세요 (예: 101동 102호).");
+                alert("⚠️ 아파트 동과 호수를 정확히 입력해주세요 (예: 101동 102호).");
                 document.getElementById('customer-apt').focus();
                 return;
             }
+
+            // DB 저장용 포맷 변경 (101동1001호 효성해링턴플레이스 안방스페셜)
+            apt = `${apt.trim()} ${defaultApt.trim()}`.trim();
 
             if (selectedProducts.length === 0) {
                 alert("⚠️ 최소 1개의 시공 제품을 선택해주세요.");
@@ -755,8 +760,21 @@
                             defaultApt = origWords.length >= 2 ? origWords[1] : origWords[0];
                         }
                     }
-                    aptInput.value = defaultApt + " ";
-                    aptInput.setAttribute('data-default', defaultApt + " ");
+                    
+                    const siteNameEl = document.getElementById('apt-site-name');
+                    if (siteNameEl) siteNameEl.innerText = defaultApt;
+                    
+                    aptInput.value = "";
+                    aptInput.setAttribute('data-default', defaultApt);
+
+                    // 담당자 번호 찾아 안내문 업데이트
+                    const managerNotice = document.getElementById('contact-manager-notice');
+                    if (managerNotice && currentEvent.managerId && window.managersData) {
+                        const mgr = window.managersData.find(m => m.id === currentEvent.managerId);
+                        if (mgr && mgr.phone) {
+                            managerNotice.innerText = `⚠️ 다른 날짜 예약이 필요하면 관리자(${mgr.name} : ${mgr.phone})에게 전화로 협의해 주세요.`;
+                        }
+                    }
 
                     // 현장별 예약 안내문구 노출
                     if (currentEvent.reservationNotice) {
@@ -779,6 +797,15 @@
                     const eventProducts = [...(currentEvent.mainProducts || []), ...(currentEvent.addonProducts || [])];
                     const prodIds = eventProducts.map(p => p.id);
                     productsToRender = window.globalProducts.filter(p => prodIds.includes(p.id));
+                    
+                    // 메인 상품이 상단으로 오도록 정렬
+                    productsToRender.sort((a, b) => {
+                        const isAMain = (currentEvent.mainProducts || []).some(p => p.id === a.id);
+                        const isBMain = (currentEvent.mainProducts || []).some(p => p.id === b.id);
+                        if (isAMain && !isBMain) return -1;
+                        if (!isAMain && isBMain) return 1;
+                        return 0;
+                    });
 
                     // displayDays 및 eventStartDate 반영
                     if(currentEvent.displayDays && currentEvent.displayDays > 0) {
@@ -823,7 +850,26 @@
             const data = snapshot.val() || {};
             window.reservationsDB = data.reservations || {};
             window.globalProducts = data.products || [];
+            
+            // --- 누락 상품 폴백 삽입 ---
+            if (!window.globalProducts.some(p => p.id === 'p_vent_large')) {
+                window.globalProducts.push({
+                    id: "p_vent_large", name: "제로크 MD 일반 환풍기(대형)", model: "HV3-80-X(MD-N)",
+                    defaultPriceText: "140,000원", features: "정풍량 인증 / 2-WAY 확장배기(옵션) / 냄새 차단",
+                    detailLink: "./products/zeroc.html"
+                });
+            }
+            if (!window.globalProducts.some(p => p.id === 'p_1787663733480')) {
+                window.globalProducts.push({
+                    id: "p_1787663733480", name: "제로크 전동댐퍼 환풍기(대형)", model: "HV3-80-X(MD-N)",
+                    defaultPriceText: "165,000원", features: "정풍량 인증 / 전동댐퍼 장착 / 냄새 완벽 차단",
+                    detailLink: "./products/zeroc.html"
+                });
+            }
+            // ---------------------------
+
             window.eventsData = data.events || [];
+            window.managersData = data.managers || [];
             
             if (document.getElementById('product-list').innerHTML.trim() === '<!-- JS로 동적 렌더링 됩니다 -->') {
                 renderProducts();

@@ -268,21 +268,21 @@
         <nav class="header-actions">
             <div style="display: flex; gap: 12px; align-items: center;">
                 <!-- 탭 -->
-                <button id="nav-admin" class="btn btn-secondary" onclick="window.location.href='admin.html';" style="border-radius:20px; font-weight:bold; background-color:#374151; color:white;">⚙️ 관리자 메인페이지</button>
+                <button id="nav-admin" class="btn btn-secondary" onclick="window.location.href='admin.html';" style="border-radius:20px; font-weight:bold; background-color:#374151; color:white;">⚙️ 관리자</button>
                 <button id="nav-crm" class="btn btn-secondary" onclick="window.location.href='admin.html?tab=consultations';" style="border-radius:20px; font-weight:bold; position:relative;">
-                    📞 통화 AI 및 웹 상담 현황 ➡
+                    📞 통화관리 ➡
                 </button>
             </div>
             
             <div style="display: flex; gap: 8px;">
                 <button class="btn" style="background:#6366f1; color:#fff; border:none; border-radius:20px; font-weight:bold; cursor:pointer; font-size:12px;" onclick="window.location.href='./reservation_v2.html?admin=true'">
-                    📅 예약 달력 열기
+                    📅 예약시스템
                 </button>
                 <button class="btn" style="background:#e32652; color:#fff; border:none; border-radius:20px; font-weight:bold; cursor:pointer; font-size:12px;" onclick="window.open('https://app.notion.com/p/d2d409048b414028b2bf6f4a4b4bb880', '_blank')">
-                    📷 미디어 아카이브 열기
+                    📷 미디어
                 </button>
                 <button class="btn" style="background:#c9ff00; color:#000; border:none; border-radius:20px; font-weight:bold; cursor:pointer; font-size:12px;" onclick="window.location.href='./price_calculator.html'">
-                    💰 판매가 계산기
+                    💰 판매가계산
                 </button>
                 <!-- 로고 대체 타이틀 -->
                 <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1px;">HAATZ V2</h1>
@@ -548,7 +548,8 @@
 
         const firebaseConfig = {
             databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
-            projectId: "flyer-event-page-2026"
+            projectId: "flyer-event-page-2026",
+            storageBucket: "flyer-event-page-2026.firebasestorage.app"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -985,9 +986,18 @@
                     const r = task.data.report;
                     const marginHtml = r.margin !== undefined ? 
                         `<div style="margin-top:4px; border-top:1px dashed #444; padding-top:4px;">
-                            <span style="color:#888;">시공품:</span> <span style="color:#eed37f;">${(r.usedProducts||[]).join(', ')||'없음'}</span><br>
+                            <span style="color:#888;">시공품:</span> <span style="color:#eed37f;">${(r.usedProducts||[]).map(p => typeof p === 'object' ? `${p.name} ${p.qty}개` : p).join(', ')||'없음'}</span><br>
                             <span style="color:#888;">예상마진:</span> <span style="color:#10b981; font-weight:bold;">${Number(r.margin||0).toLocaleString()}원</span>
                         </div>` : '';
+
+                    let mediaHtml = '';
+                    if (r.mediaUrls && r.mediaUrls.length > 0) {
+                        mediaHtml = `<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; padding-top:4px; border-top:1px dashed #444;">`;
+                        r.mediaUrls.forEach(url => {
+                            mediaHtml += `<a href="${url}" target="_blank" style="display:inline-block; border:1px solid #555; border-radius:4px; overflow:hidden;"><img src="${url}" style="width:60px; height:60px; object-fit:cover;" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1lZGlhPC90ZXh0Pjwvc3ZnPg=='"></a>`;
+                        });
+                        mediaHtml += `</div>`;
+                    }
 
                     reportHtml = `
                         <div style="margin-top: 12px; padding: 12px; background: #111; border-radius: 6px; font-size: 13px; color: #ccc;">
@@ -995,6 +1005,7 @@
                             <div>💰 결제: ${r.payMethod} / ${parseInt(r.payAmount || 0).toLocaleString()}원</div>
                             ${marginHtml}
                             ${r.notes ? `<div style="margin-top:4px;">📝 메모: ${r.notes.replace(/\n/g, '<br>')}</div>` : ''}
+                            ${mediaHtml}
                         </div>
                     `;
                 }
@@ -1029,8 +1040,23 @@
                             <div class="status-badge ${badgeClass}">${badgeText}</div>
                         </div>
                         <div class="card-body">
-                            <div class="info-row"><div class="info-label">연락처</div><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>${cInfo.phone || '-'}</span> ${cInfo.phone ? `<a href="tel:${cInfo.phone}" class="btn" style="padding:4px 8px; background:#10b981; color:#fff; text-decoration:none; font-size:12px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">📞 통화</a> <button class="btn" style="padding:4px 8px; background:#8b5cf6; color:#fff; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="try{window.saveToPhoneContactsFromCard('${task.rId}');}catch(e){alert('Error: '+e.message);}">👤 폰 주소록 저장</button> <button class="btn" style="padding:4px 8px; background:#374151; color:#fff; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="copyCustomerInfo('${(cInfo.apt||'').replace(/'/g, "")}', '${cInfo.phone}')">📋 명함복사</button> <select class="btn" style="padding:4px 6px; background:#f59e0b; color:#000; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onchange="if(this.value){ try{sendSmsFromCard('${task.rId}', this.value);}catch(e){alert('Error: '+e.message);} this.value=''; }"><option value="">💬 문자발송(4대 SMS)</option><option value="receipt">📨 ① 접수 확인</option><option value="confirm">📍 ② 예약 확정</option><option value="change">🔄 ③ 일정 변경</option><option value="missing">⚠️ ④ 동호수 요청</option></select>` : ''}</div></div>
                             <div class="info-row"><div class="info-label">동/호수</div><div>${cInfo.apt || '-'}</div></div>
+                            <div class="info-row" style="align-items:flex-start;">
+                                <div class="info-label" style="padding-top:4px;">연락처</div>
+                                <div style="display:flex; flex-direction:column; gap:6px; flex:1;">
+                                    <div style="padding-top:4px;"><span>${cInfo.phone || '-'}</span></div>
+                                    ${cInfo.phone ? `
+                                    <div style="display:flex; gap:6px; width:100%;">
+                                        <a href="tel:${cInfo.phone}" class="btn" style="flex:1; padding:6px 8px; background:#10b981; color:#fff; text-decoration:none; font-size:12px; border-radius:4px; display:inline-flex; justify-content:center; align-items:center; gap:2px;">📞 통화</a>
+                                        <select class="btn" style="flex:1; padding:6px 6px; background:#f59e0b; color:#000; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onchange="if(this.value){ try{sendSmsFromCard('${task.rId}', this.value);}catch(e){alert('Error: '+e.message);} this.value=''; }"><option value="">💬 문자발송</option><option value="receipt">📨 ① 접수 확인</option><option value="confirm">📍 ② 예약 확정</option><option value="change">🔄 ③ 일정 변경</option><option value="missing">⚠️ ④ 동호수 요청</option></select>
+                                    </div>
+                                    <div style="display:flex; gap:6px; width:100%;">
+                                        <button class="btn" style="flex:1; padding:6px 8px; background:#8b5cf6; color:#fff; font-weight:bold; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="try{window.saveToPhoneContactsFromCard('${task.rId}');}catch(e){alert('Error: '+e.message);}">👤 폰 주소록 저장</button>
+                                        <button class="btn" style="flex:1; padding:6px 8px; background:#374151; color:#fff; font-size:12px; border-radius:4px; border:none; cursor:pointer;" onclick="copyCustomerInfo('${(cInfo.apt||'').replace(/'/g, "")}', '${cInfo.phone}')">📋 명함복사</button>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
                             <div class="info-row">
                                 <div class="info-label">기타(메모)</div>
                                 <div>
@@ -1048,7 +1074,7 @@
                             ${isCompleted ? 
                                 `<button class="btn btn-secondary" style="flex:1;" onclick="openModal('${task.rId}')">📝 보고서 수정</button>
                                  <button class="btn" style="flex:1; background:#6366f1; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="copyNotionArchive('${task.rId}')">📋 노션 복사</button>` :
-                                `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">✅ 폼 작성</button>
+                                `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">✅ 보고서작성</button>
                                  <button class="btn" style="flex:1; background:#e32652; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="startVoiceReport('${task.rId}')">🎤 음성 보고</button>`
                             }
                         </div>
@@ -1330,7 +1356,7 @@
 
             if (files.length > 0) {
                 // UI에 업로드 중 표시 (버튼 텍스트 변경 등)
-                const saveBtn = document.querySelector('#report-modal .modal-content button.btn-primary');
+                const saveBtn = document.querySelector('#report-modal .modal button.btn-primary');
                 const originalBtnText = saveBtn.innerText;
                 
                 try {

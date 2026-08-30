@@ -81,6 +81,24 @@
             const data = snapshot.val();
             if (data) {
                 window.globalProducts = data.products || [];
+                
+                // --- 누락 상품 폴백 삽입 ---
+                if (!window.globalProducts.some(p => p.id === 'p_vent_large')) {
+                    window.globalProducts.push({
+                        id: "p_vent_large", name: "제로크 MD 일반 환풍기(대형)", model: "HV3-80-X(MD-N)",
+                        defaultPriceText: "140,000원", features: "정풍량 인증 / 2-WAY 확장배기(옵션) / 냄새 차단",
+                        detailLink: "./products/zeroc.html"
+                    });
+                }
+                if (!window.globalProducts.some(p => p.id === 'p_1787663733480')) {
+                    window.globalProducts.push({
+                        id: "p_1787663733480", name: "제로크 전동댐퍼 환풍기(대형)", model: "HV3-80-X(MD-N)",
+                        defaultPriceText: "165,000원", features: "정풍량 인증 / 전동댐퍼 장착 / 냄새 완벽 차단",
+                        detailLink: "./products/zeroc.html"
+                    });
+                }
+                // ---------------------------
+
                 window.eventsData = data.events || [];
                 window.globalManagers = data.managers || [];
                 if (typeof window.renderEvents === 'function') {

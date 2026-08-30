@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>기본설정 (기본 관리자)</title>
+    <title>관리자페이지</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; padding: 20px; margin: 0; }
         .container { max-width: 1400px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: block; }
@@ -107,7 +110,7 @@
 
 <div class="container" id="main-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
-        <h1 style="margin:0;">⚙️ 기본설정</h1>
+        <h1 style="margin:0;">⚙️ 관리자페이지</h1>
         <div style="display: flex; align-items: center; gap: 16px;">
             <span style="color:#10b981; font-weight:bold;" id="db-status">🟡 연결 중...</span>
             <button onclick="window.triggerInjectTestData()" style="background-color:#8b5cf6; color:white; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold; border-radius:6px;">🧪 가상 테스트 데이터 생성</button>
@@ -222,12 +225,20 @@
     <!-- 탭 3: 고객 상담/예약 현황 -->
     <div id="tab-consultations" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <h3 style="margin:0; color:#111;">📱 통화 요약 실시간 <span id="crm-badge" style="background:#ef4444; color:#fff; font-size:12px; border-radius:12px; padding:2px 8px; margin-left:8px; display:none;">0</span></h3>
+            <h3 style="margin:0; color:#111; display:flex; align-items:center;">
+                📱 통화 요약 실시간 
+                <span id="crm-badge" style="background:#ef4444; color:#fff; font-size:12px; border-radius:12px; padding:2px 8px; margin-left:8px; display:none;">0</span>
+                <button onclick="diagnoseCallDelay()" style="margin-left:12px; background:#ef4444; color:#fff; border:none; border-radius:4px; padding:4px 8px; font-size:12px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:4px; transition:all 0.2s; box-shadow:0 1px 2px rgba(0,0,0,0.1);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    <span id="diagnose-spinner" style="display:none;">⏳</span> 🔄 3분 지연 진단
+                </button>
+            </h3>
             <div style="display:flex; gap:8px;">
                 <button class="btn" style="background:#10b981; color:#fff; padding:6px 12px; border-radius:4px; font-weight:bold; border:none; cursor:pointer;" onclick="document.getElementById('readonly-cal-modal').style.display='flex'">🗓️ 달력 보기 (읽기 전용)</button>
                 <a href="reservation_v2.html?admin=true" target="_blank" class="btn" style="background:#8b5cf6; color:#fff; padding:6px 12px; border-radius:4px; font-weight:bold; border:none; text-decoration:none;">⚙️ 달력 관리 (관리자 모드)</a>
             </div>
         </div>
+        
+
         
         <!-- CRM Grid -->
         <div id="crm-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 30px;">
@@ -531,6 +542,33 @@
                         sellPrice: p.price_selling,
                         details: p.details
                     }));
+
+                    // [내포] 효성해링턴플레이스 안방스페셜 임시 상품(힘펠 HV3) 복구
+                    if (!window.currentProducts.some(p => p.id === 'p_vent_large')) {
+                        window.currentProducts.push({
+                            id: "p_vent_large",
+                            brandCategory: "힘펠",
+                            category: "욕실 환기가전",
+                            name: "제로크 MD 일반 환풍기(대형)",
+                            model: "HV3-80-X(MD-N)",
+                            defaultPriceText: "140,000원",
+                            features: "정풍량 인증 / 2-WAY 확장배기(옵션) / 냄새 차단",
+                            detailLink: "./products/zeroc.html"
+                        });
+                    }
+                    if (!window.currentProducts.some(p => p.id === 'p_1787663733480')) {
+                        window.currentProducts.push({
+                            id: "p_1787663733480",
+                            brandCategory: "힘펠",
+                            category: "욕실 환기가전",
+                            name: "제로크 전동댐퍼 환풍기(대형)",
+                            model: "HV3-80-X(MD-N)",
+                            defaultPriceText: "165,000원",
+                            features: "정풍량 인증 / 전동댐퍼 장착 / 냄새 완벽 차단",
+                            detailLink: "./products/zeroc.html"
+                        });
+                    }
+
                     if(document.getElementById('tab-master').classList.contains('active')) {
                         window.renderMasterList();
                     }
@@ -938,7 +976,18 @@
         let optionsHtml = '<option value="">-- 추가할 상품 선택 --</option>';
         for (const [cat, prods] of Object.entries(groupedProducts)) {
             optionsHtml += `<optgroup label="${cat}">`;
-            optionsHtml += prods.map(p => `<option value="${p.id}" data-name="${p.name}" data-price="${p.defaultPriceText||''}">${p.name}</option>`).join('');
+            optionsHtml += prods.map(p => {
+                let dispName = p.name;
+                if (p.brandCategory && p.brandCategory !== '기타' && p.brandCategory !== p.category) {
+                    dispName = `[${p.brandCategory}] ` + dispName;
+                } else if (p.brand && p.brand !== '기타') {
+                    dispName = `[${p.brand}] ` + dispName;
+                }
+                if (p.model) {
+                    dispName += ` (${p.model})`;
+                }
+                return `<option value="${p.id}" data-name="${p.name}" data-price="${p.defaultPriceText||''}">${dispName}</option>`;
+            }).join('');
             optionsHtml += `</optgroup>`;
         }
 
@@ -993,6 +1042,16 @@
                 </div>
             `;
         }
+
+        // Select2 초기화
+        setTimeout(() => {
+            if ($('#main-prod-add-select').length) {
+                $('#main-prod-add-select').select2({ placeholder: "-- 추가할 메인 상품 검색 --", width: '70%' });
+            }
+            if ($('#addon-prod-add-select').length) {
+                $('#addon-prod-add-select').select2({ placeholder: "-- 추가할 부가 상품 검색 --", width: '70%' });
+            }
+        }, 100);
     }
 
     window.addMainProduct = function() {
@@ -1485,13 +1544,18 @@
             
             let extractedPhone = "";
             if (item.filename) {
-                const phoneMatch = item.filename.match(/(010\d{8})/);
+                // 01[016789]XXXXXXX(X) - 한국 모든 휴대폰 번호 패턴
+                const phoneMatch = item.filename.match(/(01[016789]\d{7,8})/);
                 if (phoneMatch) {
                     const p = phoneMatch[1];
-                    extractedPhone = `${p.substring(0,3)}-${p.substring(3,7)}-${p.substring(7)}`;
+                    if (p.length === 10) {
+                        extractedPhone = `${p.substring(0,3)}-${p.substring(3,6)}-${p.substring(6)}`;
+                    } else {
+                        extractedPhone = `${p.substring(0,3)}-${p.substring(3,7)}-${p.substring(7)}`;
+                    }
                 }
             }
-            if ((!item.contact_info || item.contact_info === '없음' || item.contact_info.trim() === '') && extractedPhone) {
+            if ((!item.contact_info || item.contact_info === '없음' || item.contact_info === 'null' || item.contact_info.trim() === '') && extractedPhone) {
                 item.contact_info = extractedPhone;
             }
             item._phone = (item.contact_info || '').replace(/[^0-9]/g, '');
@@ -1534,7 +1598,13 @@
 
             const dObj = new Date(item._ts);
             const days = ['일','월','화','수','목','금','토'];
-            const callTime = `${dObj.getMonth()+1}/${dObj.getDate()} ${days[dObj.getDay()]} ${dObj.getHours()}:${String(dObj.getMinutes()).padStart(2,'0')}`;
+            let callTime = `${dObj.getMonth()+1}/${dObj.getDate()} ${days[dObj.getDay()]} ${dObj.getHours()}:${String(dObj.getMinutes()).padStart(2,'0')}`;
+            
+            if (item.total_delay_sec !== undefined) {
+                const min = Math.floor(item.total_delay_sec / 60);
+                const sec = item.total_delay_sec % 60;
+                callTime += ` <span style="color:#ef4444; font-size:11px; margin-left:6px; font-weight:normal;">(소요시간: ${min > 0 ? min+'분 ' : ''}${sec}초)</span>`;
+            }
             
             const fields = [
                 { label: '현장', key: 'site_info' },
@@ -1547,8 +1617,16 @@
             let fieldHtml = '';
             fields.forEach(f => {
                 const val = item[f.key];
-                if (val && val !== 'null' && val.trim() !== '' && val !== '없음') {
-                    fieldHtml += `<div style="margin-bottom:4px;"><span style="color:#6b7280; display:inline-block; width:50px; font-size:12px;">${f.label}</span> <span style="font-size:13px; font-weight:bold;">${val}</span></div>`;
+                if (f.key === 'contact_info') {
+                    if (!val || val === 'null' || val.trim() === '' || val === '없음') {
+                        fieldHtml += `<div style="margin-bottom:4px;"><span style="color:#6b7280; display:inline-block; width:50px; font-size:12px;">${f.label}</span> <span style="font-size:13px; font-weight:bold; color:#ef4444; text-decoration:underline; cursor:pointer;" onclick="editCRMItem('${key}')">번호 누락 (클릭하여 입력) ✎</span></div>`;
+                    } else {
+                        fieldHtml += `<div style="margin-bottom:4px;"><span style="color:#6b7280; display:inline-block; width:50px; font-size:12px;">${f.label}</span> <span style="font-size:13px; font-weight:bold; color:#2563eb; cursor:pointer;" onclick="editCRMItem('${key}')">${val} ✎</span></div>`;
+                    }
+                } else {
+                    if (val && val !== 'null' && val.trim() !== '' && val !== '없음') {
+                        fieldHtml += `<div style="margin-bottom:4px;"><span style="color:#6b7280; display:inline-block; width:50px; font-size:12px;">${f.label}</span> <span style="font-size:13px; font-weight:bold;">${val}</span></div>`;
+                    }
                 }
             });
 
@@ -1586,6 +1664,108 @@
             `;
             grid.innerHTML += html;
         });
+    }
+
+    // 통화 요약 진단 및 복구 (수동 트리거) - PC 로컬 데몬과 RTDB를 통해 통신
+    window.diagnoseCallDelay = async function() {
+        const spinner = document.getElementById('diagnose-spinner');
+        spinner.style.display = 'inline';
+
+        const TIMEOUT_MS = 20000; // 20초 대기
+        const requestTime = Date.now();
+
+        try {
+            const db = firebase.database();
+            const requestRef = db.ref('system/diagnose_request');
+            const resultRef  = db.ref('system/diagnose_result');
+
+            // 1. PC 데몬에게 진단 요청 전송
+            await requestRef.set({ timestamp: requestTime, requestedAt: new Date().toISOString() });
+
+            // 2. 결과 대기 (리스너 등록)
+            await new Promise((resolve) => {
+                let settled = false;
+                const timeoutId = setTimeout(() => {
+                    if (settled) return;
+                    settled = true;
+                    resultRef.off('value', listener);
+                    spinner.style.display = 'none';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'PC 데몬 응답 없음',
+                        html: `PC의 통화요약 데몬이 응답하지 않습니다.<br><br>
+                               <b>[확인 사항]</b><br>
+                               ① PC가 켜져 있는지 확인하세요<br>
+                               ② 작업 스케줄러에서 crm_daemon이 실행 중인지 확인하세요<br>
+                               ③ PC에서 직접 crm_daemon.py를 재시작하세요`,
+                        confirmButtonText: '확인'
+                    });
+                    resolve();
+                }, TIMEOUT_MS);
+
+                const listener = resultRef.on('value', (snapshot) => {
+                    const res = snapshot.val();
+                    // 요청 이후에 응답된 데이터만 처리 (오래된 캐시 무시)
+                    if (!res || !res.respondedAt || res.respondedAt < requestTime) return;
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timeoutId);
+                    resultRef.off('value', listener);
+                    spinner.style.display = 'none';
+                    showDiagnosisResult(res);
+                    resolve();
+                });
+            });
+
+        } catch (err) {
+            spinner.style.display = 'none';
+            console.error('[진단 오류]', err);
+            Swal.fire({
+                icon: 'error',
+                title: '진단 중 오류 발생',
+                text: err.message || 'Firebase 연결 중 문제가 발생했습니다.',
+                confirmButtonText: '닫기'
+            });
+        }
+    };
+
+    function showDiagnosisResult(res) {
+        // status: 'NO_FILE' | 'PROCESSING' | 'DONE' | 'ERROR'
+        if (res.status === 'NO_FILE') {
+            Swal.fire({
+                icon: 'warning',
+                title: '📱 폰에서 파일이 오지 않았습니다',
+                html: `PC의 구글 드라이브 폴더에 오늘 녹음 파일이 <b>0건</b>입니다.<br><br>
+                       <b>[해결 방법]</b><br>
+                       스마트폰에서 <b>구글 드라이브 앱</b>을 열고<br>
+                       ⓵ 메뉴 → 설정 → 동기화를 강제 실행하세요<br>
+                       ⓶ 또는 잠시 Wi-Fi를 껐다 다시 켜세요<br><br>
+                       <small style="color:#888">마지막 처리 파일: ${res.lastFileDate || '없음'}</small>`,
+                confirmButtonText: '확인'
+            });
+        } else if (res.status === 'PROCESSING') {
+            Swal.fire({
+                icon: 'info',
+                title: '🔄 요약 시작됨',
+                html: `미처리 파일 <b>${res.pendingCount}건</b>을 발견하여<br>즉시 AI 요약을 시작했습니다.<br><br>약 1~2분 후 화면을 새로고침해서 확인해주세요.`,
+                confirmButtonText: '확인'
+            });
+        } else if (res.status === 'DONE') {
+            Swal.fire({
+                icon: 'success',
+                title: '✅ 정상 동작 중',
+                html: `데몬이 정상 동작 중입니다.<br><br>
+                       <small style="color:#888">마지막 처리: ${res.lastFileDate || '확인불가'}</small>`,
+                confirmButtonText: '확인'
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: '진단 오류',
+                text: res.message || '알 수 없는 오류입니다.',
+                confirmButtonText: '닫기'
+            });
+        }
     }
 </script>
 <!-- 읽기 전용 달력 모달 -->

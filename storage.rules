@@ -17,6 +17,11 @@ service firebase.storage {
       allow read, write: if false;
     }
     
+    // 보고서 미디어 (사진/영상) 허용
+    match /reports/{allPaths=**} {
+      allow read, write: if true;
+    }
+    
     // 기존 다른 경로는 기본 차단
     match /{allPaths=**} {
       allow read, write: if false;

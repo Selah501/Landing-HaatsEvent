@@ -231,3 +231,6 @@ exports.analyzeVoiceReport = functions.https.onCall(async (data, context) => {
 // =========================================================================
 const { processCallRecording } = require("./processCallRecording");
 exports.processCallRecording = processCallRecording;
+
+const { diagnoseCallStatus } = require("./diagnoseCallStatus");
+exports.diagnoseCallStatus = diagnoseCallStatus;

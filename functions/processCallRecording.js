@@ -141,18 +141,19 @@ exports.processCallRecording = onObjectFinalized(
             const data = JSON.parse(resultText);
 
             // 5. 성능 측정: 통화 종료 시각 추출
-            const dateTimeMatch = fileName.match(/_(\d{6})_(\d{6})\./);
+            const dateTimeMatch = fileName.match(/(\d{6})_(\d{6})/);
             if (dateTimeMatch) {
                 const [, dateStr, timeStr] = dateTimeMatch;
-                // YYMMDD_HHMMSS → Date 객체
+                // YYMMDD_HHMMSS → Date 객체 (스마트폰 파일은 KST 기준이므로 UTC 변환 시 9시간을 빼줍니다)
                 const year = 2000 + parseInt(dateStr.slice(0, 2));
                 const month = parseInt(dateStr.slice(2, 4)) - 1;
                 const day = parseInt(dateStr.slice(4, 6));
                 const hour = parseInt(timeStr.slice(0, 2));
                 const min = parseInt(timeStr.slice(2, 4));
                 const sec = parseInt(timeStr.slice(4, 6));
-                const callEndTime = new Date(year, month, day, hour, min, sec);
-                const delaySec = Math.round((Date.now() - callEndTime.getTime()) / 1000);
+                
+                const callEndTimeUTC = Date.UTC(year, month, day, hour - 9, min, sec);
+                const delaySec = Math.round((Date.now() - callEndTimeUTC) / 1000);
 
                 data.total_delay_sec = delaySec;
                 console.log(`[성능 측정] 통화 종료 후 요약 완료까지: ${Math.floor(delaySec / 60)}분 ${delaySec % 60}초`);

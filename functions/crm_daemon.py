@@ -3,8 +3,15 @@ import sys
 import time
 import re
 import ctypes
+import threading
+import requests
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
+# RTDB 설정 (crm_shared.py와 동일한 URL 사용)
+RTDB_URL = "https://flyer-event-page-2026-default-rtdb.firebaseio.com"
+DIAGNOSE_REQUEST_URL = f"{RTDB_URL}/system/diagnose_request.json"
+DIAGNOSE_RESULT_URL  = f"{RTDB_URL}/system/diagnose_result.json"
 
 # Windows 환경에서 한글 출력 오류 방지
 if sys.stdout is None:
@@ -56,6 +63,103 @@ def write_heartbeat():
             f.write(time.strftime('%Y-%m-%dT%H:%M:%S'))
     except Exception as e:
         logger.error(f"하트비트 기록 실패: {e}")
+
+
+# ─────────────────────────────────────────────────────────
+# 진단 기능: RTDB 폴링 + 로컬 폴더 스캔
+# ─────────────────────────────────────────────────────────
+
+def run_local_diagnosis():
+    """WATCH_DIR를 스캔하여 진단 결과를 딕셔너리로 반환"""
+    AUDIO_EXTS = {'.m4a', '.mp3', '.wav', '.amr'}
+    responded_at = int(time.time() * 1000)  # JavaScript ms 타임스탬프
+    result = {
+        'respondedAt': responded_at,
+        'status': 'UNKNOWN',
+        'message': '',
+        'pendingCount': 0,
+        'lastFileDate': None
+    }
+    try:
+        all_files = os.listdir(WATCH_DIR)
+
+        # 미처리 오디오 파일 (확장자가 오디오이고 .done이 붙지 않은 것)
+        pending = [
+            f for f in all_files
+            if os.path.splitext(f)[1].lower() in AUDIO_EXTS
+            and not f.endswith('.done')
+            and not f.startswith('temp_upload_')
+        ]
+        done_files = [f for f in all_files if f.endswith('.done')]
+
+        result['pendingCount'] = len(pending)
+
+        # 가장 최근 .done 파일의 수정 시각 추출
+        if done_files:
+            latest = max(
+                done_files,
+                key=lambda f: os.path.getmtime(os.path.join(WATCH_DIR, f))
+            )
+            mtime = os.path.getmtime(os.path.join(WATCH_DIR, latest))
+            result['lastFileDate'] = time.strftime('%Y-%m-%d %H:%M', time.localtime(mtime))
+
+        if len(pending) == 0 and len(done_files) == 0:
+            result['status'] = 'NO_FILE'
+            result['message'] = 'PC 구글 드라이브 폴더에 파일이 전혀 없습니다. 폰 동기화 확인 필요.'
+        elif len(pending) > 0:
+            result['status'] = 'PROCESSING'
+            result['message'] = f'미처리 파일 {len(pending)}건 발견. 즉시 요약 시작합니다.'
+            # 실제 처리 트리거 (별도 스레드로 실행하여 리스너 블로킹 방지)
+            for filename in pending:
+                filepath = os.path.join(WATCH_DIR, filename)
+                try:
+                    process_audio_file(filepath)
+                except Exception as e:
+                    logger.error(f"[진단 트리거] 처리 실패: {filename} - {e}")
+        else:
+            # 오늘자 파일이 있는지 확인
+            today_str = time.strftime('26%m%d')  # 예: 260828
+            today_done = [f for f in done_files if today_str in f]
+            if today_done:
+                result['status'] = 'DONE'
+                result['message'] = f'오늘 처리된 파일 {len(today_done)}건 확인됨. 정상입니다.'
+            else:
+                result['status'] = 'NO_FILE'
+                result['message'] = f'오늘자 파일 없음. 폰 구글 드라이브 동기화 확인 필요.'
+
+    except Exception as e:
+        result['status'] = 'ERROR'
+        result['message'] = str(e)
+        logger.error(f"[진단] 스캔 중 오류: {e}")
+
+    return result
+
+
+def diagnose_polling_thread():
+    """RTDB를 5초마다 폴링하여 진단 요청이 들어오면 처리"""
+    last_processed_ts = 0
+    logger.info("[진단 리스너] RTDB 폴링 시작 (5초 주기)")
+    while True:
+        try:
+            resp = requests.get(DIAGNOSE_REQUEST_URL, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data and isinstance(data, dict):
+                    req_ts = data.get('timestamp', 0)
+                    # 새로운 요청인 경우에만 처리
+                    if req_ts > last_processed_ts:
+                        last_processed_ts = req_ts
+                        logger.info(f"[진단 리스너] 웹 진단 요청 수신 (ts={req_ts}). 로컬 스캔 시작...")
+                        diag_result = run_local_diagnosis()
+                        # 결과를 RTDB에 저장
+                        write_resp = requests.put(DIAGNOSE_RESULT_URL, json=diag_result, timeout=10)
+                        if write_resp.status_code == 200:
+                            logger.info(f"[진단 리스너] 결과 전송 완료: {diag_result['status']}")
+                        else:
+                            logger.error(f"[진단 리스너] RTDB 결과 쓰기 실패: {write_resp.text}")
+        except Exception as e:
+            logger.error(f"[진단 리스너] 폴링 오류: {e}")
+        time.sleep(5)
 
 
 class AudioHandler(FileSystemEventHandler):
@@ -134,6 +238,10 @@ def main():
     logger.info(f"감시 폴더: {WATCH_DIR}")
     
     scan_directory(first_run=True)
+    
+    # RTDB 진단 요청 폴링 스레드 시작 (백그라운드)
+    diag_thread = threading.Thread(target=diagnose_polling_thread, daemon=True)
+    diag_thread.start()
     
     event_handler = AudioHandler()
     observer = Observer()

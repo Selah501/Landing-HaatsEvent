@@ -249,43 +249,28 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <div style="display:flex; align-items:center; gap:12px;">
-                <h3 style="margin: 0; color: #111;">🌐 웹(QR) 접수 및 DB 마스터 표</h3>
+                <h3>🎯 상담/보류 팔로업 보드</h3>
                 <button class="btn" style="background:#f59e0b; color:#fff; padding:4px 10px; border-radius:4px; font-weight:bold; border:none; cursor:pointer; font-size:12px;" onclick="openUnifiedModal('', '', '', '', '')">➕ 수기(문자) 예약 생성</button>
             </div>
             <p style="margin: 0; color: #6b7280; font-size:13px;">위임된 리드 및 고객 직접 접수 내역</p>
         </div>
         
         
-        <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-            <select id="master-category-filter" style="padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="renderMasterList()">
-                <option value="ALL">전체 보기 (느릴 수 있음)</option>
-                <option value="하츠후드 엘리카" selected>하츠후드 엘리카</option>
-                <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
-                <option value="하츠후드 데코">하츠후드 데코</option>
-                <option value="하츠후드 시스템">하츠후드 시스템</option>
-                <option value="하츠 전기레인지">하츠 전기레인지</option>
-                <option value="하츠 가스레인지">하츠 가스레인지</option>
-                <option value="하츠 수전빌트인">하츠 수전빌트인</option>
-                <option value="하츠 씽크볼">하츠 씽크볼</option>
-                <option value="하츠 기타빌트인">하츠 기타빌트인</option>
-                <option value="기타카테고리">기타카테고리</option>
-            </select>
-            <span style="font-size: 13px; color: #6b7280;">* 카테고리를 선택하여 조회하세요.</span>
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center;">
+            <input type="text" id="consult-search-keyword" placeholder="연락처, 고객명, 문의내용 등 검색..." style="width: 250px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;" onkeypress="if(event.key === 'Enter') searchConsultations()">
+            <button class="btn" style="background:#2563eb; color:white; padding: 10px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; width: auto;" onclick="searchConsultations()">단순 검색</button>
+            <button class="btn" style="background:#e5e7eb; color:#4b5563; padding: 10px 16px; border-radius: 6px; border: 1px solid #d1d5db; cursor: pointer; font-weight: bold; width: auto;" onclick="document.getElementById('consult-search-keyword').value=''; searchConsultations()">초기화</button>
         </div>
         <div style="overflow-x: auto;">
             <table>
-                <thead>
-                    <tr>
-                        <th style="min-width: 80px;">분류</th>
-                        <th width="15%">날짜/시간</th>
-                        <th width="10%">구분</th>
-                        <th width="15%">고객명(아파트)</th>
-                        <th width="12%">연락처</th>
-                        <th width="20%">신청내용</th>
-                        <th width="10%">상태</th>
-                        <th width="18%">상태변경/메모</th>
-                    </tr>
-                </thead>
+<thead>
+    <tr style="background:#f8f9fa; border-bottom:2px solid #dee2e6;">
+        <th onclick="window.sortConsultations('phone')" style="cursor:pointer; width:25%;" title="클릭시 정렬">👤 연락처 / 고객명 ↕</th>
+        <th onclick="window.sortConsultations('content')" style="cursor:pointer; width:40%;" title="클릭시 정렬">📄 신청내용 / 문의 ↕</th>
+        <th onclick="window.sortConsultations('timestamp')" style="cursor:pointer; width:20%;" title="클릭시 최신순 정렬">🕒 상태 / 일시 ↕</th>
+        <th style="width:15%; text-align:center;">🛠️ 상세 관리</th>
+    </tr>
+</thead>
                 <tbody id="consult-tbody">
                     <!-- JS 렌더링 -->
                 </tbody>
@@ -1097,27 +1082,119 @@
     }
 
 
-    window.renderConsultations = function() {
+
+    // --- [🔍 상세 카드 모달] 로직 ---
+    window.openDetailCard = function(id, dateStr, type, customer, phone, contentText) {
+        document.getElementById('dcm-id').value = id;
+        document.getElementById('dcm-dateStr').value = dateStr;
+        document.getElementById('dcm-customer').textContent = customer;
+        document.getElementById('dcm-phone').textContent = phone;
+        document.getElementById('dcm-content').textContent = contentText;
+        
+        // Load memo
+        const refPath = `consultations/${dateStr}/${id}`;
+        import('https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js').then((dbModule) => {
+            const { ref, get } = dbModule;
+            get(ref(window.firebaseDb, refPath)).then(snapshot => {
+                const data = snapshot.val();
+                document.getElementById('dcm-memo').value = data ? (data.adminMemo || '') : '';
+                document.getElementById('detailCardModal').style.display = 'flex';
+            });
+        });
+    };
+
+    window.saveDetailCardMemo = function() {
+        const id = document.getElementById('dcm-id').value;
+        const dateStr = document.getElementById('dcm-dateStr').value;
+        const newMemo = document.getElementById('dcm-memo').value;
+        const refPath = `consultations/${dateStr}/${id}/adminMemo`;
+        
+        import('https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js').then((dbModule) => {
+            const { ref, set } = dbModule;
+            set(ref(window.firebaseDb, refPath), newMemo).then(() => {
+                alert('메모가 저장되었습니다.');
+                document.getElementById('detailCardModal').style.display = 'none';
+            }).catch(e => alert('저장 실패: ' + e.message));
+        });
+    };
+    
+    window.holdDetailCard = function() {
+        const id = document.getElementById('dcm-id').value;
+        const dateStr = document.getElementById('dcm-dateStr').value;
+        const refPath = `consultations/${dateStr}/${id}/status`;
+        
+        import('https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js').then((dbModule) => {
+            const { ref, set } = dbModule;
+            set(ref(window.firebaseDb, refPath), 'hold').then(() => {
+                alert('보류 상태로 변경되었습니다.');
+                document.getElementById('detailCardModal').style.display = 'none';
+            }).catch(e => alert('상태 변경 실패: ' + e.message));
+        });
+    };
+
+    window.deleteDetailCard = function() {
+        if(!confirm('이 리드를 영구 삭제하시겠습니까?')) return;
+        const id = document.getElementById('dcm-id').value;
+        const dateStr = document.getElementById('dcm-dateStr').value;
+        const refPath = `consultations/${dateStr}/${id}`;
+        
+        import('https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js').then((dbModule) => {
+            const { ref, remove } = dbModule;
+            remove(ref(window.firebaseDb, refPath)).then(() => {
+                alert('삭제되었습니다.');
+                document.getElementById('detailCardModal').style.display = 'none';
+            });
+        });
+    };
+
+    window.confirmDetailCardReservation = function() {
+        const phone = document.getElementById('dcm-phone').textContent;
+        const customer = document.getElementById('dcm-customer').textContent;
+        const url = `reservation_v2.html?admin_phone=${encodeURIComponent(phone)}&admin_name=${encodeURIComponent(customer)}`;
+        window.open(url, '_blank');
+        document.getElementById('detailCardModal').style.display = 'none';
+    };
+    // ------------------------------------
+    window.currentSortBy = 'timestamp';
+    window.currentSortDesc = true;
+    window.currentConsultSearchKeyword = '';
+    
+    window.searchConsultations = function() {
+        window.currentConsultSearchKeyword = document.getElementById('consult-search-keyword').value.trim();
+        window.renderConsultations(window.currentSortBy, window.currentSortDesc);
+    };
+
+    window.sortConsultations = function(field) {
+        if (window.currentSortBy === field) {
+            window.currentSortDesc = !window.currentSortDesc;
+        } else {
+            window.currentSortBy = field;
+            window.currentSortDesc = (field === 'timestamp'); // timestamp 기본은 최신순(내림차순)
+        }
+        window.renderConsultations(window.currentSortBy, window.currentSortDesc);
+    };
+
+    window.renderConsultations = function(sortBy = 'timestamp', sortDesc = true) {
         const tbody = document.getElementById('consult-tbody');
         if(!tbody) return;
         tbody.innerHTML = '';
         
         let allItems = [];
         
-        // V1 단순상담 파싱 (consultations/YYYY-MM-DD/{id})
-        for (const [dateStr, dailyData] of Object.entries(window.currentConsultations)) {
+        // V1 및 상담/보류 리드 파싱 (consultations/YYYY-MM-DD/{id})
+        for (const [dateStr, dailyData] of Object.entries(window.currentConsultations || {})) {
             for (const [key, val] of Object.entries(dailyData)) {
                 let contentText = val.eventName || '';
                 let memoText = val.adminMemo || '';
-                if (contentText.startsWith('[AI 단순상담]') && contentText.length > 20) {
+                if (contentText.startsWith('[AI 통화]') && contentText.length > 20) {
                     memoText = contentText.substring(10).trim() + "\n\n" + memoText;
-                    contentText = "[AI] 요약 참조 (구매품 미정)";
+                    contentText = "[AI] 통화 요약 (자동 병합)";
                 }
                 
                 allItems.push({
                     id: key,
-                    path: `consultations/${dateStr}/${key}`,
-                    type: '무료상담(AI/웹)',
+                    dateStr: dateStr,
+                    type: val.type || '무료상담(AI/웹)',
                     timestamp: val.timestamp || 0,
                     customer: val.apartment || '',
                     phone: val.phone || '',
@@ -1128,141 +1205,74 @@
             }
         }
         
-        // V2 예약 파싱 (reservations/YYYY-MM-DD/HH:MM)
-        const processedV2 = new Set();
-        for (const [dateStr, dailyData] of Object.entries(window.currentReservations)) {
-            // dateStr format is usually YYYY-MM-DD
-            if (typeof dailyData === 'object' && dailyData !== null) {
-                for (const [timeStr, val] of Object.entries(dailyData)) {
-                    if(val && (val.type === 'customer' || val.type === 'ai_call')) {
-                        const rId = val.reservationId || `${dateStr}_${timeStr}`;
-                        if (processedV2.has(rId)) continue;
-                        processedV2.add(rId);
-                        
-                        let prodStr = (val.customerInfo && val.customerInfo.items) ? val.customerInfo.items : '';
-                        if(Array.isArray(prodStr)) prodStr = prodStr.join(' + ');
-                        
-                        let timeText = val.customerInfo?.parentTime || timeStr || '';
-                        
-                        allItems.push({
-                            id: timeStr,
-                            path: `reservations/${dateStr}/${timeStr}`,
-                            type: '달력예약(V2)',
-                            timestamp: val.timestamp || 0,
-                            targetDate: dateStr,
-                            targetTime: timeText,
-                            customer: (val.customerInfo && val.customerInfo.address) || (val.customerInfo && val.customerInfo.apt) || '',
-                            phone: (val.customerInfo && val.customerInfo.contact) || (val.customerInfo && val.customerInfo.phone) || '',
-                            content: prodStr,
-                            status: val.status || 'pending',
-                            adminMemo: (val.customerInfo && val.customerInfo.notes) || val.adminMemo || ''
-                        });
-                    }
-                }
-            }
+        // 단일 텍스트 검색 필터 적용
+        if (window.currentConsultSearchKeyword) {
+            const kw = window.currentConsultSearchKeyword.toLowerCase();
+            allItems = allItems.filter(item => {
+                return (item.customer && item.customer.toLowerCase().includes(kw)) ||
+                       (item.phone && item.phone.toLowerCase().includes(kw)) ||
+                       (item.content && item.content.toLowerCase().includes(kw)) ||
+                       (item.adminMemo && item.adminMemo.toLowerCase().includes(kw));
+            });
         }
         
-        // 최신순 정렬
-        allItems.sort((a,b) => b.timestamp - a.timestamp);
+        // 정렬(Sorting) 로직
+        allItems.sort((a, b) => {
+            let valA = a[sortBy];
+            let valB = b[sortBy];
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            
+            if (valA < valB) return sortDesc ? 1 : -1;
+            if (valA > valB) return sortDesc ? -1 : 1;
+            return 0;
+        });
         
-        // Group by Phone
-        let groupedItems = [];
-        let phoneMap = {};
+        if (allItems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">표시할 대기 데이터가 없습니다.</td></tr>';
+            return;
+        }
+
         allItems.forEach(item => {
-            const ph = (item.phone || '').replace(/[^0-9]/g, '');
-            if(ph && ph.length >= 8) {
-                if(!phoneMap[ph]) {
-                    item.history = [];
-                    phoneMap[ph] = item;
-                    groupedItems.push(item);
-                } else {
-                    phoneMap[ph].history.push(item);
-                }
-            } else {
-                groupedItems.push(item);
-            }
-        });
-
-        groupedItems.forEach(item => {
-            const d = new Date(item.timestamp || Date.now());
-            const days = ['일','월','화','수','목','금','토'];
-            const dateText = `${d.getMonth()+1}/${d.getDate()} ${days[d.getDay()]} ${d.getHours() >= 12 ? '오후' : '오전'}${d.getHours() % 12 || 12}:${String(d.getMinutes()).padStart(2,'0')}`;
+            const tr = document.createElement('tr');
             
-            let statusBadge = '';
-            if(item.status.includes('pending')) { statusBadge = '<span style="background:#fef3c7; color:#d97706; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold;">🟡 확정 대기중</span>'; }
-            else if(item.status === 'confirmed') { statusBadge = '<span style="background:#dcfce7; color:#15803d; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold;">🟢 예약 확정</span>'; }
-            else if(item.status === 'completed') { statusBadge = '<span style="background:#e5e7eb; color:#374151; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold;">🔘 작업 완료</span>'; }
-            else { statusBadge = '<span style="background:#fee2e2; color:#b91c1c; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold;">🔴 취소/기타</span>'; }
+            const dateObj = new Date(item.timestamp || Date.now());
+            const displayDate = `${dateObj.getMonth()+1}/${dateObj.getDate()} ${dateObj.getHours() > 12 ? dateObj.getHours()-12 : dateObj.getHours()}${dateObj.getHours() >= 12 ? 'pm' : 'am'}`;
             
-            const safeContent = (item.content || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
-            const safeMemo = (item.adminMemo || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
-            const safeCustomer = (item.customer || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
-            const safePhone = (item.phone || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
-            const safePath = (item.path || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
-            let targetDateStr = '';
-            if (item.path && item.path.startsWith('reservations/')) {
-                const parts = item.path.split('/');
-                if (parts.length >= 3) {
-                    const dateParts = parts[1].split('-');
-                    const timeParts = parts[2].split(':');
-                    if (dateParts.length === 3 && timeParts.length >= 2) {
-                        const m = parseInt(dateParts[1]);
-                        const d = parseInt(dateParts[2]);
-                        let h = parseInt(timeParts[0]);
-                        const min = timeParts[1];
-                        const ampm = h >= 12 ? 'pm' : 'am';
-                        if (h > 12) h -= 12;
-                        if (h === 0) h = 12;
-                        const minStr = min === '00' ? '' : `:${min}`;
-                        targetDateStr = `<div style="font-size:11.5px; color:#4b5563; margin-top:8px; font-weight:bold; background:#f3f4f6; padding:2px 6px; border-radius:4px; display:inline-block;">🕒 ${m}/${d} ${h}${minStr}${ampm}</div>`;
-                    }
-                }
-            }
-
-            let historyHtml = '';
-            if(item.history && item.history.length > 0) {
-                let historyNotes = item.history.map(h => {
-                    const hd = new Date(h.timestamp);
-                    const htime = `${hd.getMonth()+1}/${hd.getDate()} ${hd.getHours()}:${String(hd.getMinutes()).padStart(2,'0')}`;
-                    return `[${htime}] ${h.type}\\n${h.content}\\n${h.adminMemo}`;
-                }).join('\\n\\n-------------------\\n\\n');
-                const safeHistory = historyNotes.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
-                historyHtml = `<div style="margin-top:8px;"><button style="background:#fde68a; border:1px solid #f59e0b; border-radius:4px; padding:4px 8px; font-size:11px; cursor:pointer; color:#92400e; font-weight:bold;" onclick="alert('🔄 과거 통화/접수 이력:\\n\\n${safeHistory}')">🔄 과거 이력 (${item.history.length}건) 보기</button></div>`;
-            }
-
-            tbody.innerHTML += `
-                <tr>
-                    <td data-label="날짜/시간" style="font-size:12px; color:#666; font-weight:bold;">${dateText}</td>
-                    <td data-label="구분"><span style="background:#444; padding:4px 8px; border-radius:4px; font-size:12px; color:white;">${item.type}</span></td>
-                    <td data-label="고객명(현장명/동호수)" style="font-weight:bold; color:#111;">${item.customer}</td>
-                    <td data-label="연락처" style="color:#2563eb; font-weight:bold;">${item.phone}</td>
-                    <td data-label="신청내용" style="font-size:13px; line-height:1.3;">
-                        ${item.content ? `<div style="margin-bottom:4px; font-weight:bold;">${item.content}</div>` : ''}
-                        <button style="background:#f3f4f6; border:1px solid #d1d5db; border-radius:4px; padding:2px 6px; font-size:11px; cursor:pointer; color:#374151;" onclick="alert('요약 메모:\\n${safeMemo}')">📝 요약 보기</button>
-                        ${historyHtml}
-                    </td>
-                    <td data-label="상태" style="text-align:center; vertical-align:middle;">
-                        ${statusBadge}
-                        ${targetDateStr}
-                    </td>
-                    <td data-label="상태변경/메모" style="text-align:center;">
-                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-                            <button style="background:#c9ff00; color:#000; border:1px solid #a3cc00; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; width:100%;" onclick="openUnifiedModal('${safePath}', '${safeCustomer}', '${safePhone}', '${safeContent}', '${safeMemo}')">🗓️ 예약 관리 (문자발송)</button>
-                            <button style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; width:100%;" onclick="deleteMasterTableRow('${safePath}')">🗑️ 강제 삭제 (오류건)</button>
-                        </div>
-                    </td>
-                </tr>
+            let statusBadge = `<span style="display:inline-block; padding:3px 8px; border-radius:12px; background:#eee; font-size:12px; color:#555;">대기중</span>`;
+            if (item.status === 'hold') statusBadge = `<span style="display:inline-block; padding:3px 8px; border-radius:12px; background:#fff3cd; font-size:12px; color:#856404;">보류됨</span>`;
+            
+            // 안전한 문자열 처리
+            const safeId = (item.id || '').replace(/'/g, "\\'");
+            const safeDateStr = (item.dateStr || '').replace(/'/g, "\\'");
+            const safeType = (item.type || '').replace(/'/g, "\\'");
+            const safeCustomer = (item.customer || '').replace(/'/g, "\\'");
+            const safePhone = (item.phone || '').replace(/'/g, "\\'");
+            const safeContent = (item.content || '').replace(/'/g, "\\'");
+            
+            tr.innerHTML = `
+                <td>
+                    <div style="font-weight:bold; color:#0056b3;">${item.phone}</div>
+                    <div style="font-size:12px; color:#666; margin-top:4px;">${item.customer}</div>
+                </td>
+                <td>
+                    <div style="font-size:14px; margin-bottom:4px;">${item.content}</div>
+                </td>
+                <td style="text-align:center;">
+                    ${statusBadge}
+                    <div style="font-size:11px; color:#999; margin-top:4px;">${displayDate}</div>
+                </td>
+                <td style="text-align:center; vertical-align:middle;">
+                    <button class="btn btn-secondary" style="font-size:13px; padding:6px 12px; background:#6c757d; border-color:#6c757d; color:white; border-radius:4px; cursor:pointer;"
+                        onclick="window.openDetailCard('${safeId}', '${safeDateStr}', '${safeType}', '${safeCustomer}', '${safePhone}', '${safeContent}')">
+                        🔍 상세 보기
+                    </button>
+                </td>
             `;
+            tbody.appendChild(tr);
         });
-        if(groupedItems.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color:#666;">데이터가 없습니다.</td></tr>';
-        }
-    }
+    };
 
-    
-    // ==========================================
-    // 통합 예약 관리 모달 로직
-    // ==========================================
     window.openUnifiedModal = function(path, customer, phone, items, memo) {
         document.getElementById('uni-res-path').value = path;
         document.getElementById('uni-customer-apt').value = customer || '';
@@ -1467,6 +1477,96 @@
         });
     };
 
+    window.openConsultModal = function(path, customer, phone, items, memo, isAppend, existingDate, existingId) {
+        document.getElementById('consult-res-path').value = path;
+        document.getElementById('consult-customer-apt').value = customer || '';
+        
+        let p = phone || '';
+        if ((!p || p === '없음' || p.trim() === '') && path) {
+            const phoneMatch = path.match(/(010\d{8})/);
+            if (phoneMatch) {
+                const num = phoneMatch[1];
+                p = `${num.substring(0,3)}-${num.substring(3,7)}-${num.substring(7)}`;
+            }
+        }
+        document.getElementById('consult-customer-phone').value = p;
+        document.getElementById('consult-customer-items').value = items || '';
+        document.getElementById('consult-customer-notes').value = memo || '';
+        
+        document.getElementById('consult-is-append').value = isAppend ? 'true' : 'false';
+        document.getElementById('consult-existing-date').value = existingDate || '';
+        document.getElementById('consult-existing-id').value = existingId || '';
+
+        const titleEl = document.getElementById('consult-modal-title');
+        const btnEl = document.getElementById('consult-save-btn');
+        if (isAppend) {
+            titleEl.innerHTML = '💬 기존 상담 리드에 내역 추가';
+            btnEl.innerHTML = '💾 기존 상담 내역에 추가하기';
+            document.getElementById('consult-customer-notes').value = "==== 추가 통화 (" + new Date().toLocaleString() + ") ====\n" + (memo || '');
+        } else {
+            titleEl.innerHTML = '💬 신규 상담 리드 등록';
+            btnEl.innerHTML = '💾 신규 리드로 임시저장';
+        }
+
+        document.getElementById('consult-modal').style.display = 'flex';
+    };
+
+    window.saveConsultLead = function() {
+        const path = document.getElementById('consult-res-path').value;
+        const customer = document.getElementById('consult-customer-apt').value;
+        const phone = document.getElementById('consult-customer-phone').value;
+        const items = document.getElementById('consult-customer-items').value;
+        const memo = document.getElementById('consult-customer-notes').value;
+        const category = document.getElementById('consult-category').value;
+        const isAppend = document.getElementById('consult-is-append').value === 'true';
+        const existingDate = document.getElementById('consult-existing-date').value;
+        const existingId = document.getElementById('consult-existing-id').value;
+
+        if (isAppend && existingDate && existingId) {
+            window.firebaseGet(window.firebaseRef(window.firebaseDb, `consultations/${existingDate}/${existingId}`)).then(snap => {
+                const ext = snap.val();
+                if (ext) {
+                    const newMemo = (ext.adminMemo || '') + "\n\n" + memo;
+                    window.firebaseUpdate(window.firebaseRef(window.firebaseDb, `consultations/${existingDate}/${existingId}`), {
+                        adminMemo: newMemo,
+                        eventName: items ? items : ext.eventName
+                    }).then(() => {
+                        if (path) {
+                            window.firebaseSet(window.firebaseRef(window.firebaseDb, path), null);
+                        }
+                        alert('기존 리드 내역에 병합(추가)되었습니다.');
+                        document.getElementById('consult-modal').style.display = 'none';
+                    });
+                }
+            });
+        } else {
+            let yyyy = new Date().getFullYear();
+            let mm = String(new Date().getMonth() + 1).padStart(2, '0');
+            let dd = String(new Date().getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+            const cId = "lead_" + Date.now();
+            
+            const eventNameString = (category !== '기타카테고리') ? `[${category}] ${items}` : items;
+
+            const leadData = {
+                timestamp: Date.now(),
+                eventName: eventNameString || '[AI] 요약 참조 (구매품 미정)',
+                apartment: customer,
+                phone: phone,
+                status: 'consultation_pending',
+                adminMemo: memo
+            };
+            
+            window.firebaseSet(window.firebaseRef(window.firebaseDb, `consultations/${dateStr}/${cId}`), leadData)
+            .then(() => {
+                if (path) {
+                    window.firebaseSet(window.firebaseRef(window.firebaseDb, path), null);
+                }
+                alert('신규 리드(DB)로 성공적으로 저장되었습니다.');
+                document.getElementById('consult-modal').style.display = 'none';
+            });
+        }
+    };
     window.saveAsLead = function(key) {
         if(!confirm('캘린더 일정 없이 [DB 리드]로만 보관하시겠습니까?')) return;
         window.firebaseGet(window.firebaseRef(window.firebaseDb, `crm_pending/${key}`)).then(snap => {
@@ -1637,10 +1737,41 @@
             const safeItems = (item.purchase_info || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
             const safeMemo = (item.summary || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
 
+            // Check if existing lead
+            const rawPhone = (item.contact_info || '').replace(/[^0-9]/g, '');
+            let isExisting = false;
+            let existingId = '';
+            let existingDate = '';
+            
+            if (rawPhone && rawPhone.length >= 8 && window.currentConsultations) {
+                for (const [dStr, dailyData] of Object.entries(window.currentConsultations)) {
+                    for (const [cId, val] of Object.entries(dailyData)) {
+                        const p = (val.phone || '').replace(/[^0-9]/g, '');
+                        if (p === rawPhone) {
+                            isExisting = true;
+                            existingId = cId;
+                            existingDate = dStr;
+                            break;
+                        }
+                    }
+                    if (isExisting) break;
+                }
+            }
+
+            let badgeHtml = '';
+            let consultBtnHtml = '';
+            if (isExisting) {
+                badgeHtml = `<span style="background:#3b82f6; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold;">🔄 기존 상담고객</span>`;
+                consultBtnHtml = `<button class="btn" style="background:#60a5fa; color:#fff; font-weight:bold; padding:6px 2px; border-radius:6px; border:none; cursor:pointer; font-size:12px; letter-spacing:-0.5px;" onclick="openConsultModal('${safePath}', '${safeCustomer}', '${safePhone}', '${safeItems}', '${safeMemo}', true, '${existingDate}', '${existingId}')">💬 기존상담 추가</button>`;
+            } else {
+                badgeHtml = `<span style="background:${catBg}; color:${catColor}; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold;">${item.category || '미분류'}</span>`;
+                consultBtnHtml = `<button class="btn" style="background:#3b82f6; color:#fff; font-weight:bold; padding:6px 2px; border-radius:6px; border:none; cursor:pointer; font-size:12px; letter-spacing:-0.5px;" onclick="openConsultModal('${safePath}', '${safeCustomer}', '${safePhone}', '${safeItems}', '${safeMemo}', false)">💬 상담 리드등록</button>`;
+            }
+
             const html = `
                 <div style="background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <span style="background:${catBg}; color:${catColor}; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold;">${item.category || '미분류'}</span>
+                        ${badgeHtml}
                         <span style="font-size:12px; font-weight:bold; color:#111;">${callTime}</span>
                     </div>
                     
@@ -1652,13 +1783,14 @@
                         ${fieldHtml}
                     </div>
                     
-                    <div style="display:grid; grid-template-columns: 1fr; gap:6px; margin-bottom:6px;">
-                        <button class="btn" style="flex:1; background:#c9ff00; color:#000; font-weight:bold; padding:8px; border-radius:6px; border:none; cursor:pointer;" onclick="openUnifiedModal('${safePath}', '${safeCustomer}', '${safePhone}', '${safeItems}', '${safeMemo}')">🗓️ 예약 등록 (관리자)</button>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px; margin-bottom:4px;">
+                        <button class="btn" style="background:#c9ff00; color:#000; font-weight:bold; padding:6px 2px; border-radius:6px; border:none; cursor:pointer; font-size:12px; letter-spacing:-0.5px;" onclick="openUnifiedModal('${safePath}', '${safeCustomer}', '${safePhone}', '${safeItems}', '${safeMemo}')">🗓️ 고객시공 예약</button>
+                        ${consultBtnHtml}
                     </div>
-                    
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-                        <button style="background:#fee2e2; color:#b91c1c; border:none; padding:8px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;" onclick="deleteCRMItem('${key}')">🗑️ 고객외 삭제</button>
-                        <button style="background:#f3f4f6; color:#374151; border:none; padding:8px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;" onclick="saveAsLead('${key}')">💾 리드(DB) 임시저장</button>
+                    <div style="display:grid; grid-template-columns: 1.2fr 1fr 1fr; gap:4px;">
+                        <button class="btn" style="background:#8b5cf6; color:#fff; font-weight:bold; padding:6px 2px; border-radius:6px; border:none; cursor:pointer; font-size:11px; letter-spacing:-0.5px;" onclick="alert('사업일정 등록 기능은 예약 시스템 캘린더와 연동 예정입니다. (구현 중)')">🏢 관리자 일정</button>
+                        <button style="background:#f3f4f6; color:#374151; border:none; padding:6px 2px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; letter-spacing:-0.5px;" onclick="alert('카드를 보류 상태로 유지합니다.')">⏳ 보류</button>
+                        <button style="background:#fee2e2; color:#b91c1c; border:none; padding:6px 2px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; letter-spacing:-0.5px;" onclick="deleteCRMItem('${key}')">🗑️ 삭제</button>
                     </div>
                 </div>
             `;
@@ -1776,6 +1908,93 @@
             <button style="background:transparent; color:#fff; border:none; font-size:24px; cursor:pointer;" onclick="document.getElementById('readonly-cal-modal').style.display='none'">&times;</button>
         </div>
         <iframe src="reservation_v2.html?readonly=true" style="flex:1; width:100%; border:none;"></iframe>
+    </div>
+</div>
+
+
+<!-- 상담 등록 모달 -->
+<div id="consult-modal" class="modal-overlay" style="display:none; z-index:9999; align-items:center; justify-content:center; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85);">
+    <div style="background:#1e1e20; width:90%; max-width:480px; padding:24px; border-radius:12px; border:1px solid #444; color:#fff; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <h3 id="consult-modal-title" style="margin-top:0; color:#fff; display:flex; align-items:center; gap:8px;">💬 상담 등록 (리드)</h3>
+        <input type="hidden" id="consult-res-path">
+        <input type="hidden" id="consult-is-append">
+        <input type="hidden" id="consult-existing-date">
+        <input type="hidden" id="consult-existing-id">
+        
+        <div style="background:#111; padding:14px; border-radius:8px; margin-bottom:16px; border:1px solid #333;">
+            <div style="font-size:13px; color:#3b82f6; font-weight:bold; margin-bottom:10px;">👤 상담 리드 정보</div>
+            <div style="display:grid; gap:8px;">
+                <div>
+                    <label style="font-size:11px; color:#aaa;">관심 카테고리 (분류)</label>
+                    <select id="consult-category" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px;">
+                        <option value="하츠후드 엘리카">하츠후드 엘리카</option>
+                        <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
+                        <option value="하츠후드 데코">하츠후드 데코</option>
+                        <option value="하츠후드 시스템">하츠후드 시스템</option>
+                        <option value="하츠 전기레인지">하츠 전기레인지</option>
+                        <option value="하츠 가스레인지">하츠 가스레인지</option>
+                        <option value="하츠 수전빌트인">하츠 수전빌트인</option>
+                        <option value="하츠 씽크볼">하츠 씽크볼</option>
+                        <option value="하츠 기타빌트인">하츠 기타빌트인</option>
+                        <option value="기타카테고리" selected>기타카테고리 / 미정</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:11px; color:#aaa;">고객명 / 현장명 / 아파트</label>
+                    <input type="text" id="consult-customer-apt" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px; font-weight:bold;">
+                </div>
+                <div>
+                    <label style="font-size:11px; color:#aaa;">연락처 (숫자만)</label>
+                    <input type="text" id="consult-customer-phone" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#10b981; border-radius:4px; font-size:14px;">
+                </div>
+                <div>
+                    <label style="font-size:11px; color:#aaa;">신청 내용 (관심 품목 등)</label>
+                    <input type="text" id="consult-customer-items" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#eed37f; border-radius:4px; font-size:13px; font-weight:bold;">
+                </div>
+                <div>
+                    <label style="font-size:11px; color:#aaa;">요약 / 상담 메모 (추가됨)</label>
+                    <textarea id="consult-customer-notes" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#ccc; border-radius:4px; font-size:12px;" rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <button class="btn" style="flex:1; background:#444; color:#fff; padding:12px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;" onclick="document.getElementById('consult-modal').style.display='none'">닫기</button>
+            <button id="consult-save-btn" class="btn" style="flex:2; background:#3b82f6; color:#fff; padding:12px; border-radius:6px; border:none; cursor:pointer; font-weight:bold; font-size:15px;" onclick="saveConsultLead()">💾 DB 리드 임시저장</button>
+        </div>
+    </div>
+</div>
+\n
+<!-- [🔍 상세 카드 보기] 모달 -->
+<div id="detailCardModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; width:90%; max-width:500px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column;">
+        <div style="background:#f8f9fa; padding:15px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+            <h4 style="margin:0; color:#333; font-size:16px;">🔍 리드/보류 상세 카드</h4>
+            <button onclick="document.getElementById('detailCardModal').style.display='none'" style="background:none; border:none; font-size:20px; cursor:pointer; color:#999;">&times;</button>
+        </div>
+        <div style="padding:20px; max-height:60vh; overflow-y:auto; font-size:14px; line-height:1.6;">
+            <div style="margin-bottom:10px;"><span style="color:#666; width:80px; display:inline-block;">고객명:</span> <strong id="dcm-customer" style="color:#0056b3;"></strong></div>
+            <div style="margin-bottom:10px;"><span style="color:#666; width:80px; display:inline-block;">연락처:</span> <strong id="dcm-phone"></strong></div>
+            <div style="margin-bottom:15px;"><span style="color:#666; width:80px; display:inline-block;">신청내용:</span> <span id="dcm-content"></span></div>
+            
+            <div style="background:#f8f9fa; padding:12px; border-radius:8px; border:1px solid #e9ecef; margin-bottom:15px;">
+                <div style="font-size:12px; color:#666; margin-bottom:5px; font-weight:bold;">메모 및 통화 히스토리</div>
+                <textarea id="dcm-memo" style="width:100%; height:150px; border:1px solid #ccc; border-radius:4px; padding:10px; font-size:13px; line-height:1.5; resize:vertical;"></textarea>
+            </div>
+            
+            <input type="hidden" id="dcm-id">
+            <input type="hidden" id="dcm-dateStr">
+        </div>
+        <div style="padding:15px 20px; background:#f8f9fa; border-top:1px solid #eee; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <div style="display:flex; gap:10px; flex:1; min-width:200px;">
+                <button onclick="window.saveDetailCardMemo()" style="flex:1; background:#007bff; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">💾 메모 저장</button>
+                <button onclick="window.confirmDetailCardReservation()" style="flex:1; background:#28a745; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">🗓️ 설치예약</button>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="window.holdDetailCard()" style="background:#ffc107; color:#333; border:none; padding:10px 15px; border-radius:6px; font-weight:bold; cursor:pointer;">⏳ 보류</button>
+                <button onclick="window.deleteDetailCard()" style="background:#dc3545; color:white; border:none; padding:10px 15px; border-radius:6px; font-weight:bold; cursor:pointer;">🗑️ 삭제</button>
+            </div>
+        </div>
     </div>
 </div>
 

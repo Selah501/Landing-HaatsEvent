@@ -18,3 +18,5 @@
 
 5. [🏗 프로젝트 페이지 구조 안내](file:///c:/dev/전단지이벤트/.agents/manuals/PAGE_STRUCTURE.md)
    - *관리자, 실무자용 각 페이지들의 역할과 용도 가이드*
+
+- WORKFLOW_GUIDE.md: CRM 및 팔로업 보드 업무 흐름과 버튼별 역할 설명서

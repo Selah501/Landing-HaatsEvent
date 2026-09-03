@@ -28,6 +28,11 @@
 ## 6. 아이디어 기록 체계화 (Pending Ideas)
 대화 중 발생하는 새로운 '아이디어'나 '기획' 관련 내용은 휘발되지 않도록 **`.agents/PENDING_IDEAS.md` 파일에 기록하고 구체화**하십시오.
 
+## 7. 대화창별 상세 요약(Walkthrough) 영구 저장 및 히스토리 1:1 매칭 (Rollback Safety)
+롤백 시 잘 작동하던 기능이 유실되는 것을 방지하고, 대표님이 직관적으로 푸시 내역을 파악하실 수 있도록 다음 룰을 지킵니다.
+- 1. 대화창에서 주요 작업이 완료되면, 해당 대화창의 요약본(Walkthrough)을 휘발성으로 두지 말고 **반드시 프로젝트 내부 `.agents/work_logs/YYYYMMDD_작업내용_요약.md` 형태로 저장**하십시오.
+- 2. `HISTORY_AND_ROADMAP.md`에 작업 이력을 추가할 때, **반드시 해당 작업의 [Git Commit Message]와 [상세 요약본(work_logs) 링크]를 함께 기재**하십시오.
+
 <RULE[user_project]>
 # 🚀 작업 승인(Planning Mode) 간소화 및 안전장치 규칙
 1. [자동 통과] 단순 UI/UX 수정, 기존 코드의 단순 버그 픽스, 텍스트/디자인 수정 등 위험도가 낮은 작업은 Implementation Plan 작성을 생략하고(Do NOT plan) 즉각 수정 및 배포할 것.

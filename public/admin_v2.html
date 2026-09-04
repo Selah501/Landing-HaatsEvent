@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <link rel="icon" href="data:,">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>일일 작업지시서 (Admin V2)</title>
@@ -228,6 +229,8 @@
             padding: 24px;
             border-radius: 12px;
             border: 1px solid #444;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .form-group {
             margin-bottom: 16px;
@@ -260,6 +263,65 @@
             70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
+    
+        /* Archive Table Styles */
+        .archive-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            color: var(--color-pure-white);
+            margin-top: 16px;
+        }
+        .archive-table th, .archive-table td {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .archive-table th {
+            background-color: var(--color-deep-slate);
+            color: var(--color-silver-mist);
+            font-weight: 600;
+        }
+        .archive-table tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        .archive-table tr:hover {
+            background-color: rgba(201, 255, 0, 0.05);
+        }
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            color: var(--color-silver-mist);
+        }
+        /* Photo Viewer Modal */
+        #photo-viewer-modal .modal-content {
+            max-width: 800px;
+            background-color: #000;
+        }
+        .photo-gallery {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .photo-gallery img {
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
     </style>
 </head>
 <body>
@@ -271,6 +333,9 @@
                 <button id="nav-admin" class="btn btn-secondary" onclick="window.location.href='admin.html';" style="border-radius:20px; font-weight:bold; background-color:#374151; color:white;">⚙️ 관리자</button>
                 <button id="nav-crm" class="btn btn-secondary" onclick="window.location.href='admin.html?tab=consultations';" style="border-radius:20px; font-weight:bold; position:relative;">
                     📞 통화관리 ➡
+                </button>
+                <button id="nav-search" class="btn btn-secondary" onclick="switchTab('search')" style="border-radius:20px; font-weight:bold; background-color:#374151; color:white;">
+                    🔎 시공 검색
                 </button>
             </div>
             
@@ -327,6 +392,88 @@
                 <!-- CRM Rendering -->
             </div>
         </div>
+
+        <!-- 시공 아카이브 검색기 탭 -->
+        <div id="tab-search" class="content-area" style="display: none;">
+            <div class="date-header" style="justify-content: space-between; flex-wrap: wrap;">
+                <div>
+                    <h3 style="margin:0; color:var(--color-interactive-lime);">🔎 시공 아카이브 검색</h3>
+                    <div style="font-size:12px; color:#aaa; margin-top:4px;">전체 완료된 작업지시서를 검색합니다.</div>
+                </div>
+                <div class="toggle-group" style="margin-top: 8px;">
+                    <button class="toggle-btn active" id="btn-view-card" onclick="toggleSearchView('card')">카드형 보기</button>
+                    <button class="toggle-btn" id="btn-view-table" onclick="toggleSearchView('table')">테이블보기</button>
+                </div>
+            </div>
+
+            <!-- 단일 검색 패널 (카드형 보기 시 노출) -->
+            <div id="search-basic-panel" style="display: flex; gap: 8px; margin-top: 16px;">
+                <input type="text" id="search-keyword" class="form-control" placeholder="아파트, 연락처, 메모 입력..." style="width: 250px;" onkeypress="if(event.key === 'Enter') searchArchive()">
+                <button class="btn btn-primary" style="width: auto; padding: 0 16px;" onclick="searchArchive()">단순 검색</button>
+            </div>
+
+            <!-- 상세 검색 패널 (테이블보기 시 노출) -->
+            <div id="search-detail-panel" style="display: none; background-color: var(--color-graphite-base); padding: 16px; border-radius: 8px; margin-top: 16px; border: 1px solid #333;">
+                <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; color: var(--color-interactive-lime);">상세 필터 검색</div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>시작일</label>
+                        <input type="date" id="search-date-start" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <label>종료일</label>
+                        <input type="date" id="search-date-end" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <label>현장 (아파트명)</label>
+                        <input type="text" id="search-apt" class="form-control" placeholder="예: 내포중흥" onkeypress="if(event.key === 'Enter') searchArchiveTable()">
+                    </div>
+                    <div class="filter-group">
+                        <label>연락처</label>
+                        <input type="text" id="search-phone" class="form-control" placeholder="번호 일부" onkeypress="if(event.key === 'Enter') searchArchiveTable()">
+                    </div>
+                    <div class="filter-group">
+                        <label>메모/특이사항</label>
+                        <input type="text" id="search-notes" class="form-control" placeholder="키워드 입력" onkeypress="if(event.key === 'Enter') searchArchiveTable()">
+                    </div>
+                    <div class="filter-group" style="justify-content: flex-end;">
+                        <button class="btn btn-primary" style="height: 40px; padding: 0 20px;" onclick="searchArchiveTable()">상세 검색</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 16px; color: var(--color-silver-mist); font-size: 14px;">
+                <span id="search-results-stats">검색 버튼을 눌러주세요.</span>
+            </div>
+
+            <!-- 카드형 뷰 영역 -->
+            <div id="search-grid" class="schedule-grid" style="margin-top: 16px;">
+
+                <!-- 검색 결과 렌더링 -->
+            </div>
+
+            </div> <!-- End search-grid (replaced by script) -->
+
+            <!-- 테이블 뷰 영역 -->
+            <div id="search-table-container" style="display: none; overflow-x: auto; margin-top: 16px;">
+                <table id="search-grid-table" class="archive-table" style="min-width: 1000px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%; cursor:pointer;" onclick="window.sortTable('title')">현장(고객명) ↕</th>
+                            <th style="width: 12%; cursor:pointer;" onclick="window.sortTable('date')">시공일자 ↕</th>
+                            <th style="width: 15%; cursor:pointer;" onclick="window.sortTable('phone')">연락처 ↕</th>
+                            <th style="width: 28%; cursor:pointer;" onclick="window.sortTable('products')">시공품목 ↕</th>
+                            <th style="width: 20%; cursor:pointer;" onclick="window.sortTable('notes')">메모/보고사항 ↕</th>
+                            <th style="width: 10%;">사진</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 테이블 로우가 여기에 추가됨 -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
 
     <!-- Report Modal -->
@@ -344,6 +491,13 @@
                 <label style="color:var(--color-interactive-lime);">📷 현장 시공 미디어 스마트 첨부 (사진/영상)</label>
                 <input type="file" id="modal-photos" accept="image/*,video/*" multiple capture="environment" class="form-control" style="background:#222; color:#fff; padding:8px; border:1px dashed #555; cursor:pointer;">
                 <div style="font-size:12px; color:#aaa; margin-top:4px;">💡 스마트폰에서 터치 시 카메라 즉시 실행 및 사진/영상 선택 가능 (Notion 무제한 연동 준비)</div>
+            </div>
+            
+            <div class="form-group" id="modal-existing-media-group" style="display: none; background:#222; padding:12px; border-radius:6px; margin-bottom:12px; border:1px dashed #555;">
+                <label style="color:#aaa; font-size:13px; margin-bottom:8px; display:block;">기존 첨부된 미디어 (선택 시 삭제 가능)</label>
+                <div id="modal-existing-media" style="display:flex; gap:8px; flex-wrap:wrap; max-height: 145px; overflow-y: auto; padding-right: 4px;">
+                    <!-- Existing media thumbnails will go here -->
+                </div>
             </div>
             
             <div class="form-group" style="background:#1a1a1a; padding:12px; border-radius:6px; border:1px solid #333;">
@@ -539,7 +693,10 @@
 
 
     <!-- Firebase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+        
+
+</script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, update, push, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -619,15 +776,20 @@
             }
         };
 
-        // Tab Toggle (Only work tab remains in this view)
+        // Tab Toggle
         window.switchTab = function(tabName) {
-            document.getElementById('tab-work').style.display = 'block';
+            const tabs = ['work', 'crm', 'search'];
+            tabs.forEach(tab => {
+                const el = document.getElementById('tab-' + tab);
+                if (el) el.style.display = 'none';
+            });
             
-            const btnWork = document.getElementById('nav-work');
-            if (btnWork) {
-                btnWork.style.background = '#3b82f6';
-                btnWork.style.color = '#fff';
-                btnWork.style.border = 'none';
+            const targetTab = document.getElementById('tab-' + tabName);
+            if (targetTab) targetTab.style.display = 'block';
+            
+            const navBtnSearch = document.getElementById('nav-search');
+            if (navBtnSearch) {
+                navBtnSearch.style.background = tabName === 'search' ? '#3b82f6' : '#374151';
             }
         };
 
@@ -992,9 +1154,9 @@
 
                     let mediaHtml = '';
                     if (r.mediaUrls && r.mediaUrls.length > 0) {
-                        mediaHtml = `<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; padding-top:4px; border-top:1px dashed #444;">`;
+                        mediaHtml = `<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; padding-top:4px; border-top:1px dashed #444; max-height: 270px; overflow-y: auto; padding-right: 4px;">`;
                         r.mediaUrls.forEach(url => {
-                            mediaHtml += `<a href="${url}" target="_blank" style="display:inline-block; border:1px solid #555; border-radius:4px; overflow:hidden;"><img src="${url}" style="width:60px; height:60px; object-fit:cover;" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1lZGlhPC90ZXh0Pjwvc3ZnPg=='"></a>`;
+                            mediaHtml += `<a href="${url}" target="_blank" style="display:inline-block; border:1px solid #555; border-radius:4px; overflow:hidden;"><img loading="lazy" src="${url}" style="width:60px; height:60px; object-fit:cover; display:block;" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1lZGlhPC90ZXh0Pjwvc3ZnPg=='"></a>`;
                         });
                         mediaHtml += `</div>`;
                     }
@@ -1072,8 +1234,7 @@
                         <div class="card-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
                             <button class="btn" style="background:#3b82f6; color:#fff; border:none; cursor:pointer; font-weight:bold; padding:8px 12px; border-radius:6px; flex:1;" onclick="openEditCustomerModal('${task.rId}')">✏️ 고객정보 변경</button>
                             ${isCompleted ? 
-                                `<button class="btn btn-secondary" style="flex:1;" onclick="openModal('${task.rId}')">📝 보고서 수정</button>
-                                 <button class="btn" style="flex:1; background:#6366f1; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="copyNotionArchive('${task.rId}')">📋 노션 복사</button>` :
+                                `<button class="btn btn-secondary" style="flex:1;" onclick="openModal('${task.rId}')">📝 보고서 수정</button>` :
                                 `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">✅ 보고서작성</button>
                                  <button class="btn" style="flex:1; background:#e32652; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="startVoiceReport('${task.rId}')">🎤 음성 보고</button>`
                             }
@@ -1187,8 +1348,81 @@
                 }
             }
             
+            // 기존 미디어 보존 및 렌더링
+            window.currentExistingMedia = report.mediaUrls ? [...report.mediaUrls] : [];
+            if(typeof renderExistingMedia === 'function') {
+                renderExistingMedia();
+            }
+            
             populateBrandCategories();
             renderAddedProducts();
+        };
+
+        window.renderExistingMedia = function() {
+            const container = document.getElementById('modal-existing-media');
+            const group = document.getElementById('modal-existing-media-group');
+            
+            if (!container || !group) return;
+            
+            if (!window.currentExistingMedia || window.currentExistingMedia.length === 0) {
+                group.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+            
+            group.style.display = 'block';
+            container.innerHTML = '';
+            
+            window.currentExistingMedia.forEach((url, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                wrapper.style.width = '60px';
+                wrapper.style.height = '60px';
+                wrapper.style.borderRadius = '4px';
+                wrapper.style.overflow = 'hidden';
+                wrapper.style.border = '1px solid #444';
+                
+                const img = document.createElement('img');
+                img.loading = 'lazy'; // 다중 이미지 로딩 시 성능 향상
+                img.src = url;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.onerror = function() {
+                    this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>'; 
+                };
+                
+                const delBtn = document.createElement('button');
+                delBtn.innerHTML = '✕';
+                delBtn.style.position = 'absolute';
+                delBtn.style.top = '2px';
+                delBtn.style.right = '2px';
+                delBtn.style.background = 'rgba(239, 68, 68, 0.9)';
+                delBtn.style.color = '#fff';
+                delBtn.style.border = 'none';
+                delBtn.style.borderRadius = '50%';
+                delBtn.style.width = '18px';
+                delBtn.style.height = '18px';
+                delBtn.style.fontSize = '10px';
+                delBtn.style.cursor = 'pointer';
+                delBtn.style.display = 'flex';
+                delBtn.style.alignItems = 'center';
+                delBtn.style.justifyContent = 'center';
+                delBtn.onclick = function() {
+                    removeExistingMedia(index);
+                };
+                
+                wrapper.appendChild(img);
+                wrapper.appendChild(delBtn);
+                container.appendChild(wrapper);
+            });
+        };
+        
+        window.removeExistingMedia = function(index) {
+            if (confirm('이 기존 첨부 미디어를 삭제하시겠습니까?\n(보고서 저장 시 최종 반영됩니다)')) {
+                window.currentExistingMedia.splice(index, 1);
+                renderExistingMedia();
+            }
         };
 
         function populateBrandCategories() {
@@ -1385,7 +1619,7 @@
                 totalCost,
                 totalSell,
                 margin,
-                mediaUrls: uploadedUrls, // 업로드된 이미지 URL 저장
+                mediaUrls: [...(window.currentExistingMedia || []), ...uploadedUrls], // 기존 이미지와 새 이미지 병합
                 timestamp: Date.now()
             };
 
@@ -1462,29 +1696,376 @@
             });
         };
 
-        // 노션 시공대장 복사 (3단계 노션 반출 MVP)
-        window.copyNotionArchive = function(rId) {
-            const task = window.groupedTasks.find(t => t.rId === rId);
-            if (!task || !task.data.report) {
-                alert('완료 보고서가 없습니다.');
+        // 시공 아카이브 검색기
+        
+        window.toggleSearchView = function(mode) {
+            window.currentSearchMode = mode;
+            if(mode === 'card') {
+                document.getElementById('btn-view-card').classList.add('active');
+                document.getElementById('btn-view-table').classList.remove('active');
+                document.getElementById('search-basic-panel').style.display = 'flex';
+                document.getElementById('search-detail-panel').style.display = 'none';
+                document.getElementById('search-grid').style.display = 'grid';
+                document.getElementById('search-table-container').style.display = 'none';
+                document.getElementById('search-results-stats').textContent = "단순 검색 모드입니다.";
+            } else {
+                document.getElementById('btn-view-card').classList.remove('active');
+                document.getElementById('btn-view-table').classList.add('active');
+                document.getElementById('search-basic-panel').style.display = 'none';
+                document.getElementById('search-detail-panel').style.display = 'block';
+                document.getElementById('search-grid').style.display = 'none';
+                document.getElementById('search-table-container').style.display = 'block';
+                document.getElementById('search-results-stats').textContent = "상세 필터를 입력하고 검색하세요.";
+                
+                
+            }
+        };
+
+        
+        window.currentTableResults = [];
+        window.currentSortCol = 'date';
+        window.currentSortDesc = true;
+
+        window.sortTable = function(col) {
+            if(!window.currentTableResults || window.currentTableResults.length === 0) return;
+            
+            if(window.currentSortCol === col) {
+                window.currentSortDesc = !window.currentSortDesc;
+            } else {
+                window.currentSortCol = col;
+                window.currentSortDesc = true;
+            }
+
+            window.currentTableResults.sort((a, b) => {
+                let valA = '';
+                let valB = '';
+                
+                if(col === 'title') {
+                    valA = a.title || (a.customerInfo && a.customerInfo.apt) || '';
+                    valB = b.title || (b.customerInfo && b.customerInfo.apt) || '';
+                } else if(col === 'date') {
+                    valA = a.date + " " + a.slot;
+                    valB = b.date + " " + b.slot;
+                } else if(col === 'phone') {
+                    valA = a.contact_info || (a.customerInfo && a.customerInfo.phone) || '';
+                    valB = b.contact_info || (b.customerInfo && b.customerInfo.phone) || '';
+                } else if(col === 'notes') {
+                    valA = a.notes || (a.report && a.report.notes) || '';
+                    valB = b.notes || (b.report && b.report.notes) || '';
+                } else if(col === 'products') {
+                    const ua = a.usedProducts || (a.report && a.report.usedProducts) || a.mainProducts || [];
+                    const ub = b.usedProducts || (b.report && b.report.usedProducts) || b.mainProducts || [];
+                    valA = ua.map(p => typeof p === 'object' ? p.name : p).join(',');
+                    valB = ub.map(p => typeof p === 'object' ? p.name : p).join(',');
+                }
+                
+                valA = String(valA).toLowerCase();
+                valB = String(valB).toLowerCase();
+
+                if (valA < valB) return window.currentSortDesc ? 1 : -1;
+                if (valA > valB) return window.currentSortDesc ? -1 : 1;
+                return 0;
+            });
+            
+            window.renderSearchResultsTable(window.currentTableResults);
+        };
+
+        window.searchArchiveTable = async function() {
+            const startDateStr = document.getElementById('search-date-start').value;
+            const endDateStr = document.getElementById('search-date-end').value;
+            const aptKeyword = document.getElementById('search-apt').value.trim().toLowerCase();
+            const phoneKeyword = document.getElementById('search-phone').value.trim().toLowerCase();
+            const notesKeyword = document.getElementById('search-notes').value.trim().toLowerCase();
+            
+            document.getElementById('search-results-stats').innerHTML = "검색 중... <span class='spinner'></span>";
+            const tbody = document.querySelector('#search-grid-table tbody');
+            tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>검색 중입니다...</td></tr>";
+
+            try {
+                // v9 get(ref(db, 'reservations')) 사용
+                const snap = await get(ref(db, 'reservations'));
+                if (!snap.exists()) {
+                    document.getElementById('search-results-stats').textContent = "데이터가 0건입니다.";
+                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>데이터가 없습니다.</td></tr>";
+                    return;
+                }
+
+                const data = snap.val() || {};
+                let results = [];
+                
+                const startTs = startDateStr ? new Date(startDateStr + "T00:00:00").getTime() : 0;
+                const endTs = endDateStr ? new Date(endDateStr + "T23:59:59").getTime() : 9999999999999;
+
+                for (let date in data) {
+                    const dateTs = new Date(date + "T00:00:00").getTime();
+                    if(startTs && dateTs < startTs) continue;
+                    if(endTs && dateTs > endTs) continue;
+
+                    for (let slot in data[date]) {
+                        const evt = data[date][slot];
+                        // completed 상태이거나 report가 있는 등 추가 조건이 있다면 기입. 여기서는 기본 필터
+                        let matchApt = true;
+                        let matchPhone = true;
+                        let matchNotes = true;
+                        
+                        const title = evt.title ? evt.title.toLowerCase() : '';
+                        const phone = evt.contact_info ? evt.contact_info.toLowerCase() : '';
+                        const notes = evt.notes ? evt.notes.toLowerCase() : '';
+                        
+                        // v9 기존 searchArchive 방식도 참고: apt는 evt.customerInfo?.apt 일 수도 있음
+                        // 기존 코드 참고하여 넓게 검색
+                        const searchStr = JSON.stringify(evt).toLowerCase(); 
+                        
+                        if(aptKeyword && !title.includes(aptKeyword) && !searchStr.includes(aptKeyword)) matchApt = false;
+                        if(phoneKeyword && !phone.includes(phoneKeyword) && !searchStr.includes(phoneKeyword)) matchPhone = false;
+                        if(notesKeyword && !notes.includes(notesKeyword) && !searchStr.includes(notesKeyword)) matchNotes = false;
+
+                        if (matchApt && matchPhone && matchNotes) {
+                            
+                        // 중복 방지 (하나의 예약이 여러 슬롯을 차지할 때 고유 reservationId로 중복 제거)
+                        const uniqueKey = evt.reservationId || (date + "_" + slot);
+                        if (!results.find(r => r.uniqueKey === uniqueKey)) {
+                            results.push({ date, slot, uniqueKey, ...evt });
+                        }
+
+                        }
+                    }
+                }
+
+                results.sort((a, b) => {
+                    const timeA = new Date(`${a.date}T${a.slot.split('~')[0]}`).getTime();
+                    const timeB = new Date(`${b.date}T${b.slot.split('~')[0]}`).getTime();
+                    return timeB - timeA; // 최신순
+                });
+
+                document.getElementById('search-results-stats').textContent = `검색 완료: 총 ${results.length}건`;
+                
+                window.currentTableResults = results;
+                document.getElementById('search-results-stats').textContent = `검색 완료: 총 ${results.length}건 (현재 ${results.length}건 표시됨)`;
+                window.renderSearchResultsTable(results);
+
+                
+            } catch (err) {
+                console.error("검색 중 에러:", err);
+                document.getElementById('search-results-stats').textContent = "검색 중 에러가 발생했습니다.";
+                tbody.innerHTML = `<tr><td colspan='6' style='text-align:center;'>에러 발생: ${err.message}</td></tr>`;
+            }
+        };
+
+        window.renderSearchResultsTable = function(results) {
+            const tbody = document.querySelector('#search-grid-table tbody');
+            tbody.innerHTML = '';
+            
+            if (results.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>검색 결과가 없습니다.</td></tr>";
                 return;
             }
-            const cInfo = task.data.customerInfo || {};
-            const r = task.data.report;
-            const dateStr = document.getElementById('date-picker').value;
+
+            results.forEach(res => {
+                const tr = document.createElement('tr');
+                
+                let photoBtnHTML = '-';
+                // 기존 구조에 맞추기 위해 res.report.media 배열도 고려
+                const mediaArray = res.media || (res.report && res.report.mediaUrls) || (res.report && res.report.media) || (res.data && res.data.report && res.data.report.mediaUrls) || [];
+                if(mediaArray.length > 0) {
+                    const safeUrls = JSON.stringify(mediaArray).replace(/"/g, '&quot;');
+                    photoBtnHTML = `<button class="btn btn-primary" style="padding:4px 8px; font-size:12px;" onclick="window.openPhotoModal(${safeUrls})">사진 (${mediaArray.length})</button>`;
+                }
+                
+                let usedProdsHTML = '';
+                const usedArray = res.usedProducts || (res.report && res.report.usedProducts) || res.mainProducts || [];
+                if(usedArray.length > 0) {
+                    usedProdsHTML = usedArray.map(p => {
+                        if (typeof p === 'object') {
+                            return `<div><span style="color:var(--color-interactive-lime);">[${p.brand || '하츠'}]</span> ${p.name || ''} <b>${p.price||0}원</b></div>`;
+                        } else {
+                            return `<div><span style="color:var(--color-highlight-gold);">(예약)</span> ${p}</div>`;
+                        }
+                    }).join('');
+                }
+
+                // 현장명, 연락처, 메모
+                const displayTitle = res.title || (res.customerInfo && res.customerInfo.apt) || '이름없음';
+                const displayPhone = res.contact_info || (res.customerInfo && res.customerInfo.phone) || '-';
+                const displayNotes = res.notes || (res.report && res.report.notes) || '-';
+
+                tr.innerHTML = `
+                    <td>${displayTitle}</td>
+                    <td>${res.date}<br><span style="font-size:12px;color:#aaa;">${res.slot}</span></td>
+                    <td>${displayPhone}</td>
+                    <td>${usedProdsHTML || '-'}</td>
+                    <td>${displayNotes}</td>
+                    <td style="text-align:center;">${photoBtnHTML}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.openPhotoModal = function(urls) {
+            const modal = document.getElementById('photo-viewer-modal');
+            const container = document.getElementById('photo-gallery-container');
+            container.innerHTML = '';
             
-            const text = `📍 [시공완료] ${dateStr}\n` +
-                         `▪️ 동호수: ${cInfo.apt || '-'}\n` +
-                         `▪️ 연락처: ${cInfo.phone || '-'}\n` +
-                         `▪️ 시공품목: ${(r.usedProducts||[]).join(', ')||'없음'}\n` +
-                         `▪️ 결제금액: ${parseInt(r.payAmount||0).toLocaleString()}원 (${r.payMethod})\n` +
-                         `▪️ 예상마진: ${parseInt(r.margin||0).toLocaleString()}원\n` +
-                         `▪️ 현장메모: ${r.notes || '없음'}`;
-                         
-            navigator.clipboard.writeText(text).then(() => {
-                alert('📋 노션 시공대장 데이터가 클립보드로 복사되었습니다!\n노션 페이지에 Ctrl+V 하세요.\n\n' + text);
-            }).catch(() => {
-                prompt('아래 텍스트를 복사하여 노션에 붙여넣으세요:', text);
+            if(Array.isArray(urls)) {
+                container.style.flexWrap = 'wrap';
+                urls.forEach(url => {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.target = '_blank';
+                    a.style.display = 'inline-block';
+                    a.style.border = '1px solid #555';
+                    a.style.borderRadius = '8px';
+                    a.style.overflow = 'hidden';
+                    
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.style.width = '120px';
+                    img.style.height = '120px';
+                    img.style.objectFit = 'cover';
+                    img.onerror = function() {
+                        this.onerror = null; 
+                        this.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1lZGlhPC90ZXh0Pjwvc3ZnPg==";
+                    };
+                    a.appendChild(img);
+                    container.appendChild(a);
+                });
+            }
+            modal.style.display = 'flex';
+        };
+        
+        window.closePhotoModal = function() {
+            document.getElementById('photo-viewer-modal').style.display = 'none';
+        };
+
+        window.searchArchive = function() {
+            const keywordInput = document.getElementById('search-keyword');
+            if (!keywordInput) return;
+            
+            const keyword = keywordInput.value.trim().toLowerCase();
+            if (!keyword) {
+                alert('검색어를 입력하세요.');
+                return;
+            }
+            
+            const stats = document.getElementById('search-results-stats');
+            if (stats) stats.innerHTML = `<span style="color:var(--color-interactive-lime);">"${keyword}"</span> 검색 중... ⏳`;
+            
+            const grid = document.getElementById('search-grid');
+            if (grid) grid.innerHTML = '';
+            
+            // DB에서 예약 정보 전체 스캔 (클라이언트단 필터링)
+            get(ref(db, 'reservations')).then(snap => {
+                const data = snap.val() || {};
+                let results = [];
+                
+                Object.keys(data).forEach(date => {
+                    const dayData = data[date];
+                    Object.keys(dayData).forEach(time => {
+                        const slot = dayData[time];
+                        if (slot && slot.status === 'completed' && slot.report) {
+                            const cInfo = slot.customerInfo || {};
+                            const report = slot.report || {};
+                            
+                            const apt = String(cInfo.apt || '').toLowerCase();
+                            const phone = String(cInfo.phone || '').toLowerCase();
+                            const notes = String(report.notes || '').toLowerCase();
+                            const items = Array.isArray(cInfo.items) ? cInfo.items.join(', ').toLowerCase() : String(cInfo.items || '').toLowerCase();
+                            const usedProducts = (report.usedProducts || []).map(p => typeof p === 'object' ? p.name : String(p)).join(', ').toLowerCase();
+                            
+                            if (apt.includes(keyword) || phone.includes(keyword) || notes.includes(keyword) || items.includes(keyword) || usedProducts.includes(keyword)) {
+                                
+                                const uniqueKey = slot.reservationId || (date + "_" + time);
+                                if (!results.find(r => r.uniqueKey === uniqueKey)) {
+                                    results.push({
+                                        date: date,
+                                        time: time,
+                                        rId: slot.reservationId || time,
+                                        uniqueKey: uniqueKey,
+                                        data: slot
+                                    });
+                                }
+
+                            }
+                        }
+                    });
+                });
+                
+                // 최신순(날짜 역순) 정렬
+                results.sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+                
+                renderSearchResults(results);
+            }).catch(e => {
+                if (stats) stats.innerText = '검색 중 오류가 발생했습니다.';
+                console.error(e);
+            });
+        };
+
+        window.renderSearchResults = function(results) {
+            const grid = document.getElementById('search-grid');
+            const stats = document.getElementById('search-results-stats');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            
+            if (results.length === 0) {
+                stats.innerText = '일치하는 시공 내역이 없습니다.';
+                grid.innerHTML = `<div class="empty-state">검색 결과가 없습니다.</div>`;
+                return;
+            }
+            
+            stats.innerHTML = `총 <span style="color:var(--color-pure-white); font-weight:bold;">${results.length}</span>건의 시공 내역이 검색되었습니다.`;
+            
+            results.forEach(task => {
+                const timeStr = task.time;
+                const cInfo = task.data.customerInfo || {};
+                const r = task.data.report || {};
+                
+                let itemsStr = "-";
+                if (Array.isArray(cInfo.items)) itemsStr = cInfo.items.join(', ');
+                else if (cInfo.items) itemsStr = String(cInfo.items);
+                
+                const marginHtml = r.margin !== undefined ? 
+                    `<div style="margin-top:4px; border-top:1px dashed #444; padding-top:4px;">
+                        <span style="color:#888;">시공품:</span> <span style="color:#eed37f;">${(r.usedProducts||[]).map(p => typeof p === 'object' ? `${p.name} ${p.qty}개` : p).join(', ')||'없음'}</span><br>
+                        <span style="color:#888;">예상마진:</span> <span style="color:#10b981; font-weight:bold;">${Number(r.margin||0).toLocaleString()}원</span>
+                    </div>` : '';
+
+                let mediaHtml = '';
+                if (r.mediaUrls && r.mediaUrls.length > 0) {
+                    mediaHtml = `<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; padding-top:4px; border-top:1px dashed #444; max-height: 270px; overflow-y: auto; padding-right: 4px;">`;
+                    r.mediaUrls.forEach(url => {
+                        mediaHtml += `<a href="${url}" target="_blank" style="display:inline-block; border:1px solid #555; border-radius:4px; overflow:hidden;"><img loading="lazy" src="${url}" style="width:60px; height:60px; object-fit:cover; display:block;" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1lZGlhPC90ZXh0Pjwvc3ZnPg=='"></a>`;
+                    });
+                    mediaHtml += `</div>`;
+                }
+
+                const reportHtml = `
+                    <div style="margin-top: 12px; padding: 12px; background: #111; border-radius: 6px; font-size: 13px; color: #ccc;">
+                        <div style="font-weight:bold; color:var(--color-pure-white); margin-bottom:4px;">[작업완료 보고서]</div>
+                        <div>💰 결제: ${r.payMethod} / ${parseInt(r.payAmount || 0).toLocaleString()}원</div>
+                        ${marginHtml}
+                        ${r.notes ? `<div style="margin-top:4px;">📝 메모: ${r.notes.replace(/\n/g, '<br>')}</div>` : ''}
+                        ${mediaHtml}
+                    </div>
+                `;
+
+                grid.innerHTML += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <div class="time-badge">${task.date}</div>
+                                <div style="font-weight:bold; font-size:16px; color:#aaa;">${timeStr}</div>
+                            </div>
+                            <div class="status-badge status-completed">✅ 작업 완료</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row"><div class="info-label">동/호수</div><div style="font-weight:bold;">${cInfo.apt || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">연락처</div><div>${cInfo.phone || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">시공희망</div><div style="color:var(--color-interactive-lime); font-weight:bold;">${itemsStr}</div></div>
+                            ${reportHtml}
+                        </div>
+                    </div>
+                `;
             });
         };
 
@@ -1758,7 +2339,29 @@
                     link.href = 'tel:' + phone;
                 });
             }
+            
+            const tab = params.get('tab');
+            if (tab === 'search') {
+                setTimeout(() => switchTab('search'), 100);
+            }
         });
     </script>
+
+
+
+
+    <!-- Photo Viewer Modal -->
+    <div id="photo-viewer-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center;">
+        <div class="modal-content" style="padding:20px; text-align:left; border:1px solid #444; width:90%; max-width:800px; max-height: 90vh; overflow-y: auto; background-color:#000;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+                <h3 style="margin:0; color:var(--color-interactive-lime);">현장 사진 보기</h3>
+                <button onclick="closePhotoModal()" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <div id="photo-gallery-container" class="photo-gallery" style="display: flex; gap: 10px; max-height: 70vh; overflow-y: auto; padding-bottom: 10px;">
+                <!-- 이미지 렌더링 영역 -->
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

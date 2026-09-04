@@ -58,17 +58,19 @@ function renderAdminNav(activePageId) {
         { id: 'admin', name: '⚙️ 기본설정', url: './admin.html', color: '#2563eb' },
         { id: 'admin_v2', name: '📋 작업지시', url: './admin_v2.html', color: '#8b5cf6' },
         { id: 'erp', name: '📊 재무장부', url: './erp.html', color: '#10b981' },
-        { id: 'price_calculator', name: '💰 판매가계산', url: './price_calculator.html', color: '#c9ff00' }
+        { id: 'price_calculator', name: '💰 판매가계산', url: './price_calculator.html', color: '#c9ff00' },
+        { id: 'search', name: '🔎 시공 검색', url: './admin_v2.html?tab=search', color: '#f59e0b' },
+        { id: 'manual', name: '📖 매뉴얼', url: './manual.html', color: '#ec4899' }
     ];
 
-    let navHTML = `<div style="display: flex; gap: 8px; flex-wrap: wrap;" id="admin-unified-nav">`;
+    let navHTML = `<div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;" id="admin-unified-nav">`;
     
     pages.forEach(p => {
         const isActive = activePageId === p.id;
         const bgColor = isActive ? p.color : '#e5e7eb';
         const textColor = isActive ? 'white' : '#4b5563';
         const shadow = isActive ? 'box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);' : '';
-        navHTML += `<a href="${p.url}" style="text-decoration: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; font-size: 14px; background-color: ${bgColor}; color: ${textColor}; transition: 0.2s; ${shadow}">${p.name}</a>`;
+        navHTML += `<a href="${p.url}" style="text-decoration: none; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; background-color: ${bgColor}; color: ${textColor}; transition: 0.2s; ${shadow}">${p.name}</a>`;
     });
 
     navHTML += `</div>`;

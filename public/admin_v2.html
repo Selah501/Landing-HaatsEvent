@@ -740,15 +740,15 @@
         // Load master_products globally from Supabase
         (async () => {
             try {
-                const { data, error } = await window.supabaseClient.from('products').select('*');
+                const { data, error } = await window.supabaseClient.from('products').select('*').eq('is_active', true);
                 if (data) {
                     window.masterProducts = data.map(p => ({
                         name: p.name,
                         model: p.model,
                         brandCategory: p.brand || p.category,
                         category: p.category,
-                        costPrice: p.price_purchase,
-                        sellPrice: p.price_selling,
+                        costPrice: (p.prices && p.prices.purchase) ? p.prices.purchase : 0,
+                        sellPrice: (p.prices && p.prices.sell_total) ? p.prices.sell_total : 0,
                         imageUrl: (p.details && p.details.level1 && p.details.level1.images && p.details.level1.images[0]) ? p.details.level1.images[0] : ''
                     }));
                 }

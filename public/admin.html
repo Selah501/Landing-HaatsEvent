@@ -123,64 +123,13 @@
     </div>
 
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('tab-master', this)">1. 상품 마스터 관리</div>
-        <div class="tab" onclick="switchTab('tab-events', this)">2. 현장별 이벤트 관리</div>
-        <div class="tab" onclick="switchTab('tab-consultations', this)">3. 통화 AI 및 웹 상담 DB</div>
-        <div class="tab" onclick="switchTab('tab-managers', this)">4. 담당자 관리</div>
-    </div>
-
-    <!-- 탭 1: 상품 마스터 -->
-    <div id="tab-master" class="tab-content active">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <p style="margin: 0; color: #6b7280;">랜딩 페이지에 노출될 전체 상품의 마스터 목록입니다. <span style="color:red; font-weight:bold;">저장 시 실시간으로 앱에 반영됩니다.</span></p>
-            <button onclick="addMasterRow()">+ 새 상품 추가</button>
-        </div>
-        
-        
-        <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-            <select id="master-category-filter" style="padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="renderMasterList()">
-                <option value="ALL">전체 보기 (느릴 수 있음)</option>
-                <option value="하츠후드 엘리카" selected>하츠후드 엘리카</option>
-                <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
-                <option value="하츠후드 데코">하츠후드 데코</option>
-                <option value="하츠후드 시스템">하츠후드 시스템</option>
-                <option value="하츠 전기레인지">하츠 전기레인지</option>
-                <option value="하츠 가스레인지">하츠 가스레인지</option>
-                <option value="하츠 수전빌트인">하츠 수전빌트인</option>
-                <option value="하츠 씽크볼">하츠 씽크볼</option>
-                <option value="하츠 기타빌트인">하츠 기타빌트인</option>
-                <option value="기타카테고리">기타카테고리</option>
-            </select>
-            <span style="font-size: 13px; color: #6b7280;">* 카테고리를 선택하여 조회하세요.</span>
-        </div>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="min-width: 80px;">분류</th>
-                        <th width="12%">상품명</th>
-                        <th width="12%">모델/유형</th>
-                        <th width="15%">기능/특징</th>
-                        <th width="8%">소요시간(분)</th>
-                        <th width="10%">비고(비공개)</th>
-                        <th width="10%">기본 표시가</th>
-                        <th width="10%">상세 링크</th>
-                        <th width="12%">적용 현장</th>
-                        <th width="11%">관리</th>
-                    </tr>
-                </thead>
-                <tbody id="master-tbody">
-                    <!-- JS 렌더링 -->
-                </tbody>
-            </table>
-        </div>
-        <div style="text-align: right;">
-            <button class="btn-success" onclick="saveMasterList()">✅ 서버에 즉시 저장</button>
-        </div>
+        <div class="tab active" onclick="switchTab('tab-events', this)">1. 현장별 이벤트 관리</div>
+        <div class="tab" onclick="switchTab('tab-consultations', this)">2. 통화 AI 및 웹 상담 DB</div>
+        <div class="tab" onclick="switchTab('tab-managers', this)">3. 담당자 관리</div>
     </div>
 
     <!-- 탭 2: 현장별 이벤트 -->
-    <div id="tab-events" class="tab-content">
+    <div id="tab-events" class="tab-content active">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <p style="margin: 0; color: #6b7280;">현장별로 배정된 메인 상품과 부가 상품, 전용 가격을 관리합니다.</p>
             <button onclick="openEventModal()">+ 신규 현장 등록</button>
@@ -554,10 +503,8 @@
                         });
                     }
 
-                    if(document.getElementById('tab-master').classList.contains('active')) {
-                        window.renderMasterList();
-                    }
-                    // Supabase 로드 완료 후 이벤트 탭도 갱신 (타이밍 문제 해결)
+                    // Supabase 로드 로직은 상품 마스터 탭을 제거했으므로 제거됨
+                    // 이벤트 탭 갱신
                     if(document.getElementById('tab-events').classList.contains('active')) {
                         renderEventList();
                     }
@@ -581,9 +528,7 @@
                 
                 document.getElementById('db-status').innerHTML = '🟢 실시간 연동 중';
                 
-                if(document.getElementById('tab-master').classList.contains('active')) {
-                    window.renderMasterList();
-                } else if(document.getElementById('tab-events').classList.contains('active')) {
+                if(document.getElementById('tab-events').classList.contains('active')) {
                     renderEventList();
                 } else if(document.getElementById('tab-consultations').classList.contains('active')) {
                     renderCRMGrid(window.currentCrmPending);
@@ -691,145 +636,7 @@
         }
     }
 
-    function getApplicableSites(prodId) {
-        let sites = [];
-        window.currentData.forEach(ev => {
-            const inMain = (ev.mainProducts || []).some(p => p.id === prodId);
-            const inAddon = (ev.addonProducts || []).some(p => p.id === prodId);
-            if(inMain || inAddon) sites.push(ev.title);
-        });
-        return sites;
-    }
 
-    // (Supabase 상품 로드는 initAdminAuth 콜백 내부로 이동됨)
-
-        window.renderMasterList = function() {
-        const tbody = document.getElementById('master-tbody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        const filterEl = document.getElementById('master-category-filter');
-        const filterVal = filterEl ? filterEl.value : '하츠후드 엘리카';
-        
-        let filteredProducts = window.currentProducts;
-        if (filterVal !== 'ALL') {
-            filteredProducts = window.currentProducts.filter(p => (p.category || '기타카테고리') === filterVal);
-        }
-        
-        filteredProducts.forEach((prod) => {
-            const idx = window.currentProducts.indexOf(prod);
-            const applicableSites = getApplicableSites(prod.id);
-            const siteNames = applicableSites.length > 0 ? applicableSites.join(', ') : '<span style="color:#9ca3af;">없음</span>';
-            
-            tbody.innerHTML += `
-                <tr id="m-row-${idx}">
-                    <td data-label="분류"><span style="font-size:12px; color:#4b5563;">${prod.category || '기타카테고리'}</span></td>
-                    <td><input type="text" class="m-name" value="${prod.name}"></td>
-                    <td><input type="text" class="m-model" value="${prod.model || ''}"></td>
-                    <td><input type="text" class="m-features" value="${prod.features || ''}"></td>
-                    <td><input type="number" class="m-duration" value="${prod.duration || ''}" placeholder="예: 120" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:4px;"></td>
-                    <td><input type="text" class="m-remarks" value="${prod.remarks || ''}" placeholder="비공개 메모"></td>
-                    <td><input type="text" class="m-defaultPrice" value="${prod.defaultPriceText || ''}"></td>
-                    <td><input type="text" class="m-link" value="${prod.detailLink || ''}" placeholder="./products/xxx.html"></td>
-                    <td style="font-size: 13px;">${siteNames}</td>
-                    <td style="text-align:center;">
-                        <button class="btn-info" style="padding: 6px 12px; font-size:12px; margin-bottom: 4px; display:block; width:100%;" onclick="openAssignModal('${prod.id}')">현장 배정</button>
-                        <button class="btn-danger" style="padding: 6px 12px; font-size:12px; display:block; width:100%;" onclick="deleteMasterRow(${idx})">삭제</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-
-    window.addMasterRow = function() {
-        const catFilter = document.getElementById('master-category-filter').value;
-        const defaultCat = catFilter === 'ALL' ? '기타카테고리' : catFilter;
-        window.currentProducts.push({
-            id: 'p_' + Date.now(),
-            name: '', model: '', features: '', duration: '', remarks: '', defaultPriceText: '', detailLink: '', category: defaultCat
-        });
-        window.renderMasterList();
-    }
-
-    window.deleteMasterRow = function(idx) {
-        if(confirm("정말 삭제하시겠습니까? (이 상품을 사용하는 현장이 있다면 그곳에서도 사라집니다)")) {
-            const id = window.currentProducts[idx].id;
-            window.currentData.forEach(ev => {
-                if(ev.mainProducts) ev.mainProducts = ev.mainProducts.filter(p => p.id !== id);
-                if(ev.addonProducts) ev.addonProducts = ev.addonProducts.filter(p => p.id !== id);
-            });
-            window.currentProducts.splice(idx, 1);
-            window.syncToServer();
-        }
-    }
-
-    window.saveMasterList = function() {
-        const rows = document.querySelectorAll('#master-tbody tr');
-        rows.forEach((row) => {
-            const idx = parseInt(row.id.replace('m-row-', ''));
-            if (isNaN(idx) || !window.currentProducts[idx]) return;
-            
-            window.currentProducts[idx].name = row.querySelector('.m-name').value;
-            window.currentProducts[idx].model = row.querySelector('.m-model').value;
-            window.currentProducts[idx].features = row.querySelector('.m-features').value;
-            const durVal = parseInt(row.querySelector('.m-duration').value);
-            window.currentProducts[idx].duration = isNaN(durVal) ? 0 : durVal;
-            window.currentProducts[idx].remarks = row.querySelector('.m-remarks').value;
-            window.currentProducts[idx].defaultPriceText = row.querySelector('.m-defaultPrice').value;
-            window.currentProducts[idx].detailLink = row.querySelector('.m-link').value;
-        });
-        window.syncToServer();
-        alert('서버에 저장되었습니다.');
-    }
-
-    window.openAssignModal = function(prodId) {
-        document.getElementById('assign-modal').style.display = 'flex';
-        document.getElementById('assign-prod-id').value = prodId;
-        const prod = window.currentProducts.find(p => p.id === prodId);
-        document.getElementById('assign-modal-title').innerText = `[${prod.name}] 현장 일괄 배정`;
-
-        const listDiv = document.getElementById('assign-list');
-        listDiv.innerHTML = '';
-        window.currentData.forEach((ev, evIdx) => {
-            const inMain = (ev.mainProducts || []).some(p => p.id === prodId);
-            const inAddon = (ev.addonProducts || []).some(p => p.id === prodId);
-            
-            listDiv.innerHTML += `
-                <div class="assignment-row">
-                    <strong style="font-size:14px; width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${ev.title}</strong>
-                    <div class="radio-group" style="display:flex;">
-                        <label><input type="radio" name="assign-${evIdx}" value="none" ${(!inMain && !inAddon) ? 'checked' : ''}> 미배정</label>
-                        <label><input type="radio" name="assign-${evIdx}" value="main" ${inMain ? 'checked' : ''}> 메인 상품</label>
-                        <label><input type="radio" name="assign-${evIdx}" value="addon" ${inAddon ? 'checked' : ''}> 부가 상품</label>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    window.closeAssignModal = function() {
-        document.getElementById('assign-modal').style.display = 'none';
-    }
-
-    window.saveAssignments = function() {
-        const prodId = document.getElementById('assign-prod-id').value;
-        
-        window.currentData.forEach((ev, evIdx) => {
-            const val = document.querySelector(`input[name="assign-${evIdx}"]:checked`).value;
-            
-            if(ev.mainProducts) ev.mainProducts = ev.mainProducts.filter(p => p.id !== prodId);
-            if(ev.addonProducts) ev.addonProducts = ev.addonProducts.filter(p => p.id !== prodId);
-
-            if(val === 'main') {
-                ev.mainProducts.push({ id: prodId, customText: '' });
-            } else if (val === 'addon') {
-                ev.addonProducts.push({ id: prodId, customText: '' });
-            }
-        });
-
-        window.closeAssignModal();
-        window.syncToServer();
-        alert('배정이 서버에 저장되었습니다.');
-    }
 
     window.renderEventList = function() {
         const tbody = document.getElementById('event-tbody');

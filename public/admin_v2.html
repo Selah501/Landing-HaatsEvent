@@ -378,6 +378,13 @@
             <div id="schedule-grid" class="schedule-grid">
                 <!-- JS Rendering -->
             </div>
+
+            <div id="cancelled-container" style="display: none; margin-top: 32px; border-top: 2px dashed #444; padding-top: 16px;">
+                <h4 style="color: #ef4444; margin-bottom: 12px; margin-top: 0;">🚫 취소 / 보류된 일정</h4>
+                <div id="cancelled-grid" class="schedule-grid">
+                    <!-- JS Rendering -->
+                </div>
+            </div>
         </div>
 
         <!-- CRM 결재 대기판 탭 -->
@@ -564,12 +571,51 @@
         </div>
     </div>
 
-    <!-- 고객 정보(동·호수/제품 등) 변경 모달 -->
+    <!-- 고객 정보(동·호수/제품 등) 변경 및 예약 취소 모달 -->
     <div id="edit-customer-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 440px;">
-            <h3 style="margin-top: 0; color: #3b82f6; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 16px;">✏️ 고객 접수 정보 변경</h3>
+            <h3 style="margin-top: 0; color: #3b82f6; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 16px;">✏️ 고객정보 / 예약변경 (취소)</h3>
             <input type="hidden" id="edit-cust-rid">
+            <input type="hidden" id="edit-cust-original-date">
+            <input type="hidden" id="edit-cust-original-time">
             
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="margin-top: 12px; flex: 1;">
+                    <label style="color: #aaa; font-size: 12px;">예약 날짜</label>
+                    <input type="date" id="edit-cust-date" class="form-control" style="font-weight: bold; color: #fff;">
+                </div>
+                <div class="form-group" style="margin-top: 12px; flex: 1;">
+                    <label style="color: #aaa; font-size: 12px;">예약 시간</label>
+                    <select id="edit-cust-time" class="form-control">
+                        <option value="08:00">08:00</option>
+                        <option value="08:30">08:30</option>
+                        <option value="09:00">09:00</option>
+                        <option value="09:30">09:30</option>
+                        <option value="10:00">10:00</option>
+                        <option value="10:30">10:30</option>
+                        <option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option>
+                        <option value="14:30">14:30</option>
+                        <option value="15:00">15:00</option>
+                        <option value="15:30">15:30</option>
+                        <option value="16:00">16:00</option>
+                        <option value="16:30">16:30</option>
+                        <option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option>
+                        <option value="18:00">18:00</option>
+                        <option value="18:30">18:30</option>
+                        <option value="19:00">19:00</option>
+                        <option value="19:30">19:30</option>
+                        <option value="20:00">20:00</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group" style="margin-top: 12px;">
                 <label style="color: #aaa; font-size: 12px;">아파트 / 동·호수</label>
                 <input type="text" id="edit-cust-apt" class="form-control" style="font-weight: bold; color: #fff;">
@@ -588,8 +634,11 @@
             </div>
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-secondary" style="flex: 1;" onclick="closeEditCustomerModal()">취소</button>
-                <button class="btn" style="flex: 1; background: #3b82f6; color: #fff; font-weight: bold; border: none; cursor: pointer;" onclick="saveEditCustomerInfo()">💾 변경사항 저장</button>
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeEditCustomerModal()">닫기</button>
+                <button class="btn" style="flex: 1.5; background: #3b82f6; color: #fff; font-weight: bold; border: none; cursor: pointer;" onclick="saveEditCustomerInfo()">💾 변경사항 저장</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <button class="btn" style="width: 100%; background: transparent; border: 1px solid #ef4444; color: #ef4444; font-weight: bold; padding: 8px; cursor: pointer;" onclick="cancelReservation()">❌ 예약 완전 취소 (DB보존)</button>
             </div>
         </div>
     </div>
@@ -1091,25 +1140,32 @@
 
         function renderGrid() {
             const grid = document.getElementById('schedule-grid');
+            const cancelledContainer = document.getElementById('cancelled-container');
+            const cancelledGrid = document.getElementById('cancelled-grid');
+            
             grid.innerHTML = '';
+            if (cancelledGrid) cancelledGrid.innerHTML = '';
             
             let statCompleted = 0;
             let statPending = 0;
 
             if (window.groupedTasks.length === 0) {
                 grid.innerHTML = `<div class="empty-state">해당 날짜에 접수된 일정이 없습니다.</div>`;
+                if (cancelledContainer) cancelledContainer.style.display = 'none';
                 document.getElementById('stat-total').innerText = 0;
                 document.getElementById('stat-completed').innerText = 0;
                 document.getElementById('stat-pending').innerText = 0;
                 return;
             }
 
+            let hasCancelled = false;
+            let activeCount = 0;
+
             window.groupedTasks.forEach(task => {
                 // 시간 포맷 (예: 09:00 ~ 11:00)
                 task.times.sort();
                 let timeStr = task.times[0];
                 if (task.times.length > 1) {
-                    // 끝나는 시간 계산 (마지막 슬롯 + 1시간)
                     const lastTime = task.times[task.times.length - 1];
                     const hour = parseInt(lastTime.split(':')[0]) + 1;
                     timeStr = `${task.times[0]} ~ ${String(hour).padStart(2, '0')}:00`;
@@ -1123,24 +1179,30 @@
                     itemsStr = String(cInfo.items);
                 }
                 
-                // 상태 결정 (단일 카드로 관리)
-                // 만약 report 객체가 있다면 completed로 간주
                 const isCompleted = !!task.data.report;
                 const isConfirmed = task.data.status === 'confirmed';
+                const isCancelled = task.data.status === 'cancelled';
                 
                 let badgeClass = 'status-pending';
                 let badgeText = '예약 대기 (미확정)';
                 
-                if (isCompleted) {
+                if (isCancelled) {
+                    badgeClass = 'status-completed'; // 회색 스타일 재사용
+                    badgeText = '🚫 취소/보류됨';
+                    hasCancelled = true;
+                } else if (isCompleted) {
                     badgeClass = 'status-completed';
                     badgeText = '✅ 작업 보고 완료';
                     statCompleted++;
+                    activeCount++;
                 } else if (isConfirmed) {
                     badgeClass = 'status-confirmed';
                     badgeText = '📍 확정 (진행 예정)';
                     statPending++;
+                    activeCount++;
                 } else {
                     statPending++;
+                    activeCount++;
                 }
 
                 let reportHtml = '';
@@ -1172,7 +1234,6 @@
                     `;
                 }
 
-                // 예약 경로 및 일정 유형 판별
                 let sourceBadgeHtml = "";
                 const resType = task.data.type || "";
                 const notesText = String(cInfo.notes || "").toLowerCase();
@@ -1192,8 +1253,10 @@
                 const safeNotes = String(cInfo.notes || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '');
                 const notesShort = safeNotes.length > 30 ? safeNotes.substring(0,30) + '...' : safeNotes;
 
-                grid.innerHTML += `
-                    <div class="card">
+                const opacity = isCancelled ? '0.5' : '1';
+                
+                const cardHtml = `
+                    <div class="card" style="opacity: ${opacity};">
                         <div class="card-header">
                             <div style="display:flex; align-items:center;">
                                 <div class="time-badge">${timeStr}</div>
@@ -1232,18 +1295,31 @@
                         </div>
                         
                         <div class="card-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <button class="btn" style="background:#3b82f6; color:#fff; border:none; cursor:pointer; font-weight:bold; padding:8px 12px; border-radius:6px; flex:1;" onclick="openEditCustomerModal('${task.rId}')">✏️ 고객정보 변경</button>
-                            ${isCompleted ? 
-                                `<button class="btn btn-secondary" style="flex:1;" onclick="openModal('${task.rId}')">📝 보고서 수정</button>` :
-                                `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">✅ 보고서작성</button>
-                                 <button class="btn" style="flex:1; background:#e32652; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="startVoiceReport('${task.rId}')">🎤 음성 보고</button>`
+                            ${isCancelled ? 
+                                `<button class="btn" style="background:#ef4444; color:#fff; border:none; cursor:pointer; font-weight:bold; padding:8px 12px; border-radius:6px; flex:1;" onclick="openEditCustomerModal('${task.rId}')">🔄 예약 복구 / 재조정</button>` :
+                                `<button class="btn" style="background:#3b82f6; color:#fff; border:none; cursor:pointer; font-weight:bold; padding:8px 12px; border-radius:6px; flex:1;" onclick="openEditCustomerModal('${task.rId}')">✏️ 고객정보 / 예약변경</button>
+                                ${isCompleted ? 
+                                    `<button class="btn btn-secondary" style="flex:1;" onclick="openModal('${task.rId}')">📝 보고서 수정</button>` :
+                                    `<button class="btn btn-primary" style="flex:1;" onclick="openModal('${task.rId}')">✅ 보고서작성</button>
+                                     <button class="btn" style="flex:1; background:#e32652; color:white; border:none; cursor:pointer; font-weight:bold;" onclick="startVoiceReport('${task.rId}')">🎤 음성 보고</button>`
+                                }`
                             }
                         </div>
                     </div>
                 `;
+                
+                if (isCancelled && cancelledGrid) {
+                    cancelledGrid.innerHTML += cardHtml;
+                } else {
+                    grid.innerHTML += cardHtml;
+                }
             });
             
-            document.getElementById('stat-total').innerText = window.groupedTasks.length;
+            if (cancelledContainer) {
+                cancelledContainer.style.display = hasCancelled ? 'block' : 'none';
+            }
+            
+            document.getElementById('stat-total').innerText = activeCount;
             document.getElementById('stat-completed').innerText = statCompleted;
             document.getElementById('stat-pending').innerText = statPending;
         }
@@ -1257,6 +1333,14 @@
             document.getElementById('edit-cust-rid').value = rId;
             document.getElementById('edit-cust-apt').value = cInfo.apt || '';
             document.getElementById('edit-cust-phone').value = cInfo.phone || '';
+            
+            const selectedDate = document.getElementById('date-picker').value;
+            document.getElementById('edit-cust-date').value = selectedDate;
+            document.getElementById('edit-cust-original-date').value = selectedDate;
+            
+            const startTime = task.times && task.times.length > 0 ? task.times[0] : '09:00';
+            document.getElementById('edit-cust-time').value = startTime;
+            document.getElementById('edit-cust-original-time').value = startTime;
             
             let itemsStr = '';
             if (Array.isArray(cInfo.items)) itemsStr = cInfo.items.join(', ');
@@ -1273,12 +1357,16 @@
         };
 
         window.saveEditCustomerInfo = function() {
-            if(!confirm('고객 정보(동/호수, 상품 등) 변경사항을 저장하시겠습니까?')) return;
+            if(!confirm('고객 정보 또는 예약 시간 변경사항을 저장하시겠습니까?')) return;
             const rId = document.getElementById('edit-cust-rid').value;
             const task = window.groupedTasks.find(t => t.rId === rId);
             if (!task) return;
             
-            const selectedDate = document.getElementById('date-picker').value;
+            const originalDate = document.getElementById('edit-cust-original-date').value;
+            const newDate = document.getElementById('edit-cust-date').value;
+            const originalTime = document.getElementById('edit-cust-original-time').value;
+            const newTime = document.getElementById('edit-cust-time').value;
+            
             const newApt = document.getElementById('edit-cust-apt').value.trim();
             const newPhone = document.getElementById('edit-cust-phone').value.trim();
             const newItemsStr = document.getElementById('edit-cust-items').value.trim();
@@ -1294,20 +1382,79 @@
                 notes: newNotes
             };
             
+            const execUpdate = window.update || update;
+            const execRef = window.ref || ref;
+            const targetDb = window.db || db;
             let updates = {};
-            task.times.forEach(t => {
-                updates[`reservations/${selectedDate}/${t}/customerInfo`] = updatedCustomerInfo;
+
+            if (originalDate === newDate && originalTime === newTime) {
+                // 시간 변경 없음, 정보만 업데이트
+                task.times.forEach(t => {
+                    updates[`reservations/${originalDate}/${t}/customerInfo`] = updatedCustomerInfo;
+                });
+            } else {
+                // 시간 변경됨 (Shift)
+                const slotCount = task.times.length;
+                function getSlots(startStr, count) {
+                    let slots = [];
+                    let [h, m] = startStr.split(':').map(Number);
+                    for(let i=0; i<count; i++) {
+                        let hh = String(h).padStart(2, '0');
+                        let mm = String(m).padStart(2, '0');
+                        slots.push(`${hh}:${mm}`);
+                        m += 30;
+                        if(m >= 60) { m -= 60; h += 1; }
+                    }
+                    return slots;
+                }
+                const newSlots = getSlots(newTime, slotCount);
+                
+                const baseData = {
+                    ...task.data,
+                    customerInfo: updatedCustomerInfo,
+                    status: 'confirmed',
+                    reservationId: rId
+                };
+                
+                newSlots.forEach(t => {
+                    updates[`reservations/${newDate}/${t}`] = baseData;
+                });
+                
+                task.times.forEach(t => {
+                    updates[`reservations/${originalDate}/${t}`] = null; // 기존 슬롯은 비움
+                });
+            }
+            
+            execUpdate(execRef(targetDb), updates).then(() => {
+                alert('✅ 예약 정보가 성공적으로 변경되었습니다!');
+                closeEditCustomerModal();
+            }).catch(e => {
+                alert('저장 실패: ' + e.message);
             });
+        };
+
+        window.cancelReservation = function() {
+            if(!confirm('🚨 정말 이 예약을 완전히 취소하시겠습니까?\\n(DB에는 보존되나 일정에서는 제외됩니다)')) return;
+            const rId = document.getElementById('edit-cust-rid').value;
+            const task = window.groupedTasks.find(t => t.rId === rId);
+            if (!task) return;
+            
+            const originalDate = document.getElementById('edit-cust-original-date').value;
             
             const execUpdate = window.update || update;
             const execRef = window.ref || ref;
             const targetDb = window.db || db;
-
+            let updates = {};
+            
+            task.times.forEach(t => {
+                updates[`reservations/${originalDate}/${t}/status`] = 'cancelled';
+            });
+            
             execUpdate(execRef(targetDb), updates).then(() => {
-                alert('✅ 고객 정보가 성공적으로 변경되었습니다!');
+                alert('🗑️ 예약이 성공적으로 취소(보류) 처리되었습니다.');
                 closeEditCustomerModal();
             }).catch(e => {
-                alert('저장 실패: ' + e.message);
+                alert('취소 실패: ' + e.message);
             });
         };
 

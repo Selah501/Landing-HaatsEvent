@@ -329,5 +329,33 @@ eservations)을 테이블에서 렌더링 제외시켜 순수한 '팔로업/보�
    - 취소/보류된 예약 카드의 **🔄 예약 복구 / 재조정** 버튼을 클릭하여 새 날짜나 시간으로 손쉽게 되돌릴 수 있음.
    - 시간이 변경된 경우 새 시간대(여러 슬롯 포함)로 데이터를 이동하고, 과거의 예약 시간대 슬롯들은 빈 공간(`null`)으로 깔끔하게 비우도록 로직을 전면 개선함.
 3. **작업 이력**:
-   - Git Commit Message: `feat(admin_v2): Implement reservation cancellation (soft delete) and time shift recovery features`
-   - [상세 요약 워크스루](.agents/work_logs/20260904_예약취소_및_복구_기능.md)
+    - Git Commit Message: `feat(admin_v2): Implement reservation cancellation (soft delete) and time shift recovery features`
+    - [상세 요약 워크스루](.agents/work_logs/20260904_예약취소_및_복구_기능.md)
+
+## [2026-09-04] 상품 마스터 페이지 이미지 복구 및 노션 동기화 운영 정책 변경
+
+### 주요 변경 사항
+1. **상품 이미지 404 에러 복구**:
+   - 이전 AI가 `detail_urls[0]`에 넣은 존재하지 않는 경로의 쓰레기 URL 전량 교체
+   - 노션 DB "상세페이지1/2/3" URL → Supabase `detail_urls[0/1/2]` 일괄 동기화 완료 (147개 성공, 오류 0건)
+   - 관련 스크립트: `landing/sync_notion_detail_to_supabase.mjs`
+
+2. **[아키텍처 정책 결정] 노션-Supabase 상품 동기화 중지**:
+   - **이유**: Supabase를 독립 DB로 운영하고, `product_master.html`에서 직접 상품 수정/추가하는 워크플로우 확립 필요
+   - **현재 상태**: `notion_sync_daemon.py` 중지됨 (마지막 동기화: 2026-08-11)
+   - **안전장치**: `bulk_sync_products.py`, `notion_sync_daemon.py` 상단에 `SYNC_ENABLED = False` 플래그 추가
+   - **재개 방법**: 노션 연동 재개 시 두 파일의 `SYNC_ENABLED = True`로 변경 후 실행
+
+3. **Supabase products 테이블 필드 책임 분리 확정**:
+   - **노션 관리 필드** (재개 시만 sync): `name`, `model`, `brand`, `category`, 가격(구형 컬럼)
+   - **product_master.html 단독 관리 필드**: `detail_urls`, `prices`(jsonb), `is_active`, `is_set`, `set_components`
+
+## [2026-09-07] 상품마스터 마케팅메모(검색용) 필드 추가 작업
+### 주요 변경 사항
+1. **DB 스키마 및 상품마스터 UI 연동**:
+   - `products` 테이블에 `marketing_memo` 필드를 추가할 수 있도록 `supabase_schema_update.sql` 갱신
+   - `product_master.html` 상세/수정 모달에 마케팅 메모 입력폼 추가
+   - 상품 목록 상단 검색창에서 마케팅 메모 키워드로도 함께 검색되도록 검색 범위 확장
+2. **작업 이력**:
+   - Git Commit Message: `feat(product_master): Add marketing memo field and integrate with search filter`
+   - [상세 요약 워크스루](.agents/work_logs/20260907_상품마스터_마케팅메모_추가.md)

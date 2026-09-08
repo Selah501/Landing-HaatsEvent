@@ -33,6 +33,10 @@
 - 1. 대화창에서 주요 작업이 완료되면, 해당 대화창의 요약본(Walkthrough)을 휘발성으로 두지 말고 **반드시 프로젝트 내부 `.agents/work_logs/YYYYMMDD_작업내용_요약.md` 형태로 저장**하십시오.
 - 2. `HISTORY_AND_ROADMAP.md`에 작업 이력을 추가할 때, **반드시 해당 작업의 [Git Commit Message]와 [상세 요약본(work_logs) 링크]를 함께 기재**하십시오.
 
+## 8. 사용자 친화적 소통 (UX Terminology)
+대표님과 대화할 때나 워크스루(안내문)를 작성할 때, `product_master.html`이나 `admin_v2.html` 같은 '소스코드 파일명'으로 페이지를 지칭하지 마십시오. 
+반드시 대표님이 실제 화면에서 보시는 **[UI 타이틀]**(예: "📦 상품 마스터 페이지", "📝 작업 지시서 페이지")을 사용하여 직관적으로 대화하십시오.
+
 <RULE[user_project]>
 # 🚀 작업 승인(Planning Mode) 간소화 및 안전장치 규칙
 1. [자동 통과] 단순 UI/UX 수정, 기존 코드의 단순 버그 픽스, 텍스트/디자인 수정 등 위험도가 낮은 작업은 Implementation Plan 작성을 생략하고(Do NOT plan) 즉각 수정 및 배포할 것.

@@ -141,7 +141,8 @@ def process_audio_file(filepath):
         dynamic_prompt = PROMPT + f"\n\n[필수 지침]\n"
         dynamic_prompt += f"1. 현장명(site_info)은 다음 목록 중 가장 일치하는 이름 하나만 선택하세요: {', '.join(event_names) if event_names else '목록 없음'}\n"
         dynamic_prompt += f"   - 일치하는 것이 확실치 않으면 '기타(추정)'이라고 적고 뒤에 추정한 이름을 괄호로 적으세요. (예: 기타(추정: 무슨아파트))\n"
-        dynamic_prompt += f"   - 동호수가 언급되었다면 현장명과 결합하세요. (예: 효성 101-102)\n"
+        dynamic_prompt += f"   - 동호수가 언급되었다면 현장명과 결합하되, 반드시 '[동/호수] [아파트명] [[지역명]]' 순서로 기재하세요. (목록의 이름이 '[내포] 효성'이라면 '102동 2003호 효성 [내포]' 형식으로 변경)\n"
+        dynamic_prompt += f"   - 현장을 전혀 알 수 없는 경우 '미확인현장 [미확인]' 으로 기재하세요.\n"
         dynamic_prompt += f"2. 구매품(purchase_info)은 다음 목록 중 가장 일치하는 이름들만 콤마로 나열하세요: {', '.join(product_names) if product_names else '목록 없음'}\n"
         dynamic_prompt += f"   - 일치하는 것이 확실치 않으면 '기타(추정)'이라고 적고 추정한 이름을 괄호로 적으세요.\n"
         # ★ 파일명에서 추출한 전화번호를 AI에게 힌트로 제공

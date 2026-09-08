@@ -752,9 +752,20 @@
                     const aptInput = document.getElementById('customer-apt');
                     let defaultApt = currentEvent.aptName;
                     if (!defaultApt) {
-                        defaultApt = currentEvent.title.replace(/(아파트|주방후드|환풍기|전동댐퍼|인덕션|수전|싱크볼|씽크볼|특가|이벤트|공동구매|교체|설치|핫써머|핫썸머|썸머|써머|여름|스멜|행사|할인|초특가|사전예약|모집|프로모션|패키지|혜택|지원|사은품|202\d).*$/i, '').trim();
-                        const words = defaultApt.split(/\s+/);
-                        if (words.length >= 2) defaultApt = words.slice(1).join(' ');
+                        let tempApt = currentEvent.title.replace(/(아파트|주방후드|환풍기|전동댐퍼|인덕션|수전|싱크볼|씽크볼|특가|이벤트|공동구매|교체|설치|핫써머|핫썸머|썸머|써머|여름|스멜|행사|할인|초특가|사전예약|모집|프로모션|패키지|혜택|지원|사은품|202\d).*$/i, '').trim();
+                        let regionTag = "";
+                        const regionMatch = tempApt.match(/^\[(.*?)\]/);
+                        if (regionMatch) {
+                            regionTag = `[${regionMatch[1]}]`;
+                            tempApt = tempApt.replace(/^\[.*?\]\s*/, "").trim();
+                        } else {
+                            const words = tempApt.split(/\s+/);
+                            if (words.length >= 2) {
+                                regionTag = `[${words[0]}]`;
+                                tempApt = words.slice(1).join(' ');
+                            }
+                        }
+                        defaultApt = `${tempApt} ${regionTag}`.trim();
                         if (!defaultApt) {
                             const origWords = currentEvent.title.split(/\s+/);
                             defaultApt = origWords.length >= 2 ? origWords[1] : origWords[0];

@@ -757,32 +757,6 @@
             });
         }
 
-        // 상품을 카테고리별로 그룹화
-        const groupedProducts = window.currentProducts.reduce((acc, p) => {
-            const cat = p.category || '기타카테고리';
-            if (!acc[cat]) acc[cat] = [];
-            acc[cat].push(p);
-            return acc;
-        }, {});
-
-        let optionsHtml = '<option value="">-- 추가할 상품 선택 --</option>';
-        for (const [cat, prods] of Object.entries(groupedProducts)) {
-            optionsHtml += `<optgroup label="${cat}">`;
-            optionsHtml += prods.map(p => {
-                let dispName = p.name;
-                if (p.brandCategory && p.brandCategory !== '기타' && p.brandCategory !== p.category) {
-                    dispName = `[${p.brandCategory}] ` + dispName;
-                } else if (p.brand && p.brand !== '기타') {
-                    dispName = `[${p.brand}] ` + dispName;
-                }
-                if (p.model) {
-                    dispName += ` (${p.model})`;
-                }
-                return `<option value="${p.id}" data-name="${p.name}" data-price="${p.defaultPriceText||''}">${dispName}</option>`;
-            }).join('');
-            optionsHtml += `</optgroup>`;
-        }
-
         // ★ 핵심: 편집용 상품 배열 초기화 (deep copy로 원본 보호)
         window._editMainProds = (ev.mainProducts || []).map(p => ({...p}));
         window._editAddonProds = (ev.addonProducts || []).map(p => ({...p}));
@@ -793,16 +767,16 @@
             const selectedMain = window._editMainProds;
             
             mainDiv.innerHTML = `
-                <div style="margin-bottom:8px;">
-                    <select id="main-prod-add-select" style="width:70%; padding:6px; border:1px solid #d1d5db; border-radius:4px;">
-                        ${optionsHtml}
-                    </select>
+                <div style="margin-bottom:8px; position:relative;">
+                    <input type="text" id="main-prod-search" placeholder="추가할 메인 상품 검색 (이름/모델명)..." autocomplete="off" style="width:70%; padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:13px;" onkeyup="searchEventProduct(this.value, 'main')">
+                    <input type="hidden" id="main-prod-selected-id">
                     <button class="btn-info" style="padding:6px 12px; font-size:13px;" onclick="addMainProduct()">추가</button>
+                    <div id="main-prod-search-results" style="display:none; position:absolute; top:34px; left:0; width:70%; background:white; border:1px solid #d1d5db; border-radius:4px; max-height:200px; overflow-y:auto; z-index:10; box-shadow:0 4px 6px rgba(0,0,0,0.1);"></div>
                 </div>
                 <div id="main-prod-list">
                     ${selectedMain.map((p,i) => {
                         const prod = window.currentProducts.find(x=>x.id===p.id);
-                        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        return `<div id="mainrow-${p.id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                             <span>${prod ? prod.name : p.id}</span>
                             <input type="text" id="price-main-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
                             <input type="text" id="link-main-${p.id}" placeholder="상세링크" value="${p.customLink||''}" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
@@ -815,16 +789,16 @@
         if(addonDiv) {
             const selectedAddon = window._editAddonProds;
             addonDiv.innerHTML = `
-                <div style="margin-bottom:8px;">
-                    <select id="addon-prod-add-select" style="width:70%; padding:6px; border:1px solid #d1d5db; border-radius:4px;">
-                        ${optionsHtml}
-                    </select>
+                <div style="margin-bottom:8px; position:relative;">
+                    <input type="text" id="addon-prod-search" placeholder="추가할 부가 상품 검색 (이름/모델명)..." autocomplete="off" style="width:70%; padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:13px;" onkeyup="searchEventProduct(this.value, 'addon')">
+                    <input type="hidden" id="addon-prod-selected-id">
                     <button class="btn-info" style="padding:6px 12px; font-size:13px;" onclick="addAddonProduct()">추가</button>
+                    <div id="addon-prod-search-results" style="display:none; position:absolute; top:34px; left:0; width:70%; background:white; border:1px solid #d1d5db; border-radius:4px; max-height:200px; overflow-y:auto; z-index:10; box-shadow:0 4px 6px rgba(0,0,0,0.1);"></div>
                 </div>
                 <div id="addon-prod-list">
                     ${selectedAddon.map((p,i) => {
                         const prod = window.currentProducts.find(x=>x.id===p.id);
-                        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        return `<div id="addonrow-${p.id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                             <span>${prod ? prod.name : p.id}</span>
                             <input type="text" id="price-addon-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
                             <input type="text" id="link-addon-${p.id}" placeholder="상세링크" value="${p.customLink||''}" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
@@ -834,22 +808,54 @@
                 </div>
             `;
         }
-
-        // Select2 초기화
-        setTimeout(() => {
-            if ($('#main-prod-add-select').length) {
-                $('#main-prod-add-select').select2({ placeholder: "-- 추가할 메인 상품 검색 --", width: '70%' });
-            }
-            if ($('#addon-prod-add-select').length) {
-                $('#addon-prod-add-select').select2({ placeholder: "-- 추가할 부가 상품 검색 --", width: '70%' });
-            }
-        }, 100);
     }
 
+    window.searchEventProduct = function(keyword, type) {
+        const resultsDiv = document.getElementById(type + '-prod-search-results');
+        if (!keyword || keyword.trim() === '') {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        
+        const lowerKey = keyword.toLowerCase();
+        const filtered = window.currentProducts.filter(p => {
+            if (!p.name) return false;
+            const name = p.name.toLowerCase();
+            const model = (p.model || '').toLowerCase();
+            const memo = (p.marketing_memo || '').toLowerCase();
+            return name.includes(lowerKey) || model.includes(lowerKey) || memo.includes(lowerKey);
+        }).slice(0, 20); // 최대 20개 노출
+        
+        if (filtered.length === 0) {
+            resultsDiv.innerHTML = '<div style="padding:10px; color:#6b7280; font-size:13px; text-align:left;">검색 결과가 없습니다.</div>';
+            resultsDiv.style.display = 'block';
+            return;
+        }
+        
+        let html = '';
+        filtered.forEach(p => {
+            const safeName = p.name.replace(/'/g, "\\'");
+            html += `
+                <div style="padding:8px 12px; border-bottom:1px solid #eee; cursor:pointer; text-align:left;" onclick="selectEventProduct('${p.id}', '${safeName}', '${type}')" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='white'">
+                    <div style="color:#2563eb; font-weight:bold; font-size:14px;">${p.name}</div>
+                    <div style="font-size:12px; color:#6b7280;">${p.model || '모델명 없음'} ${p.marketing_memo ? `(${p.marketing_memo})` : ''}</div>
+                </div>
+            `;
+        });
+        resultsDiv.innerHTML = html;
+        resultsDiv.style.display = 'block';
+    };
+
+    window.selectEventProduct = function(id, name, type) {
+        document.getElementById(type + '-prod-search').value = name;
+        document.getElementById(type + '-prod-selected-id').value = id;
+        document.getElementById(type + '-prod-search-results').style.display = 'none';
+    };
+
     window.addMainProduct = function() {
-        const sel = document.getElementById('main-prod-add-select');
-        const id = sel.value; const name = sel.options[sel.selectedIndex]?.dataset?.name || '';
-        if(!id) return;
+        const id = document.getElementById('main-prod-selected-id').value;
+        const name = document.getElementById('main-prod-search').value;
+        if(!id) { alert('상품을 검색하여 선택해주세요.'); return; }
         if(window._editMainProds.find(p=>p.id===id)) { alert('이미 추가된 상품입니다.'); return; }
         window._editMainProds.push({id, customText:'', customLink:''});
         const list = document.getElementById('main-prod-list');
@@ -859,6 +865,8 @@
             <input type="text" id="link-main-${id}" placeholder="상세링크" value="" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
             <button onclick="removeMainProduct('${id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
         </div>`;
+        document.getElementById('main-prod-search').value = '';
+        document.getElementById('main-prod-selected-id').value = '';
     }
 
     window.removeMainProduct = function(id) {
@@ -868,9 +876,9 @@
     }
 
     window.addAddonProduct = function() {
-        const sel = document.getElementById('addon-prod-add-select');
-        const id = sel.value; const name = sel.options[sel.selectedIndex]?.dataset?.name || '';
-        if(!id) return;
+        const id = document.getElementById('addon-prod-selected-id').value;
+        const name = document.getElementById('addon-prod-search').value;
+        if(!id) { alert('상품을 검색하여 선택해주세요.'); return; }
         if(window._editAddonProds.find(p=>p.id===id)) { alert('이미 추가된 상품입니다.'); return; }
         window._editAddonProds.push({id, customText:'', customLink:''});
         const list = document.getElementById('addon-prod-list');
@@ -880,6 +888,8 @@
             <input type="text" id="link-addon-${id}" placeholder="상세링크" value="" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
             <button onclick="removeAddonProduct('${id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
         </div>`;
+        document.getElementById('addon-prod-search').value = '';
+        document.getElementById('addon-prod-selected-id').value = '';
     }
 
     window.removeAddonProduct = function(id) {
@@ -1810,5 +1820,54 @@
     </div>
 </div>
 
+<script>
+// Proactive Daemon Monitoring
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        if (!window.firebase || !firebase.database) return;
+        
+        const warningBadge = document.createElement('div');
+        warningBadge.style.cssText = "display:none; position:fixed; top:20px; right:20px; background:#ffc107; color:#000; padding:10px 15px; border-radius:8px; font-weight:bold; box-shadow:0 4px 6px rgba(0,0,0,0.1); z-index:9999; cursor:pointer;";
+        warningBadge.innerHTML = "⚠️ PC 연결 끊김 의심";
+        warningBadge.onclick = () => Swal.fire('PC 확인 요망', '통화 요약 데몬의 생존 신고가 24시간 이상 지연되었습니다. PC가 켜져 있는지 확인해 주세요.', 'warning');
+        document.body.appendChild(warningBadge);
+
+        let errorShown = false;
+
+        firebase.database().ref('system/daemon_status').on('value', snap => {
+            const data = snap.val();
+            if (!data) return;
+
+            const now = Date.now();
+            const lastHeartbeat = data.last_heartbeat || 0;
+            const diffHours = (now - lastHeartbeat) / (1000 * 60 * 60);
+
+            // 1. 에러 직통 강제 팝업
+            if (data.status === 'ERROR') {
+                if (!errorShown) {
+                    errorShown = true;
+                    Swal.fire({
+                        icon: 'error',
+                        title: '🚨 긴급: 통화 요약 AI 에러',
+                        html: `데몬에 치명적 에러가 발생하여 작동이 멈췄습니다.<br><br><b style="color:red">${data.message || '상세 정보 없음'}</b><br><br>API 한도 초과이거나 키 오류일 수 있습니다.`,
+                        allowOutsideClick: false
+                    }).then(() => {
+                        errorShown = false; 
+                    });
+                }
+                warningBadge.style.display = 'none';
+            } 
+            // 2. 장기 지연 감지 (24시간 이상)
+            else if (diffHours > 24) {
+                warningBadge.style.display = 'block';
+            } 
+            // 3. 정상
+            else {
+                warningBadge.style.display = 'none';
+            }
+        });
+    }, 3000); // Firebase 초기화 대기
+});
+</script>
 </body>
 </html>

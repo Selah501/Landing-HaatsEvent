@@ -955,10 +955,15 @@
     };
 
     window.confirmDetailCardReservation = function() {
+        const id = document.getElementById('dcm-id').value;
+        const dateStr = document.getElementById('dcm-dateStr').value;
         const phone = document.getElementById('dcm-phone').textContent;
         const customer = document.getElementById('dcm-customer').textContent;
-        const url = `reservation_v2.html?admin_phone=${encodeURIComponent(phone)}&admin_name=${encodeURIComponent(customer)}`;
-        window.open(url, '_blank');
+        const items = document.getElementById('dcm-content').textContent;
+        const memo = document.getElementById('dcm-memo').value;
+        const path = `consultations/${dateStr}/${id}`;
+        
+        window.openUnifiedModal(path, customer, phone, items, memo);
         document.getElementById('detailCardModal').style.display = 'none';
     };
     // ------------------------------------

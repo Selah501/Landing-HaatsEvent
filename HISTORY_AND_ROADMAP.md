@@ -379,3 +379,29 @@ eservations)을 테이블에서 렌더링 제외시켜 순수한 '팔로업/보�
 3. **작업 이력**:
    - Git Commit Message: `feat(crm): 현장명(동호수) 형식을 '동호수 아파트명 [지역]' 순서로 일괄 포맷팅하도록 개선 및 미확인 시 기본값 설정`
    - [상세 요약 워크스루](.agents/work_logs/20260908_현장명_동호수_형식개편.md)
+- [x] **통화 요약 데몬 사전 경고 모니터링 적용 (2026-09-08)**
+  - RTDB 하트비트 및 에러 브로드캐스팅 도입, admin.html 수신 및 강제 팝업 알림 구축
+  - [상세 요약 링크](file:///C:/dev/전단지이벤트/.agents/work_logs/20260908_통화요약_사전경고_모니터링.md) (Commit: 161b560)
+
+## [2026-09-09] AI 상세페이지 봇 연동 및 데이터 구조 개편
+### 주요 변경 사항
+1. **AI 상세페이지 라이브러리(버전 관리) 체계 구축**:
+   - `products` 테이블에 `detail_pages` JSONB 배열 컬럼 도입 완료.
+   - `product.html` 고객용 뷰어에서 `?version=xxx` 파라미터로 특정 버전의 HTML을 동적 렌더링하도록 개선.
+2. **상품 마스터(`product_master.html`) 관리자 UI 고도화**:
+   - 기존의 파편화된 이미지 1~3 필드 명칭을 "제품 이미지"로 변경하여 혼선 차단.
+   - 🤖 AI 상세페이지(HTML 버전 보관함) 리스트 UI를 신설하여, 버전별 미리보기 및 영구 삭제 기능 제공 (활성화 스위치 개념 제거로 현장 연동 책임과 분리).
+3. **AI 개발 룰 및 전용 봇 세팅**:
+   - `AGENTS.md` 8조 룰(UI 타이틀 소통 원칙) 제정.
+   - `detail-page-maker` 스킬(`SKILL.md`) 구축하여 채팅창에서 표준 4단계 워크플로우에 따라 HTML 조립이 가능하도록 지능화.
+4. **작업 이력**:
+   - Git Commit Message: `feat(ai-detail): AI 상세페이지 기반 구축, 관리자 UI 고도화 및 UX 룰 추가`
+   - [상세 요약 워크스루](.agents/work_logs/20260909_AI_상세페이지_기반_구축.md)
+
+## [2026-09-09] Supabase products 테이블 RLS 보안 경고 조치
+### 주요 변경 사항
+1. **보안 경고 해제**: `products` 테이블의 `rls_disabled_in_public` (UNRESTRICTED) 상태를 해제하고 RLS(Row Level Security) 활성화 (자물쇠 아이콘 적용 완료).
+2. **서비스 무중단 정책 적용**: 앱 단에서 자체 비밀번호 인증을 사용 중이므로, Supabase Auth 연동 없이 `anon` 역할로 전달되는 기존 CRUD(조회, 추가, 수정) 쿼리가 차단되지 않도록 '모두 허용' 정책으로 매핑.
+3. **작업 이력**:
+   - Git Commit Message: `chore(db): Enable RLS and add public access policies for products table to resolve security warning`
+   - [상세 요약 워크스루](.agents/work_logs/20260909_Supabase_RLS_보안조치.md)

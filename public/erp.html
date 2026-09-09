@@ -208,29 +208,56 @@
                 <div class="tab active" onclick="switchTab('tab-dashboard', this)">📈 일일 보고서 & 대시보드</div>
                 <div class="tab" onclick="switchTab('tab-ledger', this)">💳 매입/경비 장부</div>
                 <div class="tab" onclick="switchTab('tab-sales-ledger', this)">🚚 출고(매출) 장부</div>
-                <div class="tab" onclick="switchTab('tab-products', this)">📦 상품/재고 마스터</div>
+                <div class="tab" onclick="switchTab('tab-products', this)">📦 실시간 재고 관리</div>
                 <div class="tab" onclick="switchTab('tab-vendor-ledger', this)">🏢 거래처 원장</div>
             </div>
 
             <!-- TAB 1: 대시보드 & 일일 보고서 -->
             <div id="tab-dashboard" class="tab-content active">
+                <div style="background: var(--color-graphite-base); padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:12px;">
+                        <div style="font-weight:bold; color:var(--color-silver-mist);">📅 실적 집계 필터</div>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                        <select id="dashboard-period-type" class="form-control" style="width:auto;" onchange="toggleDashboardPeriodInputs(); updateDashboardStats();">
+                            <option value="month" selected>월간 (이번 달)</option>
+                            <option value="quarter">분기 (이번 분기)</option>
+                            <option value="year">연간 (올해)</option>
+                            <option value="custom">직접 기간 지정</option>
+                            <option value="all">전체 기간</option>
+                        </select>
+                        <input type="month" id="dashboard-filter-month" class="form-control" style="width:auto;" onchange="updateDashboardStats()">
+                        <div id="dashboard-custom-dates" style="display:none; gap:8px; align-items:center;">
+                            <input type="date" id="dashboard-start-date" class="form-control" style="width:auto;" onchange="updateDashboardStats()">
+                            <span>~</span>
+                            <input type="date" id="dashboard-end-date" class="form-control" style="width:auto;" onchange="updateDashboardStats()">
+                        </div>
+                        <input type="text" id="dashboard-filter-apt" class="form-control" style="width:200px;" placeholder="현장(동호수)명 검색" oninput="updateDashboardStats()">
+                    </div>
+                </div>
+
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-title">월 누적 총 매출</div>
                         <div class="stat-value" id="stat-income" style="color: var(--color-info);">0 원</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">월 누적 총 매입(자재)</div>
+                        <div class="stat-title">매출원가(시공 자재대금)</div>
                         <div class="stat-value" id="stat-purchase" style="color: var(--color-danger);">0 원</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">월 누적 총 경비</div>
+                        <div class="stat-title">기타 총 경비</div>
                         <div class="stat-value" id="stat-expense" style="color: var(--color-action-raspberry);">0 원</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">월 누적 순 이익</div>
+                        <div class="stat-title">순 이익 (발생주의)</div>
                         <div class="stat-value" id="stat-profit" style="color: var(--color-success);">0 원</div>
                     </div>
+                </div>
+
+                <div id="missing-report-alert" style="display:none; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--color-danger); padding: 16px; border-radius: 8px; margin-bottom: 24px; color: #fca5a5;">
+                    <h4 style="margin-top:0; margin-bottom:8px;">🚨 미결재 일일 보고서 알림 (과거 내역 중 누락됨)</h4>
+                    <div id="missing-report-list" style="font-size:14px; max-height:150px; overflow-y:auto;"></div>
                 </div>
 
                 <div class="report-section">
@@ -286,6 +313,12 @@
 
             <!-- TAB 2: 장부 원장 -->
             <div id="tab-ledger" class="tab-content">
+                <!-- AI Inbox Section -->
+                <div id="expense-inbox-section" style="display:none; background: rgba(59, 130, 246, 0.1); border: 1px solid var(--color-info); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                    <h4 style="margin-top:0; color:#93c5fd; display:flex; align-items:center; gap:8px;">🎙️ AI 매입/지출 음성 대기열 (Inbox)</h4>
+                    <div id="expense-inbox-list" style="max-height:300px; overflow-y:auto;"></div>
+                </div>
+
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
                     <div style="display:flex; gap:12px; align-items:center;">
                         <select id="filter-account" class="form-control" style="width: auto;" onchange="renderLedger()">
@@ -420,7 +453,7 @@
 
                 <div class="table-container">
                     <table>
-                        <thead>
+                        <thead id="vl-thead">
                             <tr>
                                 <th>날짜</th>
                                 <th>유형</th>
@@ -444,6 +477,7 @@
         <div class="modal">
             <h3 style="margin-top:0; margin-bottom: 20px;" id="tx-modal-title">장부 수동 등록</h3>
             <input type="hidden" id="tx-id">
+            <input type="hidden" id="tx-pending-id">
             
             <div class="form-group">
                 <label>거래 날짜</label>
@@ -469,14 +503,12 @@
             <div class="form-group" id="tx-product-group" style="display:none; background:rgba(239, 68, 68, 0.1); padding:12px; border-radius:8px;">
                 <label style="color:var(--color-danger);">매입 상품 장바구니</label>
                 
-                <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-                    <select id="tx-brand-cat" class="form-control" style="flex:1; min-width:120px;" onchange="updateTxProductList()">
-                        <option value="">-- 브랜드 분류 --</option>
-                    </select>
-                    <select id="tx-product" class="form-control" style="flex:2; min-width:150px;">
-                        <option value="">-- 먼저 분류를 선택 --</option>
-                    </select>
+                <div style="position: relative; margin-bottom: 8px;">
+                    <input type="text" id="tx-prod-search" class="form-control" placeholder="🔍 상품명, 모델명 검색..." autocomplete="off" onfocus="searchTxProduct(this.value)" oninput="searchTxProduct(this.value)">
+                    <div id="tx-prod-search-results" style="display:none; position:absolute; bottom:100%; left:0; right:0; background:#1c1c1e; border:1px solid #444; z-index:1001; max-height:200px; overflow-y:auto; border-radius:6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); margin-bottom:4px;">
+                    </div>
                 </div>
+                <input type="hidden" id="tx-selected-prod-name">
                 <div style="display:flex; gap:8px; margin-bottom:8px;">
                     <div style="flex:1; display:flex; align-items:center; gap:8px;">
                         <span style="color:#aaa; font-size:13px;">수량:</span>
@@ -501,9 +533,11 @@
                 <div style="display:flex; gap:8px; margin-bottom:8px;">
                     <select id="tx-account-1" class="form-control" style="flex:1;">
                         <option value="현금">현금</option>
-                        <option value="이체(우리은행)">계좌이체 (우리은행)</option>
-                        <option value="카드(대리점)">법인 카드</option>
+                        <option value="이체(우리 개인)">이체(우리 개인)</option>
+                        <option value="이체(우리 기업)">이체(우리 기업)</option>
+                        <option value="카드(우리기업)">카드(우리기업)</option>
                         <option value="외상매입금">외상매입금 (미수금)</option>
+                        <option value="기타">기타</option>
                     </select>
                     <input type="number" id="tx-amount-1" class="form-control" style="flex:1;" placeholder="결제액 (원)">
                 </div>
@@ -511,9 +545,11 @@
                     <select id="tx-account-2" class="form-control" style="flex:1;">
                         <option value="">-- 분할결제 시 계좌 선택 --</option>
                         <option value="현금">현금</option>
-                        <option value="이체(우리은행)">계좌이체 (우리은행)</option>
-                        <option value="카드(대리점)">법인 카드</option>
+                        <option value="이체(우리 개인)">이체(우리 개인)</option>
+                        <option value="이체(우리 기업)">이체(우리 기업)</option>
+                        <option value="카드(우리기업)">카드(우리기업)</option>
                         <option value="외상매입금">외상매입금 (미수금)</option>
+                        <option value="기타">기타</option>
                     </select>
                     <input type="number" id="tx-amount-2" class="form-control" style="flex:1;" placeholder="추가 결제액 (원)">
                 </div>
@@ -572,8 +608,24 @@
     </div>
 
     <!-- Firebase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./auth.js"></script>
     <script type="module">
+        const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
+        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        window.mapPaymentMethod = function(original) {
+            if (!original) return '';
+            const val = original.trim();
+            if (['이체(우리 개인)', '이체(우리 기업)', '기타', '카드(우리기업)', '현금', '외상매입금'].includes(val)) return val;
+            if (val.includes('계좌이체(우리은행사업자)')) return '이체(우리 기업)';
+            if (val.includes('계좌이체(우리은행)') || val.includes('이체(우리은행)') || val === '계좌이체' || val === '선결제') return '이체(우리 개인)';
+            if (val.includes('카카오뱅크') || val.includes('케이뱅크') || val.includes('카드결제') || val === '카드') return '기타';
+            if (val === '카드(대리점)') return '카드(우리기업)';
+            return val;
+        };
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, push, update, remove, set, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
@@ -602,6 +654,15 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+            
+            if (tabId === 'tab-sales-ledger') window.renderSalesLedger();
+            if (tabId === 'tab-products') window.renderProducts();
+            if (tabId === 'tab-vendor-ledger') window.renderVendorLedger();
+            if (tabId === 'tab-ledger') {
+                window.renderLedger();
+                if (window.renderExpenseInbox) window.renderExpenseInbox();
+            }
+            if (tabId === 'tab-dashboard') window.updateDashboardStats();
         };
 
         // ----------------------------------------------------
@@ -620,6 +681,7 @@
             window.currentLedger.sort((a,b) => new Date(b.date) - new Date(a.date));
             renderLedger();
             updateDashboardStats();
+            checkMissingDailyReports();
             if(document.getElementById('tab-vendor-ledger').classList.contains('active')) {
                 renderVendorLedger();
             }
@@ -636,7 +698,7 @@
                         model: p.model,
                         brandCategory: p.brand || p.category,
                         category: p.category,
-                        costPrice: p.price_purchase,
+                costPrice: p.price_purchase,
                         sellPrice: p.price_selling,
                         imageUrl: (p.details && p.details.level1 && p.details.level1.images && p.details.level1.images[0]) ? p.details.level1.images[0] : ''
                     }));
@@ -653,6 +715,7 @@
             if(document.getElementById('report-date').value) {
                 window.loadDailyReport();
             }
+            checkMissingDailyReports();
             if(document.getElementById('tab-sales-ledger').classList.contains('active')) {
                 window.renderSalesLedger();
             }
@@ -664,6 +727,7 @@
             if(document.getElementById('report-date').value) {
                 window.loadDailyReport();
             }
+            checkMissingDailyReports();
         });
 
         // 5. Inventory Counts 로드
@@ -711,30 +775,85 @@
         // 날짜 디폴트 오늘
         const todayStr = new Date().toISOString().split('T')[0];
         document.getElementById('report-date').value = todayStr;
+        if (document.getElementById('dashboard-filter-month')) {
+            document.getElementById('dashboard-filter-month').value = todayStr.substring(0, 7);
+        }
 
-        function updateDashboardStats() {
+        window.toggleDashboardPeriodInputs = function() {
+            const type = document.getElementById('dashboard-period-type') ? document.getElementById('dashboard-period-type').value : 'month';
+            const mEl = document.getElementById('dashboard-filter-month');
+            const cEl = document.getElementById('dashboard-custom-dates');
+            if(mEl) mEl.style.display = type === 'month' ? 'inline-block' : 'none';
+            if(cEl) cEl.style.display = type === 'custom' ? 'flex' : 'none';
+        };
+        setTimeout(() => { if(window.toggleDashboardPeriodInputs) window.toggleDashboardPeriodInputs(); }, 100);
+
+        window.updateDashboardStats = function() {
             let totalInc = 0;
-            let totalPurchase = 0;
-            let totalExp = 0;
+            let totalCostOfGoodsSold = 0; // 매출원가
+            let totalExp = 0; // 기타경비
+            
+            const pType = document.getElementById('dashboard-period-type') ? document.getElementById('dashboard-period-type').value : 'month';
+            const pMonth = document.getElementById('dashboard-filter-month') ? document.getElementById('dashboard-filter-month').value : '';
+            const pStart = document.getElementById('dashboard-start-date') ? document.getElementById('dashboard-start-date').value : '';
+            const pEnd = document.getElementById('dashboard-end-date') ? document.getElementById('dashboard-end-date').value : '';
+            const pApt = document.getElementById('dashboard-filter-apt') ? document.getElementById('dashboard-filter-apt').value.toLowerCase().trim() : '';
+
+            const today = new Date();
+            const currYear = today.getFullYear();
+            const currMonth = today.getMonth() + 1;
+            const currQuarter = Math.floor((currMonth - 1) / 3) + 1;
             
             window.currentLedger.forEach(item => {
+                let inRange = true;
+                const itemDate = item.date;
+                if (!itemDate) inRange = false;
+                else if (pType === 'month') {
+                    if (pMonth && !itemDate.startsWith(pMonth)) inRange = false;
+                } else if (pType === 'quarter') {
+                    const itemYr = parseInt(itemDate.substring(0, 4));
+                    const itemM = parseInt(itemDate.substring(5, 7));
+                    const itemQ = Math.floor((itemM - 1) / 3) + 1;
+                    if (itemYr !== currYear || itemQ !== currQuarter) inRange = false;
+                } else if (pType === 'year') {
+                    if (!itemDate.startsWith(String(currYear))) inRange = false;
+                } else if (pType === 'custom') {
+                    if (pStart && itemDate < pStart) inRange = false;
+                    if (pEnd && itemDate > pEnd) inRange = false;
+                }
+                
+                if (!inRange) return;
+                
+                if (pApt) {
+                    const memo = (item.memo || '').toLowerCase();
+                    const vendor = (item.vendor || '').toLowerCase();
+                    if (!memo.includes(pApt) && !vendor.includes(pApt)) return;
+                }
+
                 const isInc = item.type === 'income';
                 const amt = Number(item.amount) || 0;
+                
                 if (isInc) {
                     totalInc += amt;
+                    const costAmt = Number(item.costAmount) || 0;
+                    totalCostOfGoodsSold += costAmt;
                 } else {
-                    if (item.category === '현금매입(재고)' || item.category === '외상매입') {
-                        totalPurchase += amt;
-                    } else {
+                    // 재고 매입은 매출원가에서 이미 차감되므로 경비(Exp)에서 제외
+                    if (item.category !== '현금매입(재고)' && item.category !== '외상매입' && item.category !== '외상대금 결제') {
                         totalExp += amt;
                     }
                 }
             });
 
-            document.getElementById('stat-income').innerText = totalInc.toLocaleString() + ' 원';
-            document.getElementById('stat-purchase').innerText = totalPurchase.toLocaleString() + ' 원';
-            document.getElementById('stat-expense').innerText = totalExp.toLocaleString() + ' 원';
-            document.getElementById('stat-profit').innerText = (totalInc - totalPurchase - totalExp).toLocaleString() + ' 원';
+            const elemInc = document.getElementById('stat-income');
+            const elemPurch = document.getElementById('stat-purchase');
+            const elemExp = document.getElementById('stat-expense');
+            const elemProf = document.getElementById('stat-profit');
+
+            if (elemInc) elemInc.innerText = totalInc.toLocaleString() + ' 원';
+            if (elemPurch) elemPurch.innerText = totalCostOfGoodsSold.toLocaleString() + ' 원';
+            if (elemExp) elemExp.innerText = totalExp.toLocaleString() + ' 원';
+            if (elemProf) elemProf.innerText = (totalInc - totalCostOfGoodsSold - totalExp).toLocaleString() + ' 원';
         }
 
         window.loadDailyReport = function() {
@@ -769,9 +888,9 @@
                     
                     taskListHtml += `
                         <div class="report-list-item">
-                            <span style="color:var(--color-info); font-weight:bold;">[${r.payMethod}]</span> 
+                            <span style="color:var(--color-info); font-weight:bold;">[${window.mapPaymentMethod(r.payMethod)}]</span> 
                             <span style="color:#eed37f;">${cInfo.apt || '주소불명'}</span> / 
-                            시공품: ${(r.usedProducts||[]).join(',')} / 
+                            시공품: ${(r.usedProducts||[]).map(p => typeof p === 'object' ? `${p.name} ${p.qty}개` : p).join(', ')} / 
                             결제액: <strong>${amt.toLocaleString()}원</strong>
                         </div>
                     `;
@@ -802,7 +921,7 @@
                     
                     expListHtml += `
                         <div class="report-list-item">
-                            <span style="color:var(--color-danger); font-weight:bold;">[${tx.account}]</span> 
+                            <span style="color:var(--color-danger); font-weight:bold;">[${window.mapPaymentMethod(tx.account)}]</span> 
                             <span style="color:#eed37f;">${tx.category}</span> ${pInfo} / 
                             메모: ${tx.memo || '-'} / 
                             지출액: <strong>${amt.toLocaleString()}원</strong>
@@ -840,8 +959,65 @@
             }).catch(e => alert('저장 실패: ' + e.message));
         };
 
+        window.checkMissingDailyReports = function() {
+            if (!window.allReservations || !window.allDailyReports) return;
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            const missingDates = new Set();
+            
+            // 예약 기준: 어제 이전 과거이면서 시공완료(completed)된 건이 있는 날짜 탐색
+            Object.keys(window.allReservations).forEach(dateStr => {
+                if (dateStr >= todayStr) return; // 오늘이나 미래는 제외
+                const dayRes = window.allReservations[dateStr];
+                let hasCompleted = false;
+                for (const time in dayRes) {
+                    if (dayRes[time].status === 'completed' && dayRes[time].report) {
+                        hasCompleted = true;
+                        break;
+                    }
+                }
+                
+                if (hasCompleted && !window.allDailyReports[dateStr]) {
+                    missingDates.add(dateStr);
+                }
+            });
+            
+            // 장부 기준: 지출/수입이 발생한 과거 날짜 중 결재 안된 날짜 탐색
+            if (window.currentLedger) {
+                window.currentLedger.forEach(item => {
+                    if (item.date < todayStr && !window.allDailyReports[item.date]) {
+                        missingDates.add(item.date);
+                    }
+                });
+            }
+            
+            const alertBox = document.getElementById('missing-report-alert');
+            const listDiv = document.getElementById('missing-report-list');
+            
+            if (missingDates.size > 0) {
+                alertBox.style.display = 'block';
+                const sortedDates = Array.from(missingDates).sort((a,b) => new Date(b) - new Date(a));
+                let html = '<ul>';
+                sortedDates.forEach(d => {
+                    html += `<li style="margin-bottom:6px;"><strong>${d}</strong> 결재 누락 
+                             <button class="btn btn-secondary" style="padding:2px 8px; font-size:12px; margin-left:8px;" 
+                                     onclick="document.getElementById('report-date').value='${d}'; loadDailyReport(); window.scrollTo(0, document.querySelector('.report-section').offsetTop);">
+                                해당일 보기
+                             </button>
+                             </li>`;
+                });
+                html += '</ul>';
+                listDiv.innerHTML = html;
+            } else {
+                alertBox.style.display = 'none';
+            }
+        };
+
         // 초기 데이터 로드를 위해 타임아웃
-        setTimeout(() => { if(window.allReservations) window.loadDailyReport(); }, 1500);
+        setTimeout(() => { 
+            if(window.allReservations) window.loadDailyReport(); 
+            window.checkMissingDailyReports();
+        }, 1500);
 
         // ----------------------------------------------------
         // 탭 B: 장부 원장
@@ -879,6 +1055,8 @@
                     pInfo = `<br><span style="color:#eed37f; font-size:11px;">[매입: ${item.purchasedProducts.map(p => `${p.name} ${p.qty}개`).join(', ')}]</span>`;
                 } else if (item.productName) {
                     pInfo = `<br><span style="color:#eed37f; font-size:11px;">[매입: ${item.productName} ${item.productQty}개]</span>`;
+                } else if (item.usedProducts && item.usedProducts.length > 0) {
+                    pInfo = `<br><span style="color:#10b981; font-size:11px;">[시공(원가: ${item.costAmount?.toLocaleString()||0}원): ${item.usedProducts.map(p => `${p.name} ${p.qty}개`).join(', ')}]</span>`;
                 }
 
                 let vendorInfo = item.vendor ? `<span style="color:#aaa; font-size:12px;">(${item.vendor})</span> ` : '';
@@ -906,10 +1084,63 @@
             }
         }
 
+        window.renderExpenseInbox = function() {
+            const list = document.getElementById('expense-inbox-list');
+            const sec = document.getElementById('expense-inbox-section');
+            if(!list || !sec) return;
+
+            if (!window.allPending || window.allPending.length === 0) {
+                sec.style.display = 'none';
+                return;
+            }
+
+            sec.style.display = 'block';
+            let html = '';
+            window.allPending.forEach(item => {
+                const dateStr = item.created_at ? item.created_at.substring(0,10) : '';
+                html += `
+                    <div style="background:#222; padding:12px; margin-bottom:8px; border-radius:6px; border:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:12px; color:#aaa;">${dateStr} (AI 음성 인식)</div>
+                            <div style="font-weight:bold; color:var(--color-interactive-lime); margin:4px 0;">[요약] ${item.summary || '-'}</div>
+                            <div style="font-size:13px; color:#ddd;">[상세 내역] ${item.expense_info || '-'}</div>
+                        </div>
+                        <button class="btn" style="background:#3b82f6; width:auto; padding:8px 16px;" onclick="fillTxFromInbox('${item.id}')">장부에 기입하기</button>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        };
+
+        window.fillTxFromInbox = function(id) {
+            const item = window.allPending.find(p => p.id === id);
+            if(!item) return;
+
+            document.getElementById('tx-modal').style.display = 'flex';
+            document.getElementById('tx-modal-title').innerText = 'AI 음성 장부 등록';
+            document.getElementById('tx-id').value = '';
+            document.getElementById('tx-pending-id').value = id;
+            document.getElementById('tx-date').value = (item.created_at || '').substring(0,10) || todayStr;
+            document.querySelector('input[name="tx-type"][value="expense"]').checked = true;
+            
+            // 초기화
+            document.getElementById('tx-account-1').value = '현금';
+            document.getElementById('tx-amount-1').value = '';
+            document.getElementById('tx-account-2').value = '';
+            document.getElementById('tx-amount-2').value = '';
+            document.getElementById('tx-memo').value = item.expense_info || item.summary || '';
+            document.getElementById('tx-vendor').value = '';
+            window.currentTxProducts = [];
+            window.updateCategories();
+            window.toggleProductSelect();
+            window.renderTxAddedProducts();
+        };
+
         window.openTxModal = function() {
             document.getElementById('tx-modal').style.display = 'flex';
             document.getElementById('tx-modal-title').innerText = '장부 수동 등록';
             document.getElementById('tx-id').value = '';
+            document.getElementById('tx-pending-id').value = '';
             document.getElementById('tx-date').value = todayStr;
             document.querySelector('input[name="tx-type"][value="income"]').checked = true;
             document.getElementById('tx-account-1').value = '현금';
@@ -941,7 +1172,7 @@
             }, 50);
             
             // 기존 단일 결제 계좌를 계좌 1번에 맵핑. 다중결제 수정은 신규 등록 시에만 100% 지원.
-            document.getElementById('tx-account-1').value = tx.account;
+            document.getElementById('tx-account-1').value = window.mapPaymentMethod(tx.account);
             document.getElementById('tx-amount-1').value = tx.amount;
             document.getElementById('tx-account-2').value = '';
             document.getElementById('tx-amount-2').value = '';
@@ -975,38 +1206,60 @@
                 catSelect.innerHTML += `<option value="${opt}">${opt}</option>`;
             });
 
-            // 매입 모달 장바구니용 2단 드롭다운 세팅
-            const bCat = document.getElementById('tx-brand-cat');
-            bCat.innerHTML = '<option value="">-- 브랜드 분류 --</option>';
-            const brands = new Set();
-            window.masterProducts.forEach(p => {
-                const bc = p.brandCategory || p.category;
-                if(bc) brands.add(bc);
-            });
-            Array.from(brands).sort().forEach(b => {
-                bCat.innerHTML += `<option value="${b}">${b}</option>`;
-            });
-            document.getElementById('tx-product').innerHTML = '<option value="">-- 먼저 분류를 선택 --</option>';
+
 
             window.toggleProductSelect();
         }
 
-        window.updateTxProductList = function() {
-            const cat = document.getElementById('tx-brand-cat').value;
-            const pSelect = document.getElementById('tx-product');
-            pSelect.innerHTML = '<option value="">-- 제품 선택 --</option>';
-            if(!cat) return;
-            window.masterProducts.forEach(p => {
-                const bc = p.brandCategory || p.category;
-                if(bc === cat && p.name) {
-                    pSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.model||''})</option>`;
-                }
+        window.searchTxProduct = function(keyword) {
+            const resultsDiv = document.getElementById('tx-prod-search-results');
+            if (!keyword || keyword.trim() === '') {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            const lowerKey = keyword.toLowerCase();
+            const filtered = window.masterProducts.filter(p => {
+                if (!p.name) return false;
+                const name = p.name.toLowerCase();
+                const model = (p.model || '').toLowerCase();
+                return name.includes(lowerKey) || model.includes(lowerKey);
+            }).slice(0, 20);
+            
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = `<div style="padding:10px; color:#888;">검색 결과가 없습니다.</div>`;
+                resultsDiv.style.display = 'block';
+                return;
+            }
+            
+            let html = '';
+            filtered.forEach(p => {
+                html += `
+                    <div style="padding:10px; border-bottom:1px solid #333; cursor:pointer;" onclick="selectTxProduct('${p.name}')">
+                        <div style="color:var(--color-interactive-lime); font-weight:bold;">${p.name}</div>
+                        <div style="font-size:12px; color:#aaa;">${p.model || '모델명 없음'}</div>
+                    </div>
+                `;
             });
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        };
+
+        window.selectTxProduct = function(name) {
+            document.getElementById('tx-prod-search').value = name;
+            document.getElementById('tx-selected-prod-name').value = name;
+            document.getElementById('tx-prod-search-results').style.display = 'none';
         };
 
         window.addTxProduct = function() {
-            const name = document.getElementById('tx-product').value;
+            let name = document.getElementById('tx-selected-prod-name').value;
+            const searchVal = document.getElementById('tx-prod-search').value.trim();
             const qty = parseInt(document.getElementById('tx-qty').value);
+            
+            if (searchVal && searchVal !== name) {
+                name = searchVal;
+            }
+            
             if(!name || isNaN(qty) || qty < 1) { alert('제품과 올바른 수량을 선택해주세요.'); return; }
             
             const mp = window.masterProducts.find(m => m.name === name);
@@ -1020,7 +1273,11 @@
                 window.currentTxProducts.push({ name, qty, cost });
             }
             
+            
             document.getElementById('tx-qty').value = 1;
+            document.getElementById('tx-prod-search').value = '';
+            document.getElementById('tx-selected-prod-name').value = '';
+            document.getElementById('tx-prod-search-results').style.display = 'none';
             window.renderTxAddedProducts();
             window.autoCalculateTxAmount();
         };
@@ -1168,6 +1425,11 @@
                     });
                 }
                 
+                const pendingId = document.getElementById('tx-pending-id').value;
+                if (pendingId) {
+                    updates[`crm_pending/${pendingId}`] = null;
+                }
+                
                 update(ref(db), updates).then(() => closeTxModal()).catch(e => alert(e.message));
             }
         }
@@ -1179,7 +1441,7 @@
         }
 
         // ----------------------------------------------------
-        // 탭 C: 상품 마스터 및 재고 현황
+        // 탭 C: 실시간 재고 관리
         // ----------------------------------------------------
 
         window.isEditingStock = false;
@@ -1345,23 +1607,117 @@
 
         window.renderVendorLedger = function() {
             const tbody = document.getElementById('vl-tbody');
+            const thead = document.getElementById('vl-thead');
             const vName = document.getElementById('vl-vendor-select').value;
             const yTarget = parseInt(document.getElementById('vl-year-select').value);
 
-            if(!vName) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:#666;">조회할 거래처를 선택하세요.</td></tr>';
-                document.getElementById('vl-carryover').innerText = '0 원';
-                document.getElementById('vl-purchase').innerText = '0 원';
-                document.getElementById('vl-paid').innerText = '0 원';
-                document.getElementById('vl-balance').innerText = '0 원';
-                return;
-            }
-
-            tbody.innerHTML = '';
-            
             let carryoverBalance = 0; // 전기 이월액
             let curPurchase = 0; // 당기 매입
             let curPaid = 0; // 당기 지급
+
+            if(!vName) {
+                // 전체 거래처 요약 뷰
+                thead.innerHTML = `
+                    <tr>
+                        <th>거래처명</th>
+                        <th>전기 이월액 (외상)</th>
+                        <th>당기 매입액 (${yTarget}년)</th>
+                        <th>당기 지급액 (${yTarget}년)</th>
+                        <th>현재 미지급 잔액</th>
+                        <th>상세보기</th>
+                    </tr>
+                `;
+                
+                tbody.innerHTML = '';
+                
+                const vendorStats = {};
+                if (window.masterVendors) {
+                    Object.keys(window.masterVendors).forEach(v => {
+                        vendorStats[v] = { carryover: 0, curPurchase: 0, curPaid: 0 };
+                    });
+                }
+                
+                if (window.currentLedger) {
+                    window.currentLedger.forEach(tx => {
+                        if (!tx.vendor) return;
+                        if (!vendorStats[tx.vendor]) vendorStats[tx.vendor] = { carryover: 0, curPurchase: 0, curPaid: 0 };
+                        
+                        const txYear = parseInt(tx.date.substring(0, 4));
+                        const amt = Number(tx.amount) || 0;
+                        
+                        let isPurchaseEvent = false;
+                        let isPaymentEvent = false;
+                        if (tx.type === 'expense') {
+                            if (tx.category !== '외상대금 결제') isPurchaseEvent = true;
+                            const mappedAccount = window.mapPaymentMethod(tx.account);
+                            if (mappedAccount !== '외상매입금') isPaymentEvent = true;
+                        }
+                        
+                        if (txYear < yTarget) {
+                            if (isPurchaseEvent) vendorStats[tx.vendor].carryover += amt;
+                            if (isPaymentEvent) vendorStats[tx.vendor].carryover -= amt;
+                        } else if (txYear === yTarget) {
+                            if (isPurchaseEvent) vendorStats[tx.vendor].curPurchase += amt;
+                            if (isPaymentEvent) vendorStats[tx.vendor].curPaid += amt;
+                        }
+                    });
+                }
+                
+                let listHtml = '';
+                let hasData = false;
+                
+                Object.keys(vendorStats).sort().forEach(v => {
+                    const st = vendorStats[v];
+                    const bal = st.carryover + st.curPurchase - st.curPaid;
+                    if (st.carryover === 0 && st.curPurchase === 0 && st.curPaid === 0 && bal === 0) return;
+                    hasData = true;
+                    
+                    carryoverBalance += st.carryover;
+                    curPurchase += st.curPurchase;
+                    curPaid += st.curPaid;
+                    
+                    listHtml += `
+                        <tr>
+                            <td data-label="거래처명" style="font-weight:bold; color:var(--color-info);">${v}</td>
+                            <td data-label="전기 이월액">${st.carryover.toLocaleString()} 원</td>
+                            <td data-label="당기 매입액" style="color:var(--color-danger);">${st.curPurchase.toLocaleString()} 원</td>
+                            <td data-label="당기 지급액">${st.curPaid.toLocaleString()} 원</td>
+                            <td data-label="현재 미지급 잔액" style="font-weight:bold; color:var(--color-interactive-lime);">${bal.toLocaleString()} 원</td>
+                            <td data-label="상세보기">
+                                <button class="btn btn-secondary" style="padding:4px 8px; font-size:12px;" onclick="document.getElementById('vl-vendor-select').value='${v}'; renderVendorLedger();">내역 보기</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                if (!hasData) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color:#666;">${yTarget}년 기준 거래내역이 있는 거래처가 없습니다.</td></tr>`;
+                } else {
+                    tbody.innerHTML = listHtml;
+                }
+                
+                document.getElementById('vl-carryover').innerText = carryoverBalance.toLocaleString() + ' 원';
+                document.getElementById('vl-purchase').innerText = curPurchase.toLocaleString() + ' 원';
+                document.getElementById('vl-paid').innerText = curPaid.toLocaleString() + ' 원';
+                const totalBalance = carryoverBalance + curPurchase - curPaid;
+                document.getElementById('vl-balance').innerText = totalBalance.toLocaleString() + ' 원';
+                
+                return;
+            }
+
+            // 개별 거래처 상세 뷰
+            thead.innerHTML = `
+                <tr>
+                    <th>날짜</th>
+                    <th>유형</th>
+                    <th>항목(분류)</th>
+                    <th>계좌</th>
+                    <th>금액</th>
+                    <th>적요(메모)</th>
+                </tr>
+            `;
+
+            tbody.innerHTML = '';
 
             // 오름차순으로 거래 내역 필터 (계산을 위해)
             const vTxs = window.currentLedger.filter(tx => tx.vendor === vName).sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -1382,7 +1738,8 @@
 
                 if (tx.type === 'expense') {
                     if (tx.category !== '외상대금 결제') isPurchaseEvent = true;
-                    if (tx.account !== '외상매입금') isPaymentEvent = true;
+                    const mappedAccount = window.mapPaymentMethod(tx.account);
+                    if (mappedAccount !== '외상매입금') isPaymentEvent = true;
                 }
 
                 if (txYear < yTarget) {
@@ -1411,7 +1768,7 @@
                             <td data-label="날짜">${tx.date}</td>
                             <td data-label="유형"><span class="badge ${isInc ? 'income' : 'expense'}">${isInc ? '수입' : '지출'}</span></td>
                             <td data-label="항목">${tx.category}${pInfo}</td>
-                            <td data-label="계좌">${tx.account}</td>
+                            <td data-label="계좌">${window.mapPaymentMethod(tx.account)}</td>
                             <td data-label="금액" style="font-weight:bold;">${amt.toLocaleString()} 원</td>
                             <td data-label="적요(메모)">${tx.memo || '-'}</td>
                         </tr>

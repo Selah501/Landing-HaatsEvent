@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제품 상세정보</title>
+    <!-- 폰트 적용 (랜딩페이지와 동일) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --color-pitch-black: #0a0a0a;
+            --color-pure-white: #ffffff;
+            --color-interactive-lime: #c9ff00;
+            --color-graphite-base: #1c1c1e;
+            --color-silver-mist: #8e8e93;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-pitch-black);
+            color: var(--color-pure-white);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* 헤더 영역 */
+        header {
+            background-color: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--color-pure-white);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            margin-right: 16px;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 콘텐츠 영역 */
+        #content-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--color-pitch-black);
+            min-height: 100vh;
+            padding-bottom: 100px; /* FAB 공간 확보 */
+        }
+
+        /* 통이미지 폴백 (detail_urls) */
+        .fallback-img {
+            width: 100%;
+            display: block;
+        }
+
+        /* 로딩 스피너 */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+            color: var(--color-silver-mist);
+        }
+
+        /* 플로팅 버튼 */
+        .fab-container {
+            position: fixed;
+            bottom: 24px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .fab-btn {
+            background: linear-gradient(135deg, #e32652 0%, #ff4b72 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(227, 38, 82, 0.4);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .fab-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h1 class="header-title" id="page-title">불러오는 중...</h1>
+    </header>
+
+    <div id="content-container">
+        <div class="loader-container">
+            <h3>데이터를 불러오고 있습니다...</h3>
+        </div>
+    </div>
+
+    <div class="fab-container">
+        <button class="fab-btn" onclick="goBack()">돌아가기 (닫기)</button>
+    </div>
+
+    <script>
+        // Supabase 초기화
+        const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // URL 파라미터 파싱
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        const container = document.getElementById('content-container');
+        const titleEl = document.getElementById('page-title');
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.close();
+            }
+        }
+
+        async function loadProductDetails() {
+            if (!productId) {
+                container.innerHTML = '<div style="padding:40px; text-align:center;">잘못된 접근입니다. (상품 ID 누락)</div>';
+                titleEl.innerText = "오류";
+                return;
+            }
+
+            const { data, error } = await sb.from('products').select('*').eq('id', productId).single();
+
+            if (error || !data) {
+                container.innerHTML = '<div style="padding:40px; text-align:center;">상품 정보를 찾을 수 없습니다.</div>';
+                titleEl.innerText = "오류";
+                console.error(error);
+                return;
+            }
+
+            // 타이틀 설정
+            titleEl.innerText = data.name || '상세정보';
+
+            let htmlContent = '';
+
+            const targetVersionId = urlParams.get('version');
+            
+            // 1순위: detail_pages (AI 생성 HTML) 중 version 파라미터가 일치하는 것, 없으면 첫 번째 항목 렌더링 (활성 스위치 개념 제거)
+            if (data.detail_pages && Array.isArray(data.detail_pages) && data.detail_pages.length > 0) {
+                let targetPage;
+                if (targetVersionId) {
+                    targetPage = data.detail_pages.find(p => p.id === targetVersionId);
+                }
+                // 파라미터가 없거나 못 찾았으면 기본으로 배열의 첫 번째 버전을 노출
+                if (!targetPage) {
+                    targetPage = data.detail_pages[0];
+                }
+                
+                if (targetPage && targetPage.html) {
+                    htmlContent = targetPage.html;
+                }
+            }
+
+            // 2순위: detail_pages가 비어있다면, 기존 detail_urls (이미지) 폴백 렌더링
+            if (!htmlContent && data.detail_urls && Array.isArray(data.detail_urls)) {
+                htmlContent = data.detail_urls
+                    .filter(url => url && url.trim() !== '')
+                    .map(url => `<img src="${url}" class="fallback-img" alt="상세이미지">`)
+                    .join('');
+            }
+
+            // 내용이 비어있을 경우
+            if (!htmlContent) {
+                htmlContent = '<div style="padding:60px 20px; text-align:center; color:#888;">등록된 상세페이지 정보가 없습니다.</div>';
+            }
+
+            // 렌더링
+            container.innerHTML = htmlContent;
+        }
+
+        loadProductDetails();
+    </script>
+</body>
+</html>

@@ -226,9 +226,9 @@
             <div id="admin-panel" class="admin-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
                     <div style="color: var(--color-action-raspberry); font-weight: bold;">👑 관리자 모드 활성화됨</div>
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
-                        <label for="admin-cal-start" style="color: #ccc; font-weight: bold;">📅 달력 시작일:</label>
-                        <input type="date" id="admin-cal-start" style="background: #111; color: #fff; border: 1px solid #666; padding: 6px 10px; border-radius: 4px; font-size: 13px;" onchange="renderCalendar()">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="date" id="admin-cal-start" style="background: var(--color-graphite-base); color: var(--color-pure-white); border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-family: inherit; color-scheme: dark; font-size: 16px; font-weight: bold;" onchange="renderCalendar()">
+                        <span id="admin-cal-day" style="font-size: 20px; font-weight: bold; margin-left: 4px;"></span>
                     </div>
                 </div>
                 <p style="font-size: 13px; color: #ccc; margin: 0;">빈 슬롯을 클릭하여 통화협의 예약, AS일정, 관리작업을 등록하거나 기존 예약을 클릭하여 변경할 수 있습니다. (선택일 기준 4주 노출, 과거 날짜도 등록 가능)</p>
@@ -391,6 +391,13 @@
                 } else if (adminStartInput) {
                     adminStartInput.value = todayStr;
                 }
+                
+                const adminCalDay = document.getElementById('admin-cal-day');
+                if (adminCalDay) {
+                    const days = ['일', '월', '화', '수', '목', '금', '토'];
+                    adminCalDay.innerText = `(${days[startDate.getDay()]})`;
+                }
+                
                 totalDays = 28; // 4주 노출
             } else {
                 // 고객 모드: 이벤트 시작일 기준 + displayDays 노출

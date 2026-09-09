@@ -171,7 +171,7 @@ exports.syncReportToNotion = functions.database.ref("/reservations/{date}/{time}
 // Gemini AI Setup
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Firebase 환경 변수에서 로드 필요
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
 exports.analyzeVoiceReport = functions.https.onCall(async (data, context) => {
     const { audioBase64, mimeType } = data;

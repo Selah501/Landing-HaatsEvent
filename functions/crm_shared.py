@@ -15,7 +15,7 @@ load_dotenv(dotenv_path=env_path)
 API_KEY = os.getenv("GEMINI_API_KEY")
 WATCH_DIR = os.getenv("AUDIO_WATCH_DIR")
 FIREBASE_DB_URL = "https://flyer-event-page-2026-default-rtdb.firebaseio.com/crm_pending.json"
-
+DAEMON_STATUS_URL = "https://flyer-event-page-2026-default-rtdb.firebaseio.com/system/daemon_status.json"
 if not API_KEY or not WATCH_DIR:
     raise RuntimeError("오류: .env 파일에 GEMINI_API_KEY 또는 AUDIO_WATCH_DIR이 설정되지 않았습니다.")
 
@@ -44,6 +44,18 @@ if not logger.handlers:
         "%(message)s"
     ))
     logger.addHandler(stream_handler)
+
+def update_daemon_status(status="OK", message=""):
+    try:
+        data = {
+            "last_heartbeat": int(time.time() * 1000),
+            "status": status,
+            "message": message
+        }
+        requests.put(DAEMON_STATUS_URL, json=data, timeout=5)
+    except Exception as e:
+        logger.error(f"RTDB 상태 업데이트 실패: {e}")
+
 
 
 # Gemini 클라이언트 초기화
@@ -230,6 +242,7 @@ def process_audio_file(filepath):
     except Exception as e:
         error_msg = str(e)
         logger.error(f"오류 발생: {os.path.basename(filepath)} - {error_msg}")
+        update_daemon_status("ERROR", f"파일 처리 중 오류: {error_msg}")
         
         # Rate Limit 오류 시 더 길게 대기
         if "429" in error_msg or "quota" in error_msg.lower() or "rate" in error_msg.lower():

@@ -510,14 +510,12 @@
             <div class="form-group" style="background:#1a1a1a; padding:12px; border-radius:6px; border:1px solid #333;">
                 <label style="color:var(--color-interactive-lime);">시공된 제품 선택 (실시간 재고 차감 및 원가 계산)</label>
                 
-                <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-                    <select id="modal-brand-cat" class="form-control" style="flex:1; min-width:120px;" onchange="updateModalProductList()">
-                        <option value="">-- 분류 선택 --</option>
-                    </select>
-                    <select id="modal-prod-select" class="form-control" style="flex:2; min-width:150px;">
-                        <option value="">-- 제품 선택 --</option>
-                    </select>
+                <div style="position: relative; margin-bottom: 8px;">
+                    <input type="text" id="modal-prod-search" class="form-control" placeholder="🔍 상품명, 모델명 또는 키워드 검색..." autocomplete="off" onfocus="searchModalProduct(this.value)" oninput="searchModalProduct(this.value)">
+                    <div id="modal-prod-search-results" style="display:none; position:absolute; top:100%; left:0; right:0; background:#1c1c1e; border:1px solid #444; z-index:1001; max-height:200px; overflow-y:auto; border-radius:6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                    </div>
                 </div>
+                <input type="hidden" id="modal-selected-prod-name">
                 <div style="display:flex; gap:8px; margin-bottom:8px;">
                     <div style="flex:1; display:flex; align-items:center; gap:8px;">
                         <span style="color:#aaa; font-size:13px;">수량:</span>
@@ -533,35 +531,37 @@
             
             <div class="form-group" style="background: #333; padding: 12px; border-radius: 6px; margin-top: 12px; margin-bottom: 12px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px;">
-                    <span>총 매입가(원가):</span>
+                    <span>총 매입가(시공 원가):</span>
                     <span id="modal-total-cost" style="color: #ef4444; font-weight: bold;">0 원</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px;">
-                    <span>총 매출가(판매가):</span>
-                    <span id="modal-total-sell" style="color: #3b82f6; font-weight: bold;">0 원</span>
+                    <span style="color:#888;">(참고) 상품마스터 기준 판매가:</span>
+                    <span id="modal-total-sell" style="color: #888; font-weight: bold;">0 원</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; border-top: 1px solid #555; padding-top: 6px; margin-top: 6px; font-size: 14px;">
-                    <span>예상 마진(이익):</span>
-                    <span id="modal-margin" style="color: #10b981; font-weight: bold;">0 원</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px;">
+                    <span style="color:#888;">(참고) 마스터 예상 마진:</span>
+                    <span id="modal-margin" style="color: #888; font-weight: bold;">0 원</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid #555; padding-top: 6px; margin-top: 6px; font-size: 15px; color:var(--color-interactive-lime);">
+                    <span>💰 실제 순이익 (결제액 - 원가):</span>
+                    <span id="modal-actual-margin" style="font-weight: bold;">0 원</span>
                 </div>
             </div>
             
             <div class="form-group">
                 <label>결제 수단</label>
                 <select id="modal-pay-method" class="form-control">
-                    <option value="계좌이체(우리은행)">계좌이체(우리은행)</option>
-                    <option value="계좌이체(우리은행사업자)">계좌이체(우리은행사업자)</option>
-                    <option value="카카오뱅크(김용태)">카카오뱅크(김용태)</option>
-                    <option value="케이뱅크(현길영)">케이뱅크(현길영)</option>
+                    <option value="이체(우리 개인)">이체(우리 개인)</option>
+                    <option value="이체(우리 기업)">이체(우리 기업)</option>
+                    <option value="카드(우리기업)">카드(우리기업)</option>
                     <option value="현금">현금</option>
-                    <option value="카드">카드결제 (현장)</option>
                     <option value="기타">기타</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label>결제 금액(원)</label>
-                <input type="number" id="modal-pay-amount" class="form-control" placeholder="예: 150000" oninput="this.dataset.autoFilled='false'">
+                <label>실제 결제 금액(원)</label>
+                <input type="number" id="modal-pay-amount" class="form-control" placeholder="예: 150000" oninput="this.dataset.autoFilled='false'; window.calculateMargin();">
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 24px;">
@@ -747,6 +747,16 @@
 
 </script>
     <script type="module">
+        window.mapPaymentMethod = function(original) {
+            if (!original) return '';
+            const val = original.trim();
+            if (['이체(우리 개인)', '이체(우리 기업)', '기타', '카드(우리기업)', '현금', '외상매입금'].includes(val)) return val;
+            if (val.includes('계좌이체(우리은행사업자)')) return '이체(우리 기업)';
+            if (val.includes('계좌이체(우리은행)') || val.includes('이체(우리은행)') || val === '계좌이체' || val === '선결제') return '이체(우리 개인)';
+            if (val.includes('카카오뱅크') || val.includes('케이뱅크') || val.includes('카드결제') || val === '카드') return '기타';
+            if (val === '카드(대리점)') return '카드(우리기업)';
+            return val;
+        };
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, update, push, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
@@ -798,6 +808,7 @@
                         category: p.category,
                         costPrice: (p.prices && p.prices.purchase) ? p.prices.purchase : 0,
                         sellPrice: (p.prices && p.prices.sell_total) ? p.prices.sell_total : 0,
+                        marketing_memo: p.marketing_memo || '',
                         imageUrl: (p.details && p.details.level1 && p.details.level1.images && p.details.level1.images[0]) ? p.details.level1.images[0] : ''
                     }));
                 }
@@ -1472,7 +1483,7 @@
             const report = task && task.data.report ? task.data.report : {};
             
             document.getElementById('modal-notes').value = report.notes || '';
-            document.getElementById('modal-pay-method').value = report.payMethod || '계좌이체';
+            document.getElementById('modal-pay-method').value = window.mapPaymentMethod ? window.mapPaymentMethod(report.payMethod) : (report.payMethod || '이체(우리 개인)');
             document.getElementById('modal-pay-amount').value = report.payAmount || '';
             
             let used = report.usedProducts || [];
@@ -1586,38 +1597,56 @@
             document.getElementById('modal-prod-select').innerHTML = '<option value="">-- 제품을 먼저 선택하세요 --</option>';
         }
 
-        window.updateModalProductList = function() {
-            const cat = document.getElementById('modal-brand-cat').value;
-            const pSelect = document.getElementById('modal-prod-select');
-            pSelect.innerHTML = '<option value="">-- 상품 선택 --</option>';
-            if(!cat) return;
-            
-            const validCategories = [
-                "하츠후드 엘리카", "하츠후드 플래티늄", "하츠후드 데코", "하츠후드 스템", 
-                "하츠 전기레인지", "하츠 가스레인지", "하츠 수전빌트인", "하츠 씽크볼", "하츠 기타빌트인"
-            ];
-            
-            window.masterProducts.forEach(p => {
-                let c = p.category || "";
-                let derivedCat = "기타카테고리";
-                
-                if (validCategories.includes(c)) {
-                    derivedCat = c;
-                }
-                
-                if(derivedCat === cat && p.name) {
-                    pSelect.innerHTML += `<option value="${p.name}">${p.name} (${p.model||'모델명없음'})</option>`;
-                }
-            });
-            
-            if (cat === "기타카테고리") {
-                pSelect.innerHTML += `<option value="직접입력(메모)">직접입력(메모기재)</option>`;
+        window.searchModalProduct = function(keyword) {
+            const resultsDiv = document.getElementById('modal-prod-search-results');
+            if (!keyword || keyword.trim() === '') {
+                resultsDiv.style.display = 'none';
+                return;
             }
-        }
+            
+            const lowerKey = keyword.toLowerCase();
+            const filtered = window.masterProducts.filter(p => {
+                if (!p.name) return false;
+                const name = p.name.toLowerCase();
+                const model = (p.model || '').toLowerCase();
+                const memo = (p.marketing_memo || '').toLowerCase();
+                return name.includes(lowerKey) || model.includes(lowerKey) || memo.includes(lowerKey);
+            }).slice(0, 20); // 최대 20개 표시
+            
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = `<div style="padding:10px; color:#888;">검색 결과가 없습니다.</div>`;
+                resultsDiv.style.display = 'block';
+                return;
+            }
+            
+            let html = '';
+            filtered.forEach(p => {
+                html += `
+                    <div style="padding:10px; border-bottom:1px solid #333; cursor:pointer;" onclick="selectModalProduct('${p.name}', ${p.costPrice || 0}, ${p.sellPrice || 0})">
+                        <div style="color:var(--color-interactive-lime); font-weight:bold;">${p.name}</div>
+                        <div style="font-size:12px; color:#aaa;">${p.model || '모델명 없음'} ${p.marketing_memo ? `(${p.marketing_memo})` : ''}</div>
+                    </div>
+                `;
+            });
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        };
+
+        window.selectModalProduct = function(name, cost, sell) {
+            document.getElementById('modal-prod-search').value = name;
+            document.getElementById('modal-selected-prod-name').value = name;
+            document.getElementById('modal-prod-search-results').style.display = 'none';
+        };
 
         window.addModalProduct = function() {
-            const name = document.getElementById('modal-prod-select').value;
+            let name = document.getElementById('modal-selected-prod-name').value;
+            const searchVal = document.getElementById('modal-prod-search').value.trim();
             const qty = parseInt(document.getElementById('modal-prod-qty').value);
+            
+            // 검색창에 직접 타이핑한 값이 있다면 (자동완성 클릭 안하고)
+            if (searchVal && searchVal !== name) {
+                name = searchVal;
+            }
             
             if(!name || isNaN(qty) || qty < 1) {
                 alert('제품과 올바른 수량을 선택해주세요.');
@@ -1646,6 +1675,9 @@
             }
             
             document.getElementById('modal-prod-qty').value = 1;
+            document.getElementById('modal-prod-search').value = '';
+            document.getElementById('modal-selected-prod-name').value = '';
+            document.getElementById('modal-prod-search-results').style.display = 'none';
             renderAddedProducts();
         };
 
@@ -1680,8 +1712,8 @@
             let totalCost = 0;
             let totalSell = 0;
             window.currentSelectedProducts.forEach(p => {
-                totalCost += (p.cost || 0) * p.qty;
-                totalSell += (p.sell || 0) * p.qty;
+                totalCost += (Number(p.cost) || 0) * (Number(p.qty) || 1);
+                totalSell += (Number(p.sell) || 0) * (Number(p.qty) || 1);
             });
             const margin = totalSell - totalCost;
             document.getElementById('modal-total-cost').innerText = totalCost.toLocaleString() + ' 원';
@@ -1696,6 +1728,15 @@
                     payAmountInput.value = totalSell > 0 ? totalSell : '';
                     payAmountInput.dataset.autoFilled = 'true';
                 }
+            }
+            
+            // 실제 마진 실시간 업데이트
+            const actualPay = Number(payAmountInput ? payAmountInput.value : 0) || 0;
+            const actualMargin = actualPay - totalCost;
+            const actualMarginElem = document.getElementById('modal-actual-margin');
+            if (actualMarginElem) {
+                actualMarginElem.innerText = actualMargin.toLocaleString() + ' 원';
+                actualMarginElem.style.color = actualMargin >= 0 ? 'var(--color-interactive-lime)' : 'var(--color-danger)';
             }
         };
 
@@ -1729,6 +1770,7 @@
             });
             
             const margin = totalSell - totalCost;
+            const actualMargin = (Number(payAmount) || 0) - totalCost;
 
             // --- 미디어 업로드 로직 추가 ---
             const photosInput = document.getElementById('modal-photos');
@@ -1766,6 +1808,7 @@
                 totalCost,
                 totalSell,
                 margin,
+                actualMargin,
                 mediaUrls: [...(window.currentExistingMedia || []), ...uploadedUrls], // 기존 이미지와 새 이미지 병합
                 timestamp: Date.now()
             };
@@ -1786,9 +1829,7 @@
 
             const numericAmount = parseInt(payAmount);
             if (!isNaN(numericAmount) && numericAmount > 0) {
-                let ledgerAccount = '현금';
-                if (payMethod === '계좌이체' || payMethod === '선결제') ledgerAccount = '이체(우리은행)';
-                else if (payMethod === '카드') ledgerAccount = '카드(대리점)';
+                const ledgerAccount = payMethod;
 
                 const newLedgerKey = push(ref(window.db, 'ledger')).key;
                 const cInfo = task.data.customerInfo || {};
@@ -1800,6 +1841,8 @@
                     category: '시공 수입',
                     account: ledgerAccount,
                     amount: numericAmount,
+                    costAmount: totalCost,
+                    usedProducts: window.currentSelectedProducts,
                     memo: `[작업보고서] ${productNamesForMemo.join(', ')}${aptInfo}`,
                     timestamp: Date.now()
                 };
@@ -2461,7 +2504,9 @@
                     else if (payMethod.includes('카드')) finalMethod = '카드';
                     else if (payMethod.includes('선결제')) finalMethod = '선결제';
                     
-                    document.getElementById('modal-pay-method').value = finalMethod;
+                    if (finalMethod) {
+                        document.getElementById('modal-pay-method').value = window.mapPaymentMethod(finalMethod);
+                    }
                 }
                 
                 if (payAmount && !isNaN(parseInt(payAmount)) && parseInt(payAmount) > 0) {

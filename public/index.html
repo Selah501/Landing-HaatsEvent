@@ -146,7 +146,8 @@
                             const text = getProductText(prod);
                             
                             let linkHtml = '';
-                            const effectiveLink = prod.customLink || mProd.detailLink;
+                            const defaultLink = `./product.html?id=${prod.id}`;
+                            const effectiveLink = prod.customLink || mProd.detailLink || defaultLink;
                             if (effectiveLink) {
                                 const sep = effectiveLink.includes('?') ? '&' : '?';
                                 const dynamicLink = `${effectiveLink}${sep}phone=${managerPhone}`;
@@ -180,7 +181,8 @@
                             if(!mProd) return;
                             const text = getProductText(prod);
                             
-                            const effectiveAddonLink = prod.customLink || mProd.detailLink;
+                            const defaultAddonLink = `./product.html?id=${prod.id}`;
+                            const effectiveAddonLink = prod.customLink || mProd.detailLink || defaultAddonLink;
                             if(effectiveAddonLink) {
                                 const sep = effectiveAddonLink.includes('?') ? '&' : '?';
                                 const dynamicLink = `${effectiveAddonLink}${sep}phone=${managerPhone}`;

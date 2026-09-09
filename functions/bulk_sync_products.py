@@ -3,6 +3,23 @@
 # 목적: Notion 상품 마스터 DB -> Supabase products 테이블 1회성 전체 동기화
 # 실행 전 notion_sync_daemon.py 가 떠 있다면 반드시 종료 후 실행할 것
 # =====================================================================
+#
+# ⚠️  [2026-09-04] 상품 노션 동기화 운영 정책 변경
+# -----------------------------------------------------------
+# Supabase products 테이블은 product_master.html 이 단독 관리합니다.
+# 이 스크립트는 노션 연동이 재개될 때까지 실행을 금지합니다.
+#
+# 이 스크립트가 UPSERT하는 필드: name, model, brand, category, 가격(구형)
+# 이 스크립트가 절대 건드리지 않는 필드 (product_master.html 관리):
+#   - detail_urls (상세페이지 이미지 URL)
+#   - prices (jsonb: purchase, sell_product, sell_install, sell_total)
+#   - is_active (활성/비활성 스위치)
+#   - is_set (세트상품 여부)
+#   - set_components (세트 구성품)
+#
+# 실행하려면 아래 SYNC_ENABLED = False 를 True 로 바꾸세요.
+# =====================================================================
+SYNC_ENABLED = False  # 🔒 노션 연동 재개 전까지 False 유지
 
 import os, re, time, json
 import requests
@@ -120,6 +137,12 @@ def upsert_products(rows):
     return res.status_code
 
 def main():
+    if not SYNC_ENABLED:
+        print("🔒 [중지됨] 노션-Supabase 상품 동기화가 비활성화 상태입니다.")
+        print("   product_master.html이 Supabase 상품 DB를 단독 관리 중입니다.")
+        print("   노션 연동 재개 시 파일 상단의 SYNC_ENABLED = True 로 변경하세요.")
+        return
+
     if SUPABASE_KEY == "키를_.env에_SUPABASE_SERVICE_KEY로_넣어주세요":
         print("❌ .env 파일에 SUPABASE_SERVICE_KEY가 없습니다. 먼저 추가해주세요.")
         return

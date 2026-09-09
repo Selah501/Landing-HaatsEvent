@@ -22,7 +22,7 @@ elif sys.stdout.encoding != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
 
 # 공통 모듈 임포트
-from crm_shared import WATCH_DIR, process_audio_file, logger
+from crm_shared import WATCH_DIR, process_audio_file, logger, update_daemon_status
 
 PID_FILE = os.path.join(os.path.dirname(__file__), "crm_daemon.pid")
 HEARTBEAT_FILE = os.path.join(os.path.dirname(__file__), "crm_daemon_heartbeat.txt")
@@ -61,6 +61,14 @@ def write_heartbeat():
     try:
         with open(HEARTBEAT_FILE, "w") as f:
             f.write(time.strftime('%Y-%m-%dT%H:%M:%S'))
+        
+        # 8시간에 한 번씩만 RTDB로 전송하도록 주기 조절 (count는 전역변수 사용이 번거로우니, 스캔 주기마다 하되 여기서 조절)
+        # 5분(300초) 주기로 이 함수가 호출됨. (하루 288번)
+        # 하루 3번 하트비트를 날리려면 대략 8시간(28800초) 간격.
+        current_time = time.time()
+        if not hasattr(write_heartbeat, "last_rtdb_time") or current_time - write_heartbeat.last_rtdb_time >= 28800:
+            update_daemon_status("OK", "데몬 정상 작동 중")
+            write_heartbeat.last_rtdb_time = current_time
     except Exception as e:
         logger.error(f"하트비트 기록 실패: {e}")
 

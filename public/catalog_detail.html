@@ -104,8 +104,15 @@
         <h6 class="fw-bold text-success border-bottom pb-2">3. 상세 카탈로그 이미지 연동</h6>
         <div class="mb-3">
             <label class="form-label">상세페이지 1 (본사 카탈로그 이미지 URL)</label>
-            <input type="text" id="editImgLevel1" class="form-control" placeholder="http://... 이미지 주소 복사하여 붙여넣기">
-            <small class="text-muted">웹상에 있는 이미지 주소를 복사해서 붙여넣으세요. (향후 파일 직접 업로드 기능 추가 가능)</small>
+            <input type="text" id="editUrl1" class="form-control" placeholder="http://...">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">상세페이지 2 (추가 설명 이미지 URL)</label>
+            <input type="text" id="editUrl2" class="form-control" placeholder="http://...">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">상세페이지 3 (시공 사례 등 기타 URL)</label>
+            <input type="text" id="editUrl3" class="form-control" placeholder="http://...">
         </div>
       </div>
       <div class="modal-footer">
@@ -182,8 +189,7 @@ async function loadProduct() {
 
 function renderProduct() {
     const product = currentProduct;
-    const details = product.details || {};
-    const level1 = details.level1 || {};
+    const urls = product.detail_urls || [];
 
     let html = `
         <div class="catalog-header">
@@ -234,19 +240,37 @@ function renderProduct() {
         </div>
     </div>`;
 
-    // 1단계 카탈로그 이미지 (클릭 시 이미지 추가 모달 연동)
-    if (level1.images && level1.images.length > 0 && level1.images[0]) {
+    // 상세페이지 이미지/HTML 조합 (detail_urls) - URL 타입 자동 감지
+    const validUrls = urls.filter(u => u && u.trim() !== '');
+    if (validUrls.length > 0) {
         html += `<div class="level-section">
-            <div class="level-title"><span>1단계</span> 본사 공식 카탈로그 상세 <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="openEditModal()">이미지 변경</button></div>`;
-        level1.images.forEach(img => {
-            if(img) html += `<img src="${img}" class="product-img" style="cursor:zoom-in;" onclick="openLightbox(this.src)" onerror="this.src='https://via.placeholder.com/800x600?text=Catalog+Image+Not+Found'">`;
+            <div class="level-title"><span>상세 정보</span> 통합 제품 상세설명 <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="openEditModal()">이미지 변경</button></div>`;
+        validUrls.forEach((url, index) => {
+            const isImage = /\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/i.test(url);
+            const isHtml = /\.html?(\?.*)?$/i.test(url);
+            if (isImage) {
+                // 이미지: 라이트박스 팝업
+                html += `<img src="${url}" class="product-img" style="cursor:zoom-in;" onclick="openLightbox(this.src)" onerror="this.style.display='none'">`;
+            } else if (isHtml) {
+                // HTML 페이지: iframe 임베드
+                html += `<div style="width:100%; margin:12px 0; border-radius:10px; overflow:hidden; border:1px solid #333;">
+                    <iframe src="${url}" style="width:100%; min-height:600px; border:none; display:block;" loading="lazy"
+                        title="상세페이지 ${index+1}"></iframe>
+                </div>`;
+            } else {
+                // 기타 외부 URL: 새 탭 버튼
+                html += `<div style="margin:12px 0; padding:16px; background:#1e293b; border-radius:8px; text-align:center;">
+                    <a href="${url}" target="_blank" rel="noopener" class="btn btn-primary" style="font-size:0.95rem;">
+                        🔗 상세 정보 새 탭으로 보기
+                    </a>
+                </div>`;
+            }
         });
         html += `</div>`;
     } else {
-        // 이미지가 없을 때 텅 빈 화면 대신, 클릭하면 즉시 입력창(모달)이 뜨도록 유도
         html += `<div class="level-section text-center text-muted py-5" style="cursor:pointer; background:#f8f9fa; border-radius:8px;" onclick="openEditModal()">
             <i class="bi bi-image fs-1"></i>
-            <p class="mt-2 mb-1">상세 카탈로그 이미지가 없습니다.</p>
+            <p class="mt-2 mb-1">상세 이미지가 없습니다.</p>
             <span class="text-primary text-decoration-underline" style="font-size:0.9rem;">클릭하여 이미지 URL 추가하기</span>
         </div>`;
     }
@@ -270,9 +294,10 @@ function openEditModal() {
     document.getElementById('editPriceOnline').value = p.price_online || '';
     document.getElementById('editPriceLocal').value = p.price_local || '';
     
-    const details = p.details || {};
-    const level1 = details.level1 || {};
-    document.getElementById('editImgLevel1').value = (level1.images && level1.images[0]) ? level1.images[0] : '';
+    const urls = p.detail_urls || [];
+    document.getElementById('editUrl1').value = urls[0] || '';
+    document.getElementById('editUrl2').value = urls[1] || '';
+    document.getElementById('editUrl3').value = urls[2] || '';
     
     editModal.show();
 }
@@ -289,19 +314,12 @@ async function saveAllChanges() {
         price_selling: document.getElementById('editPriceSelling').value ? parseInt(document.getElementById('editPriceSelling').value) : null,
         price_online: document.getElementById('editPriceOnline').value ? parseInt(document.getElementById('editPriceOnline').value) : null,
         price_local: document.getElementById('editPriceLocal').value ? parseInt(document.getElementById('editPriceLocal').value) : null,
+        detail_urls: [
+            document.getElementById('editUrl1').value.trim(),
+            document.getElementById('editUrl2').value.trim(),
+            document.getElementById('editUrl3').value.trim()
+        ]
     };
-
-    // 기존 details 구조 유지하며 이미지 URL 업데이트
-    const details = currentProduct.details || {};
-    const level1 = details.level1 || { images: [] };
-    const imgUrl = document.getElementById('editImgLevel1').value.trim();
-    if (imgUrl) {
-        level1.images = [imgUrl];
-    } else {
-        level1.images = [];
-    }
-    details.level1 = level1;
-    updates.details = details;
 
     try {
         const { error } = await supabaseClient

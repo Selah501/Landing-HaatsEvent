@@ -1492,6 +1492,15 @@
                     // 구버전(문자열 배열) 호환성 처리
                     const mp = window.masterProducts.find(m => m.name === p) || {};
                     return { name: p, qty: 1, cost: Number(mp.costPrice)||0, sell: Number(mp.sellPrice)||0 };
+                } else if (typeof p === 'object' && p !== null) {
+                    // 객체이지만 cost나 sell이 없을 수 있으므로 (구버전 데이터 등)
+                    const mp = window.masterProducts.find(m => m.name === p.name) || {};
+                    return { 
+                        name: p.name, 
+                        qty: Number(p.qty) || 1, 
+                        cost: p.cost !== undefined ? Number(p.cost) : (Number(mp.costPrice)||0), 
+                        sell: p.sell !== undefined ? Number(p.sell) : (Number(mp.sellPrice)||0)
+                    };
                 }
                 return p;
             });
@@ -1506,13 +1515,18 @@
                 }
             }
             
-            // 기존 미디어 보존 및 렌더링
-            window.currentExistingMedia = report.mediaUrls ? [...report.mediaUrls] : [];
+            // 기존 미디어 보존 및 렌더링 (Firebase에서 배열이 아닌 객체로 넘어올 수 있음)
+            let mediaUrls = report.mediaUrls || [];
+            if (!Array.isArray(mediaUrls)) {
+                mediaUrls = Object.values(mediaUrls); // 객체인 경우 배열로 변환
+            }
+            window.currentExistingMedia = [...mediaUrls];
+            
             if(typeof renderExistingMedia === 'function') {
                 renderExistingMedia();
             }
             
-            populateBrandCategories();
+            // populateBrandCategories() 는 더이상 사용하지 않으므로 삭제 (버그 원인)
             renderAddedProducts();
         };
 
@@ -1582,20 +1596,6 @@
                 renderExistingMedia();
             }
         };
-
-        function populateBrandCategories() {
-            const catSelect = document.getElementById('modal-brand-cat');
-            catSelect.innerHTML = '<option value="">-- 대분류 선택 --</option>';
-            const predefinedCategories = [
-                "하츠후드 엘리카", "하츠후드 플래티늄", "하츠후드 데코", "하츠후드 스템", 
-                "하츠 전기레인지", "하츠 가스레인지", "하츠 수전빌트인", "하츠 씽크볼", 
-                "하츠 기타빌트인", "기타카테고리"
-            ];
-            predefinedCategories.forEach(b => {
-                catSelect.innerHTML += `<option value="${b}">${b}</option>`;
-            });
-            document.getElementById('modal-prod-select').innerHTML = '<option value="">-- 제품을 먼저 선택하세요 --</option>';
-        }
 
         window.searchModalProduct = function(keyword) {
             const resultsDiv = document.getElementById('modal-prod-search-results');

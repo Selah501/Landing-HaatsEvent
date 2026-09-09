@@ -405,3 +405,8 @@ eservations)을 테이블에서 렌더링 제외시켜 순수한 '팔로업/보�
 3. **작업 이력**:
    - Git Commit Message: `chore(db): Enable RLS and add public access policies for products table to resolve security warning`
    - [상세 요약 워크스루](.agents/work_logs/20260909_Supabase_RLS_보안조치.md)
+
+## [2026-09-09] 결제수단 분류 기준 개편 및 프론트엔드 데이터 자동 매핑
+### 주요 변경 사항
+1. **결제수단 선택지 5종 통폐합**: 파편화되어 있던 결제수단을 이체(우리 개인), 이체(우리 기업), 카드(우리기업), 현금, 기타 5가지로 간소화.\n2. **과거 데이터 비파괴(Non-Destructive) 매핑**: DB 원본 데이터를 수정하지 않고 100% 보존한 상태에서, 프론트엔드 단에 mapPaymentMethod() 공용 함수를 주입하여 옛날 텍스트(예: 카카오뱅크, 법인카드 등)가 렌더링될 때 화면에만 5가지 기준(주로 기타 등)으로 자동 치환되도록 처리.\n3. **작업 이력**:
+   - [상세 요약 워크스루](.agents/work_logs/20260909_결제수단_분류_개선.md) 보존 완료.\n

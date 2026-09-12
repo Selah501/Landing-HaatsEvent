@@ -225,6 +225,77 @@ exports.analyzeVoiceReport = functions.https.onCall(async (data, context) => {
     }
 });
 
+exports.analyzeApartmentSpec = functions.https.onCall(async (data, context) => {
+    const { aptName, texts, mediaUrls } = data;
+    if (!aptName || !texts) {
+        throw new functions.https.HttpsError("invalid-argument", "aptName and texts are required.");
+    }
+    
+    if (!GEMINI_API_KEY) {
+        throw new functions.https.HttpsError("internal", "Gemini API key is not configured.");
+    }
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" }); 
+        
+        const promptText = `
+당신은 아파트 시공 내역과 현장 사진을 분석하여 아파트 스펙 DB를 구축하는 보조 AI입니다.
+대상 아파트명: ${aptName}
+제공된 시공 이력 (텍스트 배열):
+${JSON.stringify(texts, null, 2)}
+(첨부된 현장 사진이 있다면 텍스트와 함께 분석하여 시공 환경과 기존 제품의 규격을 파악하세요.)
+
+위 데이터를 바탕으로 다음 JSON 포맷에 맞게 아파트의 구조적 스펙을 추론하여 응답하세요. (마크다운 백틱 없이 순수 JSON만 출력)
+만약 데이터나 사진에 없는 내용은 빈 문자열("")로 남겨두세요.
+
+{
+  "spec_bathroom": "욕실 관련 구조적 특성 요약 (예: 안방 타공 구멍이 큼, 아크릴 마감판 필수 등)",
+  "spec_hood": "설치된 주방 후드 규격 요약 (예: 가로 900짜리 하츠 테라, 600짜리 슬라이딩 등)",
+  "next_sales_notes": "다음 영업 시 참고할 만한 특이사항 (예: 사각 싱크볼 교체 수요 있음)"
+}
+        `;
+
+        const promptParts = [promptText];
+
+        if (mediaUrls && Array.isArray(mediaUrls)) {
+            for (const url of mediaUrls) {
+                try {
+                    const imgRes = await fetch(url);
+                    const arrayBuffer = await imgRes.arrayBuffer();
+                    const buffer = Buffer.from(arrayBuffer);
+                    const mimeType = imgRes.headers.get('content-type') || 'image/jpeg';
+                    
+                    if (mimeType.startsWith('image/')) {
+                        promptParts.push({
+                            inlineData: {
+                                mimeType: mimeType,
+                                data: buffer.toString('base64')
+                            }
+                        });
+                    }
+                } catch(e) {
+                    console.error("Image fetch failed for URL:", url, e);
+                }
+            }
+        }
+
+        const result = await model.generateContent(promptParts);
+        const responseText = result.response.text();
+        console.log("Gemini analyzeApartmentSpec Response:", responseText);
+        
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+        } else {
+            throw new Error("Failed to parse JSON from Gemini response");
+        }
+    } catch (error) {
+        console.error("Gemini AI Error in analyzeApartmentSpec:", error);
+        throw new functions.https.HttpsError("internal", error.message);
+    }
+});
+
+
 // =========================================================================
 // Cloud Functions v2: 통화 녹음 자동 분석 (Firebase Storage 트리거)
 // 스마트폰 → Firebase Storage 업로드 → Gemini AI 분석 → RTDB crm_pending 저장

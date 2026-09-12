@@ -274,6 +274,10 @@ function renderProduct() {
             <span class="text-primary text-decoration-underline" style="font-size:0.9rem;">클릭하여 이미지 URL 추가하기</span>
         </div>`;
     }
+    
+    html += `<div style="text-align: center; margin-top: 40px; padding-bottom: 20px;">
+        <button onclick="window.location.href='./admin.html'" style="background:none; border:none; color:#adb5bd; font-size:12px; cursor:pointer; text-decoration:underline;">관리자 모드 접속</button>
+    </div>`;
 
     document.getElementById('catalogContent').innerHTML = html;
     document.getElementById('bottomBar').style.display = 'flex';

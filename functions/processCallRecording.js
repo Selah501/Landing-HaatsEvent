@@ -84,8 +84,8 @@ exports.processCallRecording = onObjectFinalized(
             const eventsData = eventsSnap.val() || [];
             const productsData = productsSnap.val() || [];
             const eventNames = eventsData
-                .filter((e) => e && e.title)
-                .map((e) => e.title);
+                .filter((e) => e && (e.targetApt || e.title))
+                .map((e) => e.targetApt || e.title);
             const productNames = productsData
                 .filter((p) => p && p.name)
                 .map((p) => p.name);
@@ -93,7 +93,7 @@ exports.processCallRecording = onObjectFinalized(
             let dynamicPrompt = PROMPT + "\n\n[필수 지침]\n";
             dynamicPrompt += `1. 현장명(site_info)은 다음 목록 중 가장 일치하는 이름 하나만 선택하세요: ${eventNames.join(", ") || "목록 없음"}\n`;
             dynamicPrompt += `   - 일치하는 것이 확실치 않으면 '기타(추정)'이라고 적고 뒤에 추정한 이름을 괄호로 적으세요. (예: 기타(추정: 무슨아파트))\n`;
-            dynamicPrompt += `   - 동호수가 언급되었다면 현장명과 결합하되, 반드시 '[동/호수] [아파트명] [[지역명]]' 순서로 기재하세요. (목록의 이름이 '[내포] 효성'이라면 '102동 2003호 효성 [내포]' 형식으로 변경)\n`;
+            dynamicPrompt += `   - 동/호수가 언급되었다면 현장명(선택된 목록 항목) 앞에 결합하세요 (예: 102동 2003호 효성해링턴플레이스 [내포]).\n`;
             dynamicPrompt += `   - 현장을 전혀 알 수 없는 경우 '미확인현장 [미확인]' 으로 기재하세요.\n`;
             dynamicPrompt += `2. 구매품(purchase_info)은 다음 목록 중 가장 일치하는 이름들만 콤마로 나열하세요: ${productNames.join(", ") || "목록 없음"}\n`;
             dynamicPrompt += `   - 일치하는 것이 확실치 않으면 '기타(추정)'이라고 적고 추정한 이름을 괄호로 적으세요.\n`;
@@ -108,7 +108,7 @@ exports.processCallRecording = onObjectFinalized(
             // 4. Gemini AI 분석
             console.log("3. Gemini 분석 중...");
             const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
 
             const audioData = fs.readFileSync(tempFilePath);
             const base64Audio = audioData.toString("base64");

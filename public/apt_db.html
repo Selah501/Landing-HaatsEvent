@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아파트 DB - 하츠 충남대리점</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        
+        .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; overflow-y: auto; }
+        .search-container { padding: 16px; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; background: white; }
+        .search-container input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        
+        .add-btn { background: #0ea5e9; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; margin-top: 10px; cursor: pointer; font-weight: bold; }
+        .add-btn:hover { background: #0284c7; }
+        
+        .nav-item { padding: 12px 16px; cursor: pointer; color: #374151; font-size: 14px; border-bottom: 1px solid #f3f4f6; border-left: 3px solid transparent; }
+        .nav-item:hover { background: #f9fafb; }
+        .nav-item.active { background: #f0f9ff; border-left-color: #0ea5e9; color: #0369a1; font-weight: 600; }
+        
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; background: #fff; }
+        
+        .form-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .form-section h3 { margin-top: 0; margin-bottom: 16px; font-size: 16px; color: #111827; border-bottom: 1px solid #f3f4f6; padding-bottom: 10px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 12px; }
+        .form-group.full { grid-column: span 2; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #4b5563; margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; outline: none; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.1); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        
+        .checkbox-group { display: flex; gap: 16px; align-items: center; }
+        .checkbox-group label { display: flex; align-items: center; gap: 6px; font-weight: normal; margin-bottom: 0; }
+        
+        .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn-primary { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-danger { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-ai { background: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #6b7280; }
+    </style>
+</head>
+<body>
+
+    <div id="unified-header"></div>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="search-container">
+                <input type="text" id="search-apt" placeholder="아파트 검색...">
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button class="add-btn" style="margin-top:0; flex:1;" onclick="createNew()">+ 새 아파트</button>
+                    <button class="add-btn" style="margin-top:0; flex:1; background:#8b5cf6;" onclick="fetchFromEvents()">+ 기존 현장 불러오기</button>
+                </div>
+            </div>
+            <div id="apt-list">
+                <div style="padding: 20px; text-align: center; color: #6b7280;">로딩 중...</div>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            <div id="empty-state" class="empty-state">
+                <h2>아파트를 선택하거나 새로 등록하세요</h2>
+            </div>
+            
+            <div id="form-container" style="display: none; max-width: 900px; margin: 0 auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 id="form-title" style="margin:0;">아파트 정보</h2>
+                    <button class="btn-ai" onclick="runAIAnalysis()">✨ AI 사전 분석 (이력 기반)</button>
+                </div>
+                
+                <form id="apt-form">
+                    <input type="hidden" id="f_id">
+                    
+                    <div class="form-section">
+                        <h3>기본 정보</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>아파트명 (아파트명 지역명)</label>
+                                <input type="text" id="f_apt_name" placeholder="예: 효성해링턴 내포" required>
+                            </div>
+                            <div class="form-group">
+                                <label>아파트 특성</label>
+                                <select id="f_apt_type">
+                                    <option value="">선택</option>
+                                    <option value="일반">일반</option>
+                                    <option value="임대">임대</option>
+                                    <option value="임대+일반 혼합">임대+일반 혼합</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>세대수</label>
+                                <input type="text" id="f_total_units" placeholder="예: 1024세대">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>영업 현황 (마케팅)</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>전단지 영업기간</label>
+                                <input type="text" id="f_campaign_period" placeholder="예: 26.7.26~8.2">
+                            </div>
+                            <div class="form-group">
+                                <label>전단지 게시 지정요일</label>
+                                <input type="text" id="f_post_day" placeholder="예: 매주 월요일">
+                            </div>
+                            <div class="form-group">
+                                <label>시공세대수</label>
+                                <input type="text" id="f_sales_count" placeholder="예: 15세대">
+                            </div>
+                            <div class="form-group">
+                                <label>매출총액</label>
+                                <input type="text" id="f_sales_revenue" placeholder="예: 3,500,000원">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>현장 스펙 (시공 특기사항)</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>주방 후드 규격</label>
+                                <input type="text" id="f_spec_hood" placeholder="예: 하츠 테라(가로 900)">
+                            </div>
+                            <div class="form-group">
+                                <label>주방 레인지 환경</label>
+                                <select id="f_spec_range">
+                                    <option value="">선택</option>
+                                    <option value="가스레인지">가스레인지</option>
+                                    <option value="인덕션">인덕션</option>
+                                    <option value="혼합(동-타입별 상이)">혼합(동-타입별 상이)</option>
+                                </select>
+                            </div>
+                            <div class="form-group full">
+                                <label>추가 가전 유무</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" id="f_has_oven"> 전기오븐 있음</label>
+                                    <label><input type="checkbox" id="f_has_dishwasher"> 식기세척기 있음</label>
+                                </div>
+                            </div>
+                            <div class="form-group full">
+                                <label>욕실 스펙 및 간섭 여부</label>
+                                <textarea id="f_spec_bathroom" placeholder="예: 안방은 기존 타공구멍이 큼. 아크릴 마감판(22만) 필수 안내 요망. 거실은 미니 19.5만 가능. 배관 간섭 없음."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>관리 정보 & 비고</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>관리사무소 전화번호</label>
+                                <input type="text" id="f_office_phone" placeholder="예: 041-123-4567">
+                            </div>
+                            <div class="form-group full">
+                                <label>다음 영업 참조사항 (기타 메모)</label>
+                                <textarea id="f_next_sales_notes" placeholder="다음 방문 시 사각 씽크볼 홍보 전단 집중 투입할 것"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn-danger" id="btn-delete" style="display:none;" onclick="deleteData()">삭제</button>
+                        <button type="button" class="btn-primary" onclick="saveData()">💾 DB 저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="./auth.js?v=2"></script>
+    <script>
+        const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let aptList = [];
+        let currentId = null;
+
+        initAdminAuth(() => {
+            document.getElementById('unified-header').innerHTML = renderUnifiedHeader('apt_db', '🏢 아파트 사전조사 DB');
+            loadData();
+        });
+
+        async function loadData() {
+            const { data, error } = await sb.from('apartment_specs').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error("Supabase load error:", error);
+                return;
+            }
+            aptList = data;
+            renderList();
+        }
+
+        function renderList() {
+            const container = document.getElementById('apt-list');
+            container.innerHTML = '';
+            
+            const keyword = document.getElementById('search-apt').value.toLowerCase();
+            const filtered = aptList.filter(a => (a.apt_name || '').toLowerCase().includes(keyword));
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">등록된 아파트가 없습니다.</div>';
+                return;
+            }
+
+            filtered.forEach(apt => {
+                const div = document.createElement('div');
+                div.className = 'nav-item';
+                if (currentId === apt.id) div.classList.add('active');
+                div.textContent = apt.apt_name;
+                div.onclick = () => selectApt(apt.id);
+                container.appendChild(div);
+            });
+        }
+
+        document.getElementById('search-apt').addEventListener('input', renderList);
+
+        function selectApt(id) {
+            currentId = id;
+            renderList();
+            
+            const apt = aptList.find(a => a.id === id);
+            if (!apt) return;
+
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('form-container').style.display = 'block';
+            document.getElementById('form-title').textContent = apt.apt_name;
+            document.getElementById('btn-delete').style.display = 'block';
+
+            // 폼 채우기
+            document.getElementById('f_id').value = apt.id || '';
+            document.getElementById('f_apt_name').value = apt.apt_name || '';
+            document.getElementById('f_apt_type').value = apt.apt_type || '';
+            document.getElementById('f_total_units').value = apt.total_units || '';
+            document.getElementById('f_campaign_period').value = apt.campaign_period || '';
+            document.getElementById('f_sales_count').value = apt.sales_count || '';
+            document.getElementById('f_sales_revenue').value = apt.sales_revenue || '';
+            document.getElementById('f_spec_hood').value = apt.spec_hood || '';
+            document.getElementById('f_spec_range').value = apt.spec_range || '';
+            document.getElementById('f_has_oven').checked = apt.has_oven || false;
+            document.getElementById('f_has_dishwasher').checked = apt.has_dishwasher || false;
+            document.getElementById('f_spec_bathroom').value = apt.spec_bathroom || '';
+            document.getElementById('f_office_phone').value = apt.office_phone || '';
+            document.getElementById('f_post_day').value = apt.post_day || '';
+            document.getElementById('f_next_sales_notes').value = apt.next_sales_notes || '';
+        }
+
+        function createNew() {
+            currentId = null;
+            renderList();
+            
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('form-container').style.display = 'block';
+            document.getElementById('form-title').textContent = "새 아파트 등록";
+            document.getElementById('btn-delete').style.display = 'none';
+            
+            document.getElementById('apt-form').reset();
+            document.getElementById('f_id').value = '';
+        }
+
+        async function fetchFromEvents() {
+            try {
+                Swal.fire({ title: '이벤트 목록 불러오는 중...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const res = await fetch('https://flyer-event-page-2026-default-rtdb.firebaseio.com/events.json');
+                const events = await res.json();
+                if (!events || events.length === 0) {
+                    Swal.fire('알림', '등록된 이벤트 현장이 없습니다.', 'info');
+                    return;
+                }
+                
+                // Get unique targetApt from events
+                let eventNames = [];
+                events.forEach(ev => {
+                    const name = ev.targetApt || ev.title;
+                    if (name && !eventNames.includes(name)) {
+                        eventNames.push(name);
+                    }
+                });
+                
+                // Filter out already registered
+                const registeredNames = aptList.map(a => a.apt_name);
+                const missingNames = eventNames.filter(n => !registeredNames.includes(n));
+                
+                if (missingNames.length === 0) {
+                    Swal.fire('알림', '모든 이벤트 현장이 이미 DB에 등록되어 있습니다.', 'info');
+                    return;
+                }
+                
+                // Create selection UI
+                let optionsHtml = missingNames.map((name, idx) => 
+                    `<button style="display:block; width:100%; padding:12px; margin-bottom:8px; border:1px solid #d1d5db; border-radius:6px; background:#fff; text-align:left; cursor:pointer; font-size:14px; color:#374151;" onclick="window.selectMissingEvent('${name.replace(/'/g, "\\'")}')">${name}</button>`
+                ).join('');
+                
+                Swal.fire({
+                    title: '등록되지 않은 기존 이벤트 현장',
+                    html: `<div style="max-height:300px; overflow-y:auto; padding-top:10px;">${optionsHtml}</div>`,
+                    showConfirmButton: false,
+                    showCancelButton: true,
+                    cancelButtonText: '닫기'
+                });
+                
+                window.selectMissingEvent = function(name) {
+                    Swal.close();
+                    createNew();
+                    document.getElementById('f_apt_name').value = name;
+                };
+            } catch (err) {
+                console.error(err);
+                Swal.fire('오류', '이벤트 데이터를 불러오는 중 실패했습니다.', 'error');
+            }
+        }
+
+        async function saveData() {
+            const name = document.getElementById('f_apt_name').value.trim();
+            if (!name) {
+                Swal.fire('오류', '아파트명을 입력해주세요.', 'error');
+                return;
+            }
+
+            const payload = {
+                apt_name: name,
+                apt_type: document.getElementById('f_apt_type').value,
+                total_units: document.getElementById('f_total_units').value,
+                campaign_period: document.getElementById('f_campaign_period').value,
+                sales_count: document.getElementById('f_sales_count').value,
+                sales_revenue: document.getElementById('f_sales_revenue').value,
+                spec_hood: document.getElementById('f_spec_hood').value,
+                spec_range: document.getElementById('f_spec_range').value,
+                has_oven: document.getElementById('f_has_oven').checked,
+                has_dishwasher: document.getElementById('f_has_dishwasher').checked,
+                spec_bathroom: document.getElementById('f_spec_bathroom').value,
+                office_phone: document.getElementById('f_office_phone').value,
+                post_day: document.getElementById('f_post_day').value,
+                next_sales_notes: document.getElementById('f_next_sales_notes').value
+            };
+
+            const id = document.getElementById('f_id').value;
+            try {
+                if (id) {
+                    await sb.from('apartment_specs').update(payload).eq('id', id);
+                    Swal.fire('저장 성공', '아파트 정보가 업데이트되었습니다.', 'success');
+                } else {
+                    const { data } = await sb.from('apartment_specs').insert([payload]).select();
+                    if(data && data.length > 0) currentId = data[0].id;
+                    Swal.fire('등록 성공', '새 아파트가 등록되었습니다.', 'success');
+                }
+                await loadData();
+                if(currentId) selectApt(currentId);
+            } catch (err) {
+                Swal.fire('오류', '저장 중 문제가 발생했습니다.', 'error');
+                console.error(err);
+            }
+        }
+
+        async function deleteData() {
+            const id = document.getElementById('f_id').value;
+            if (!id) return;
+            
+            const result = await Swal.fire({
+                title: '삭제하시겠습니까?',
+                text: "이 작업은 되돌릴 수 없습니다.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: '삭제'
+            });
+            
+            if (result.isConfirmed) {
+                await sb.from('apartment_specs').delete().eq('id', id);
+                currentId = null;
+                document.getElementById('form-container').style.display = 'none';
+                document.getElementById('empty-state').style.display = 'flex';
+                await loadData();
+                Swal.fire('삭제됨', '아파트 정보가 삭제되었습니다.', 'success');
+            }
+        }
+
+        async function runAIAnalysis() {
+            const aptName = document.getElementById('f_apt_name').value;
+            if(!aptName) {
+                Swal.fire('알림', '아파트명을 먼저 입력한 후 AI 분석을 실행하세요.', 'info');
+                return;
+            }
+            Swal.fire({
+                title: 'AI 분석 중...',
+                text: `'${aptName}'의 기존 시공 이력을 불러오고 분석합니다.`,
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            
+            try {
+                // 1. Firebase RTDB에서 과거 이력 가져오기 (임시로 전체 reservations에서 이름이 포함된 것 필터)
+                const dbRes = await fetch('https://flyer-event-page-2026-default-rtdb.firebaseio.com/reservations.json');
+                const allData = await dbRes.json();
+                
+                let texts = [];
+                let totalSales = 0;
+                let totalCount = 0;
+                let mediaUrls = [];
+
+                if (allData) {
+                    for(const date in allData) {
+                        for(const time in allData[date]) {
+                            const res = allData[date][time];
+                            const apt = res.customerInfo?.apt || '';
+                            // 표준 현장 명칭으로 완벽한 일치 검색 (과거 띄어쓰기 등 파편화된 데이터는 제외 또는 수동 정비 후 매칭)
+                            if (apt.includes(aptName)) { 
+                                const notes = res.report?.techNotes || '';
+                                const salesNotes = res.report?.salesNotes || '';
+                                const usedProducts = res.report?.usedProducts || [];
+                                texts.push(`기술노트: ${notes}, 영업노트: ${salesNotes}, 사용제품: ${JSON.stringify(usedProducts)}`);
+                                
+                                const payAmount = parseInt(res.report?.payAmount || 0);
+                                if (payAmount > 0) totalSales += payAmount;
+                                totalCount += 1;
+
+                                if (res.report?.mediaUrls) {
+                                    mediaUrls = mediaUrls.concat(res.report.mediaUrls);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (texts.length === 0) {
+                    Swal.fire('알림', '해당 아파트와 관련된 과거 시공 이력을 찾지 못했습니다.', 'info');
+                    return;
+                }
+
+                // 통계값 즉시 폼에 채우기
+                document.getElementById('f_sales_count').value = totalCount + "세대";
+                document.getElementById('f_sales_revenue').value = totalSales.toLocaleString() + "원";
+
+                // 사진은 최근 5장만 AI 분석에 사용 (Payload 크기 최적화 및 시간 단축)
+                mediaUrls = mediaUrls.slice(0, 5);
+
+                // 2. Cloud Function 호출
+                const analyzeCall = await fetch('https://us-central1-flyer-event-page-2026.cloudfunctions.net/analyzeApartmentSpec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: { aptName: aptName, texts: texts, mediaUrls: mediaUrls } })
+                });
+                
+                const result = await analyzeCall.json();
+                if (result.error) throw new Error(result.error.message || 'API Error');
+                
+                const parsed = result.result;
+                
+                document.getElementById('f_spec_bathroom').value = parsed.spec_bathroom || '';
+                document.getElementById('f_spec_hood').value = parsed.spec_hood || '';
+                document.getElementById('f_next_sales_notes').value = parsed.next_sales_notes || '';
+                
+                Swal.fire('AI 분석 완료', '시공결과 데이터를 바탕으로 폼이 1차적으로 채워졌습니다. 내용을 꼼꼼히 확인하고 수정한 뒤 저장해주세요.', 'success');
+            } catch (err) {
+                console.error(err);
+                Swal.fire('분석 실패', 'AI 분석 중 오류가 발생했습니다: ' + err.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

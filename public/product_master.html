@@ -57,12 +57,7 @@
 <body>
 
 <div class="page-container">
-    <div class="header-actions">
-        <h1 style="margin:0;">📦 상품 마스터</h1>
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <div id="nav-container"></div>
-        </div>
-    </div>
+    <div id="unified-header"></div>
 
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -203,7 +198,7 @@
 
     // 로그인 검증 및 GNB 렌더링
     initAdminAuth(() => {
-        document.getElementById('nav-container').innerHTML = renderAdminNav('product_master');
+        document.getElementById('unified-header').innerHTML = renderUnifiedHeader('product_master', '📦 상품 마스터');
         loadProducts();
     });
 

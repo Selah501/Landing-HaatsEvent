@@ -225,7 +225,7 @@
             </div>
             <div id="admin-panel" class="admin-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
-                    <div style="color: var(--color-action-raspberry); font-weight: bold;">👑 관리자 모드 활성화됨</div>
+                    <div style="color: var(--color-action-raspberry); font-weight: bold;">👑 관리자 모드</div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="date" id="admin-cal-start" style="background: var(--color-graphite-base); color: var(--color-pure-white); border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-family: inherit; color-scheme: dark; font-size: 16px; font-weight: bold;" onchange="renderCalendar()">
                         <span id="admin-cal-day" style="font-size: 20px; font-weight: bold; margin-left: 4px;"></span>
@@ -321,7 +321,7 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="./auth.js"></script>
+    <script src="./auth.js?v=2"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";

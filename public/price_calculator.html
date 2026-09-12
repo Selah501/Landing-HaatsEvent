@@ -6,7 +6,7 @@
   <title>💰 판매가 계산기 | HAATZ 충남대리점</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./auth.js"></script>
+  <script src="./auth.js?v=2"></script>
   <style>
     :root {
       --bg: #0d0d0f;
@@ -404,16 +404,7 @@
 </head>
 <body>
 
-<div class="header">
-  <div class="header-title">💰 판매가 계산기</div>
-  <div class="nav-links">
-    <a href="./admin_v2.html" class="nav-link">📋 작업지시</a>
-    <a href="./admin.html" class="nav-link">⚙️ 관리자</a>
-    <a href="./erp.html" class="nav-link">📊 재무장부</a>
-    <a href="./catalog_search.html" class="nav-link">🔍 상품검색</a>
-    <a href="./price_calculator.html" class="nav-link active">💰 판매가계산</a>
-  </div>
-</div>
+<div id="unified-header"></div>
 
 <div class="grid">
 
@@ -1048,6 +1039,7 @@ function renderHistory() {
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   initAdminAuth(() => {
+    document.getElementById('unified-header').innerHTML = renderUnifiedHeader('price_calculator', '💰 판매가계산');
     loadProducts();
     renderHistory();
   });

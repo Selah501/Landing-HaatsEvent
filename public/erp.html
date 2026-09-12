@@ -195,13 +195,7 @@
 </head>
 <body>
     <div class="page-container view-pc" id="app">
-        <nav class="header-actions">
-            <div style="font-weight: bold; font-size: 18px;">📊 재무장부</div>
-            <div class="nav-links" style="display:flex; align-items:center; gap:8px;">
-                <div id="nav-container"></div>
-                <button onclick="document.getElementById('app').classList.toggle('view-mobile')" style="background:none; border:1px solid #666; color:white; padding:4px 8px; border-radius:4px; cursor:pointer;">PC/모바일 전환</button>
-            </div>
-        </nav>
+        <div id="unified-header"></div>
 
         <div class="content-area">
             <div class="tabs">
@@ -609,7 +603,7 @@
 
     <!-- Firebase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./auth.js"></script>
+    <script src="./auth.js?v=2"></script>
     <script type="module">
         const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
@@ -637,7 +631,7 @@
         const db = getDatabase(app);
         
         initAdminAuth(() => {
-            document.getElementById('nav-container').innerHTML = renderAdminNav('erp');
+            document.getElementById('unified-header').innerHTML = renderUnifiedHeader('erp', '📊 재무장부');
         });
 
         window.currentLedger = [];

@@ -54,6 +54,9 @@
                 <a href="./guide/work-and-payment.html">교체공정 및 결제안내</a>
             </div>
             <div class="brand-footer">캠페인 주관사: TBJ 홈케어 사업부</div>
+            <div style="text-align: center; margin-top: 20px; padding-bottom: 20px;">
+                <button onclick="window.location.href='./admin.html'" style="background:none; border:none; color:#6b7280; font-size:12px; cursor:pointer; text-decoration:underline; padding: 5px;">관리자 모드 접속</button>
+            </div>
         </footer>
     </div>
 
@@ -235,7 +238,7 @@
                         `;
                     });
 
-                    let defaultApt = ev.aptName;
+                    let defaultApt = ev.targetApt || ev.aptName;
                     if (!defaultApt) {
                         defaultApt = ev.title.replace(/(아파트|주방후드|환풍기|전동댐퍼|인덕션|수전|싱크볼|씽크볼|특가|이벤트|공동구매|교체|설치|핫써머|핫썸머|썸머|써머|여름|스멜|행사|할인|초특가|사전예약|모집|프로모션|패키지|혜택|지원|사은품|202\d).*$/i, '').trim();
                         const words = defaultApt.split(/\s+/);
@@ -290,13 +293,14 @@
                                 <!-- 아파트 동/호수 입력 -->
                                 <div class="form-field-item">
                                     <div class="form-field-header">
-                                        <label class="form-field-label" for="apt-${ev.id}">🏢 아파트 동·호수</label>
+                                        <label class="form-field-label" for="apt-dongho-${ev.id}">🏢 아파트 동·호수</label>
                                         <span class="form-field-badge">✎ 입력하기</span>
                                     </div>
-                                    <div class="form-field-input-box">
-                                        <input type="text" id="apt-${ev.id}" value="${defaultApt} " placeholder="예: 101동 102호">
+                                    <div style="display: flex; gap: 8px;">
+                                        <input type="text" id="apt-dongho-${ev.id}" placeholder="예: 101동 102호" style="flex: 1;">
+                                        <input type="text" id="apt-name-${ev.id}" value="${defaultApt}" readonly style="flex: 1; background: #f3f4f6; color: #6b7280; border: none; font-size: 13px;">
                                     </div>
-                                    <div class="form-field-hint">💡 동과 호수를 이어서 적어주세요 (예: 101동 102호).</div>
+                                    <div class="form-field-hint">💡 동과 호수를 적어주세요 (예: 101동 102호).</div>
                                 </div>
 
                                 <!-- 기타 요청사항 -->
@@ -418,7 +422,10 @@
 
         // 구글 시트 데이터 전송 함수
         function submitForm(id) {
-            const apartment = document.getElementById(`apt-${id}`).value;
+            const dongho = document.getElementById(`apt-dongho-${id}`).value.trim();
+            const aptName = document.getElementById(`apt-name-${id}`).value.trim();
+            const apartment = dongho ? (dongho + " " + aptName).trim() : aptName;
+            
             let phone = document.getElementById(`phone-${id}`).value;
             const consultTime = document.getElementById(`time-${id}`).value;
 
@@ -432,14 +439,14 @@
 
             if (!phone || phone.length < 10) {
                 alert("⚠️ 정확한 휴대폰 번호를 입력해주세요 (예: 010-1234-5678).");
-                phoneInput.focus();
+                document.getElementById(`phone-${id}`).focus();
                 return;
             }
 
             // 동호수 검증: 숫자가 포함되어 있지 않거나 너무 짧으면(아파트 이름만 있는 경우) 차단
             if (!apartment || apartment.trim().length < 3 || !/\d/.test(apartment)) {
                 alert("⚠️ 아파트 동과 호수를 이어서 정확히 입력해주세요 (예: 101동 102호).");
-                aptInput.focus();
+                document.getElementById(`apt-dongho-${id}`).focus();
                 return;
             }
 
@@ -501,7 +508,8 @@
 
                 alert(`상담신청이 완료되어 담당자가 곧 연락을 드리겠습니다. 신청해 주셔서 감사합니다.\n\n이벤트명 : ${currentEventName}\n하츠충남대리점`);
                 // 신청 성공 후 입력 칸 초기화 및 리셋
-                document.getElementById(`apt-${id}`).value = "";
+                document.getElementById(`apt-dongho-${id}`).value = "";
+                document.getElementById(`apt-name-${id}`).value = "";
                 document.getElementById(`phone-${id}`).value = "";
                 document.getElementById(`time-${id}`).value = "";
                 // 폼 체크박스 리셋

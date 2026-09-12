@@ -109,17 +109,9 @@
 <body>
 
 <div class="container" id="main-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
-        <h1 style="margin:0;">⚙️ 관리자페이지</h1>
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <span style="color:#10b981; font-weight:bold;" id="db-status">🟡 연결 중...</span>
-            <button onclick="window.triggerInjectTestData()" style="background-color:#8b5cf6; color:white; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold; border-radius:6px;">🧪 가상 테스트 데이터 생성</button>
-            <div id="nav-container"></div>
-            <div style="display:flex; background:#e5e7eb; border-radius:6px; overflow:hidden; border:1px solid #d1d5db;">
-                <button id="btn-pc-view" onclick="setView('pc')" style="background-color:#2563eb; color:white; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold;">💻 PC</button>
-                <button id="btn-mobile-view" onclick="setView('mobile')" style="background-color:transparent; color:#4b5563; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold;">📱 모바일</button>
-            </div>
-        </div>
+    <div id="unified-header"></div>
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+        <button onclick="window.triggerInjectTestData()" style="background-color:#8b5cf6; color:white; border:none; padding:8px 16px; cursor:pointer; font-size:13px; font-weight:bold; border-radius:6px;">🧪 가상 테스트 데이터 생성</button>
     </div>
 
     <div class="tabs">
@@ -136,22 +128,7 @@
         </div>
         
         
-        <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-            <select id="master-category-filter" style="padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="renderMasterList()">
-                <option value="ALL">전체 보기 (느릴 수 있음)</option>
-                <option value="하츠후드 엘리카" selected>하츠후드 엘리카</option>
-                <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
-                <option value="하츠후드 데코">하츠후드 데코</option>
-                <option value="하츠후드 시스템">하츠후드 시스템</option>
-                <option value="하츠 전기레인지">하츠 전기레인지</option>
-                <option value="하츠 가스레인지">하츠 가스레인지</option>
-                <option value="하츠 수전빌트인">하츠 수전빌트인</option>
-                <option value="하츠 씽크볼">하츠 씽크볼</option>
-                <option value="하츠 기타빌트인">하츠 기타빌트인</option>
-                <option value="기타카테고리">기타카테고리</option>
-            </select>
-            <span style="font-size: 13px; color: #6b7280;">* 카테고리를 선택하여 조회하세요.</span>
-        </div>
+
         <div style="overflow-x: auto;">
             <table>
                 <thead>
@@ -182,7 +159,6 @@
                 </button>
             </h3>
             <div style="display:flex; gap:8px;">
-                <button class="btn" style="background:#10b981; color:#fff; padding:6px 12px; border-radius:4px; font-weight:bold; border:none; cursor:pointer;" onclick="document.getElementById('readonly-cal-modal').style.display='flex'">🗓️ 달력 보기 (읽기 전용)</button>
                 <a href="reservation_v2.html?admin=true" target="_blank" class="btn" style="background:#8b5cf6; color:#fff; padding:6px 12px; border-radius:4px; font-weight:bold; border:none; text-decoration:none;">⚙️ 달력 관리 (관리자 모드)</a>
             </div>
         </div>
@@ -234,22 +210,7 @@
             <button onclick="addManagerRow()">+ 담당자 추가</button>
         </div>
         
-        <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-            <select id="master-category-filter" style="padding:8px; border:1px solid #d1d5db; border-radius:4px;" onchange="renderMasterList()">
-                <option value="ALL">전체 보기 (느릴 수 있음)</option>
-                <option value="하츠후드 엘리카" selected>하츠후드 엘리카</option>
-                <option value="하츠후드 플래티늄">하츠후드 플래티늄</option>
-                <option value="하츠후드 데코">하츠후드 데코</option>
-                <option value="하츠후드 시스템">하츠후드 시스템</option>
-                <option value="하츠 전기레인지">하츠 전기레인지</option>
-                <option value="하츠 가스레인지">하츠 가스레인지</option>
-                <option value="하츠 수전빌트인">하츠 수전빌트인</option>
-                <option value="하츠 씽크볼">하츠 씽크볼</option>
-                <option value="하츠 기타빌트인">하츠 기타빌트인</option>
-                <option value="기타카테고리">기타카테고리</option>
-            </select>
-            <span style="font-size: 13px; color: #6b7280;">* 카테고리를 선택하여 조회하세요.</span>
-        </div>
+
         <div style="overflow-x: auto;">
             <table>
                 <thead>
@@ -279,9 +240,19 @@
             <div style="font-size:13px; color:#c9ff00; font-weight:bold; margin-bottom:10px;">👤 고객 접수 정보 (자동 채움)</div>
             <div style="display:grid; gap:8px;">
                 <div>
-                    <label style="font-size:11px; color:#aaa;">현장명 / 동·호수</label>
-                    <input type="text" id="uni-customer-apt" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px; font-weight:bold;">
+                    <label style="font-size:11px; color:#aaa;">이벤트(현장) 선택</label>
+                    <select id="uni-customer-event" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px;" onchange="window.updateUnifiedAptName()">
+                        <option value="">일반 (기타) 고객</option>
+                    </select>
                 </div>
+                <div>
+                    <label style="font-size:11px; color:#aaa;">상세 주소 (동/호수)</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="uni-customer-dongho" placeholder="예: 101동 102호" style="flex:1; padding:8px; background:#222; border:1px solid #555; color:#fff; border-radius:4px; font-size:14px; font-weight:bold;">
+                        <input type="text" id="uni-customer-apt-name" readonly style="flex:1; padding:8px; background:#333; border:1px solid #555; color:#aaa; border-radius:4px; font-size:13px;">
+                    </div>
+                </div>
+                <input type="hidden" id="uni-customer-apt">
                 <div>
                     <label style="font-size:11px; color:#aaa;">연락처 (숫자만)</label>
                     <input type="text" id="uni-customer-phone" style="width:100%; padding:8px; background:#222; border:1px solid #555; color:#10b981; border-radius:4px; font-size:14px;">
@@ -333,13 +304,17 @@
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
-                <label>현장명 (예: 내포 롯데캐슬 핫썸머)</label>
+                <label>이벤트 타이틀 (예: [내포] 효성 핫썸머)</label>
                 <input type="text" id="ev-title">
             </div>
             <div class="form-group">
-                <label>접수 기간 문구</label>
-                <input type="text" id="ev-period">
+                <label>표준 현장 명칭 (DB 분석용, 예: 효성해링턴 [내포])</label>
+                <input type="text" id="ev-targetApt" placeholder="예: 효성해링턴플레이스 [내포]">
             </div>
+        </div>
+        <div class="form-group">
+            <label>접수 기간 문구</label>
+            <input type="text" id="ev-period">
         </div>
         <div class="form-group">
             <label>담당자 선택</label>
@@ -411,7 +386,7 @@
     </div>
 </div>
 
-<script src="./auth.js"></script>
+<script src="./auth.js?v=2"></script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, onValue, set, get, update, push, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -451,7 +426,7 @@
 
     // 로그인 확인 및 초기화
     initAdminAuth(() => {
-        document.getElementById('nav-container').innerHTML = renderAdminNav('admin');
+        document.getElementById('unified-header').innerHTML = renderUnifiedHeader('admin', '⚙️ 관리자메인');
         document.getElementById('main-container').style.display = 'block';
         
         // Supabase에서 상품 로드 (로그인 후 DOM이 준비된 시점에 실행)
@@ -709,6 +684,7 @@
         const evObj = {
             id: index >= 0 ? window.currentData[index].id : 'site_' + Date.now(),
             title: title,
+            targetApt: document.getElementById('ev-targetApt').value.trim(),
             priceText: priceText,
             eventStartDate: document.getElementById('ev-eventStartDate').value || '',
             reservationDateRange: document.getElementById('ev-reservationDateRange').value || '',
@@ -738,9 +714,10 @@
         document.getElementById('modal-title').innerText = isEdit ? '현장 수정' : '신규 현장 추가';
         document.getElementById('modal-index').value = index;
 
-        const ev = isEdit ? window.currentData[index] : { title: '', priceText: '', periodText: '', managerId: '', mainProducts: [], addonProducts: [], eventStartDate: '', reservationDateRange: '', reservationNotice: '', displayDays: 14 };
+        const ev = isEdit ? window.currentData[index] : { title: '', targetApt: '', priceText: '', periodText: '', managerId: '', mainProducts: [], addonProducts: [], eventStartDate: '', reservationDateRange: '', reservationNotice: '', displayDays: 14 };
         
         document.getElementById('ev-title').value = ev.title;
+        document.getElementById('ev-targetApt').value = ev.targetApt || '';
         document.getElementById('ev-price').value = ev.priceText || '';
         document.getElementById('ev-eventStartDate').value = ev.eventStartDate || '';
         document.getElementById('ev-reservationDateRange').value = ev.reservationDateRange || '';
@@ -1095,9 +1072,56 @@
         });
     };
 
+    window.updateUnifiedAptName = function() {
+        const select = document.getElementById('uni-customer-event');
+        const selectedOpt = select.options[select.selectedIndex];
+        const targetApt = selectedOpt ? selectedOpt.getAttribute('data-target-apt') || '' : '';
+        document.getElementById('uni-customer-apt-name').value = targetApt;
+        const dongho = document.getElementById('uni-customer-dongho').value.trim();
+        document.getElementById('uni-customer-apt').value = (dongho + " " + targetApt).trim();
+    };
+
     window.openUnifiedModal = function(path, customer, phone, items, memo) {
         document.getElementById('uni-res-path').value = path;
+        
+        // Populate the event dropdown
+        const eventSelect = document.getElementById('uni-customer-event');
+        eventSelect.innerHTML = '<option value="" data-target-apt="">일반 (기타) 고객</option>';
+        if (window.currentData) {
+            window.currentData.forEach(ev => {
+                const opt = document.createElement('option');
+                opt.value = ev.id;
+                opt.setAttribute('data-target-apt', ev.targetApt || ev.title || '');
+                opt.textContent = ev.title + (ev.status === 'ended' ? ' [종료]' : '');
+                eventSelect.appendChild(opt);
+            });
+        }
+        
+        // Parse the existing 'apt' string (customer) to auto-select event and dongho
+        let foundEventId = '';
+        let donghoValue = customer || '';
+        let targetAptValue = '';
+        
+        if (customer && window.currentData) {
+            for (let ev of window.currentData) {
+                const tApt = ev.targetApt || ev.title || '';
+                if (tApt && customer.includes(tApt)) {
+                    foundEventId = ev.id;
+                    donghoValue = customer.replace(tApt, '').trim();
+                    targetAptValue = tApt;
+                    break;
+                }
+            }
+        }
+        
+        eventSelect.value = foundEventId;
+        document.getElementById('uni-customer-dongho').value = donghoValue;
+        document.getElementById('uni-customer-apt-name').value = targetAptValue;
         document.getElementById('uni-customer-apt').value = customer || '';
+        
+        // Add listener to dongho input to update hidden apt field live
+        document.getElementById('uni-customer-dongho').oninput = window.updateUnifiedAptName;
+        
         document.getElementById('uni-customer-phone').value = phone || '';
         document.getElementById('uni-customer-items').value = items || '';
         document.getElementById('uni-customer-notes').value = memo || '';

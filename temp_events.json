@@ -1,0 +1,530 @@
+[
+  {
+    "addonProducts": [
+      {
+        "customLink": "./products/hood.html",
+        "customText": "350000",
+        "id": "3b2b8c08-8991-8121-94c6-d89a4fbf749e"
+      },
+      {
+        "customLink": "./products/sink-faucet.html",
+        "customText": "550000",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      }
+    ],
+    "displayDays": 6,
+    "eventStartDate": "2026-08-26",
+    "id": "site_1787660806192",
+    "mainProducts": [
+      {
+        "customLink": "./products/tioram-mini.html",
+        "customText": "240000",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      },
+      {
+        "customLink": "",
+        "customText": "165000",
+        "id": "p_1787663733480"
+      }
+    ],
+    "managerId": "mgr_1",
+    "periodText": "[접수기간]  ~ 08 / 29 (토)",
+    "priceText": "(안방욕실 마감) 티오람미니 240,000 /  힘펠 대형(전동댐퍼) 165,000",
+    "reservationDateRange": "8/28(금) ~8/31(월)",
+    "reservationNotice": "효성 안방스페셜 설치예약은 8/28(금) ~8/31(월) 입니다. ",
+    "status": "ended",
+    "targetApt": "효성해링턴플레이스 [내포]",
+    "title": "[내포] 효성해링턴플레이스 안방스페셜"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8121-94c6-d89a4fbf749e"
+      }
+    ],
+    "displayDays": 14,
+    "id": "site_1787620538870",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "mgr_1",
+    "periodText": "8/27까지 ",
+    "priceText": "테스트",
+    "status": "ended",
+    "title": "테스트"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8123-9599-f2b8e6ee4b71"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_1785905673190",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "mgr_1",
+    "periodText": "[접수기간] 08/05일 ~ 08/12일",
+    "priceText": "",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "극동 스타클래스 [내포]",
+    "title": "[내포] 극동 스타클래스 센트럴"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_medium"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_1785821040558",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "mgr_1",
+    "periodText": "[접수기간] 08월04일 ~ 08월11일",
+    "priceText": "",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "효성해링턴플레이스 [내포]",
+    "title": "[내포] 효성해링턴플레이스"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8123-9599-f2b8e6ee4b71"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_1784139265988"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_large"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_1785730336397",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "mgr_1",
+    "periodText": "[접수기간] 08월03일 ~ 08월10일",
+    "priceText": "",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "중흥S클래스 자경마을 [내포]",
+    "title": "[내포] 자경마을 중흥S클래스"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8123-9599-f2b8e6ee4b71"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_medium"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_1784707756905",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "mgr_1",
+    "periodText": "7/22(수) ~ 7/28(화)",
+    "priceText": "",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "반도유보라 [아산]",
+    "title": "[아산] 반도유보라 아파트 핫써머"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8123-9599-f2b8e6ee4b71"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8121-94c6-d89a4fbf749e"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_medium"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_1784707448695",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "mgr_1",
+    "periodText": "7/22(수) ~ 7/28 (화)",
+    "priceText": "",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "경남아너스빌 [내포]",
+    "title": "내포 경남아너스빌 핫써머"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "550000",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_1784632259162"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_1784632945753",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "700000",
+        "id": "3b7b8c08-8991-819b-a5dc-f381c316c487"
+      }
+    ],
+    "managerId": "mgr_2",
+    "periodText": "7/21 (화) ~ 7/27 (월)",
+    "priceText": "스퀘어 아일랜드 특가 이벤트 70만원",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "파크밸리 동일하이빌 [쌍용]",
+    "title": "[쌍용] 파크밸리 동일하이빌 주방후드"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8121-94c6-d89a4fbf749e"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_1784139265988"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_1784129533077",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_medium"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "",
+    "periodText": "2026. 07/15(수) ~ 07/21(화)",
+    "priceText": "복합환풍기 티오람미니 세일 195,000원",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "이지더원2차 [내포]",
+    "title": "내포 이지더원 2차 핫썸머 스멜"
+  },
+  {
+    "addonProducts": [
+      {
+        "customText": "",
+        "id": "3b2b8c08-8991-8123-9599-f2b8e6ee4b71"
+      },
+      {
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      }
+    ],
+    "aptName": "전원주택 빌라",
+    "id": "ev_1783340698960",
+    "mainProducts": [
+      {
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "periodText": "접수기간: 2026. 07. 07(화) ~ 07. 20(월)",
+    "priceText": "하츠 복합환풍기 티오람미니 파격세일 195,000원",
+    "status": "ended",
+    "title": "전원주택 빌라 핫썸머"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_1784139265988"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_1783340698959",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_large"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "",
+    "periodText": "접수기간: 2026. 07. 06(월) ~ 07. 20(월)",
+    "priceText": "하츠 복합환풍기 파격세일 195,000원",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "LH스타힐스 [내포]",
+    "title": "내포 LH스타힐스 핫썸머"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_1784139265988"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_lotte",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "",
+    "periodText": "접수기간: 2026. 06. 30(화) ~ 07. 06(월)",
+    "priceText": "하츠 복합환풍기 티오람미니 파격세일 195,000원",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "롯데캐슬 [내포]",
+    "title": "내포 롯데캐슬 핫썸머"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8123-9599-f2b8e6ee4b71"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_moa",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_large"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "",
+    "periodText": "접수기간: 2026. 06. 30(화) ~ 07. 06(월)",
+    "priceText": "하츠 복합환풍기 티오람미니 파격세일 195,000원",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "모아엘가 [내포]",
+    "title": "내포 모아엘가 핫썸머"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8121-94c6-d89a4fbf749e"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_1784139265988"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_eg1",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_medium"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "",
+    "periodText": "~6/29",
+    "priceText": "",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "ended",
+    "targetApt": "이지더원1차 [내포]",
+    "title": "내포 이지더원 1차 핫썸머 2026.6"
+  },
+  {
+    "addonProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81dd-99f7-f4046d96de2a"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-8121-94c6-d89a4fbf749e"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_1784139265988"
+      }
+    ],
+    "displayDays": 14,
+    "eventStartDate": "",
+    "id": "ev_eg2",
+    "mainProducts": [
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "p_vent_medium"
+      },
+      {
+        "customLink": "",
+        "customText": "",
+        "id": "3b2b8c08-8991-81d8-8edc-faf02acddde4"
+      }
+    ],
+    "managerId": "",
+    "periodText": "~6/30",
+    "priceText": "",
+    "reservationDateRange": "",
+    "reservationNotice": "",
+    "status": "active",
+    "targetApt": "이지더원2차 [내포]",
+    "title": "내포 이지더원 2차 핫썸머"
+  }
+]

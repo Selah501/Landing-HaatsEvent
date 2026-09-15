@@ -60,6 +60,23 @@
     - 프론트엔드(`admin.html`)에서 010 외 01X 포맷 지원 정규식 업데이트.
     - 누락된 과거 데이터에 대한 소급 적용(Backfill) 스크립트 실행 완료.
 
+- [x] **현장별 도입 문구 동적 노출 시스템 및 에이전트 학습 워크플로우 셋업 (2026-09-15)**
+  - `admin.html`: 이벤트 관리 모달에 현장별 도입 문구(Hero Title) 입력 필드 추가 및 저장 로직 연결
+  - `index.html`: 최상단에 하드코딩된 도입 문구를 공용 타이틀로 변경하고, 현장 클릭 시 해당 현장 데이터(`heroTitle`)가 상품 리스트 상단에 노출되도록 렌더링 로직(`renderEvents`, `toggleCampaign`) 수정
+  - `detail-page-maker` 스킬: AI가 다음부터 착각 없이 이벤트를 세팅할 수 있도록, `(a) 랜딩 화면`, `(b) 도입 문구`, `(c) 메인 상품`, `(d) 옵션 상품`의 구조 명칭 및 작업 순서를 매뉴얼에 명문화하여 학습시킴.
+  - [작업 요약본 보기 (Work Logs)](file:///c:/dev/전단지이벤트/.agents/work_logs/20260915_이벤트_도입문구_동적노출_및_워크플로우세팅.md)
+
+
+## [2026-09-15] 아파트 DB 교체 품목 및 자료 첨부 기능 추가
+### 주요 변경 사항
+1. **아파트 DB UI 추가**: `apt_db.html` 내 교체 품목 및 관련 자료(문서/이미지) 관리 동적 테이블 추가
+2. **이미지 뷰어 및 스토리지 연동**: Firebase Storage 연동으로 항목당 최대 5장 이미지 썸네일 및 모달 지원
+3. **구분(카테고리) 커스텀 에디터**: Firebase RTDB 연동하여 카테고리 실시간 추가/삭제 관리 기능
+4. **보안 및 스키마 업데이트**: Supabase `replacement_items` JSONB 컬럼 추가 및 Firebase `storage.rules` 권한 허용 배포
+5. **작업 이력**:
+   - Git Commit Message: `feat(apt_db): add replacement items UI, storage rules update, and category editor`
+   - [상세 요약 워크스루](.agents/work_logs/20260915_아파트DB_품목저장_기능.md)
+
 ## [Pending / Future Work]
 - **마스터 표(테이블) UI/UX 대대적 개편 (우선순위: 매우 높음):**
   - 확정된 달력 예약건(
@@ -224,6 +241,17 @@ eservations)을 테이블에서 렌더링 제외시켜 순수한 '팔로업/보�
     - Python 처리부(`crm_shared.py`)에서 파일명 내 전화번호(다양한 패턴 대응) 및 발신자 이름 선행 추출.
     - 프론트엔드(`admin.html`)에서 010 외 01X 포맷 지원 정규식 업데이트.
     - 누락된 과거 데이터에 대한 소급 적용(Backfill) 스크립트 실행 완료.
+
+
+## [2026-09-15] 아파트 DB 교체 품목 및 자료 첨부 기능 추가
+### 주요 변경 사항
+1. **아파트 DB UI 추가**: `apt_db.html` 내 교체 품목 및 관련 자료(문서/이미지) 관리 동적 테이블 추가
+2. **이미지 뷰어 및 스토리지 연동**: Firebase Storage 연동으로 항목당 최대 5장 이미지 썸네일 및 모달 지원
+3. **구분(카테고리) 커스텀 에디터**: Firebase RTDB 연동하여 카테고리 실시간 추가/삭제 관리 기능
+4. **보안 및 스키마 업데이트**: Supabase `replacement_items` JSONB 컬럼 추가 및 Firebase `storage.rules` 권한 허용 배포
+5. **작업 이력**:
+   - Git Commit Message: `feat(apt_db): add replacement items UI, storage rules update, and category editor`
+   - [상세 요약 워크스루](.agents/work_logs/20260915_아파트DB_품목저장_기능.md)
 
 ## [Pending / Future Work]
 - **현장 일일 보고서 (erp.html 탭 1) 발생주의 순이익 연동 및 UI 개선 (우선순위: 높음):**
@@ -451,3 +479,14 @@ eservations)을 테이블에서 렌더링 제외시켜 순수한 '팔로업/보�
 ### 주요 변경 사항
 1. **결제수단 선택지 5종 통폐합**: 파편화되어 있던 결제수단을 이체(우리 개인), 이체(우리 기업), 카드(우리기업), 현금, 기타 5가지로 간소화.\n2. **과거 데이터 비파괴(Non-Destructive) 매핑**: DB 원본 데이터를 수정하지 않고 100% 보존한 상태에서, 프론트엔드 단에 mapPaymentMethod() 공용 함수를 주입하여 옛날 텍스트(예: 카카오뱅크, 법인카드 등)가 렌더링될 때 화면에만 5가지 기준(주로 기타 등)으로 자동 치환되도록 처리.\n3. **작업 이력**:
    - [상세 요약 워크스루](.agents/work_logs/20260909_결제수단_분류_개선.md) 보존 완료.\n
+## [2026-09-13] 아파트 DB AI 사전분석 고도화 및 항목 추가
+### 완료된 주요 작업
+1. **아파트 DB 스키마 및 UI 항목 추가**: 준공년도, 마진총액 항목 추가 및 폼 자동계산 로직 연동 완료.
+2. **AI 백엔드 (Cloud Function) 스케일업 및 모델 롤아웃**: 
+   - 이미지 분석으로 인한 메모리 초과(OOM) 방지를 위해 함수 메모리를 1GB로 증설, 타임아웃 300초 연장.
+   - 2026년 구글 AI 모델 감가/폐기 정책에 맞춰, 구형 모델을 걷어내고 가장 최신이고 빠른 멀티모달 gemini-3.6-flash 모델로 완벽 교체 완료. (400, 404, 500 에러 전면 해결)
+3. **사진 누락 방지 로직 고도화**:
+   - pt_db.html 프론트에서 사진 배열 중 '최신 10장'을 추출(.slice(-10))하도록 역순 로직을 적용하여, 최근 시공한 사진(예: 주방 후드)이 AI 분석에 포함되도록 대폭 개선.
+4. **작업 이력**:
+   - Git Commit Message: eat(apt-db): add build_year & margin, upgrade AI to gemini-3.6-flash, fix memory OOM & photo slice logic
+   - [상세 워크스루](.agents/work_logs/20260913_아파트DB_AI분석_및_항목추가_요약.md) 추가 완료.

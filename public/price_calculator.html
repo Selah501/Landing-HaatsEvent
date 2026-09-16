@@ -578,9 +578,15 @@
         <input type="text" id="priceNotes" placeholder="예: 아파트 고층, 타공 추가 예상 등">
       </div>
 
-      <button class="btn-apply" id="applyBtn" onclick="saveToDb()" disabled>
-        💾 DB에 판매가 저장 (적용)
-      </button>
+      <div id="saveActions">
+        <button class="btn-apply" id="applyBtn" onclick="saveNewHistory()" disabled>
+          💾 새로운 판매가로 저장
+        </button>
+        <div id="editActions" style="display:none; gap:8px; margin-top:8px;">
+          <button class="btn btn-ghost" style="flex:1;" onclick="updateCurrentHistory()">현재 내역 덮어쓰기</button>
+          <button class="btn btn-red" style="flex:1;" onclick="deleteCurrentHistory()">이 내역 삭제</button>
+        </div>
+      </div>
     </div>
 
     <!-- 최근 저장 내역 -->

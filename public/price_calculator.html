@@ -759,8 +759,10 @@ function selectProduct(id) {
     [selectedProduct.brand, selectedProduct.category, selectedProduct.model].filter(Boolean).join(' · ');
 
   // 기존 원가 있으면 채우기
-  if (selectedProduct.price_purchase) {
-    document.getElementById('costInput').value = selectedProduct.price_purchase;
+  if (selectedProduct.prices && selectedProduct.prices.purchase) {
+    document.getElementById('costInput').value = selectedProduct.prices.purchase;
+  } else {
+    document.getElementById('costInput').value = 0;
   }
   // 기존 온라인 가격 있으면 채우기
   if (selectedProduct.price_online) {

@@ -82,10 +82,10 @@
                         <th width="60">유형</th>
                         <th width="20%">상품명</th>
                         <th width="15%">모델명</th>
-                        <th>매입가</th>
-                        <th>제품가</th>
-                        <th>설치비</th>
-                        <th>총판매가</th>
+                        <th>제품원가</th>
+                        <th>기본설치비</th>
+                        <th>옵션/기타</th>
+                        <th>합계</th>
                         <th width="100">관리</th>
                     </tr>
                 </thead>
@@ -119,20 +119,24 @@
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
-                <label>매입가</label>
+                <label>제품 원가</label>
                 <input type="number" id="modalPricePurchase" oninput="calculateTotal()">
             </div>
             <div class="form-group">
-                <label>제품 판매가</label>
-                <input type="number" id="modalPriceSell" oninput="calculateTotal()">
-            </div>
-            <div class="form-group">
-                <label>설치비/기타</label>
+                <label>기본 설치비</label>
                 <input type="number" id="modalPriceInstall" oninput="calculateTotal()">
             </div>
             <div class="form-group">
-                <label>총 판매가</label>
-                <input type="number" id="modalPriceTotal" readonly style="background:#111; border-color:#333;">
+                <label>옵션 비용</label>
+                <input type="number" id="modalPriceOptions" oninput="calculateTotal()">
+            </div>
+            <div class="form-group">
+                <label>기타(조정금액)</label>
+                <input type="number" id="modalPriceOther" oninput="calculateTotal()">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label>합계 (관리자최종조정 반영)</label>
+                <input type="number" id="modalPriceTotal" readonly style="background:#111; border-color:#333; font-weight:bold; color:var(--color-interactive-lime); font-size:16px;">
             </div>
         </div>
 
@@ -215,6 +219,21 @@
         if (searchParam) {
             document.getElementById('searchInput').value = searchParam;
         }
+
+        const applyProductId = urlParams.get('apply_product_id');
+        if (applyProductId) {
+            setTimeout(() => {
+                const targetProd = allProducts.find(p => String(p.id) === String(applyProductId));
+                if (targetProd) {
+                    openProductModal(targetProd);
+                    document.getElementById('modalPricePurchase').value = urlParams.get('cost') || 0;
+                    document.getElementById('modalPriceInstall').value = urlParams.get('install') || 0;
+                    document.getElementById('modalPriceOptions').value = urlParams.get('options') || 0;
+                    document.getElementById('modalPriceOther').value = urlParams.get('other') || 0;
+                    calculateTotal();
+                }
+            }, 500);
+        }
         
         // Ensure default properties
         allProducts.forEach(p => {
@@ -272,8 +291,8 @@
                         : (p.model || '')}
                 </td>
                 <td>${(p.prices?.purchase || 0).toLocaleString()}원</td>
-                <td>${(p.prices?.sell_product || 0).toLocaleString()}원</td>
                 <td>${(p.prices?.sell_install || 0).toLocaleString()}원</td>
+                <td>${((p.prices?.options || 0) + (p.prices?.other || 0)).toLocaleString()}원</td>
                 <td style="color:var(--color-interactive-lime); font-weight:bold;">${(p.prices?.sell_total || 0).toLocaleString()}원</td>
                 <td>
                     <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>상세/수정</button>
@@ -368,8 +387,9 @@
         document.getElementById('modalMarketingMemo').value = prod ? (prod.marketing_memo || '') : '';
         
         document.getElementById('modalPricePurchase').value = prod ? (prod.prices?.purchase || 0) : 0;
-        document.getElementById('modalPriceSell').value = prod ? (prod.prices?.sell_product || 0) : 0;
         document.getElementById('modalPriceInstall').value = prod ? (prod.prices?.sell_install || 0) : 0;
+        document.getElementById('modalPriceOptions').value = prod ? (prod.prices?.options || 0) : 0;
+        document.getElementById('modalPriceOther').value = prod ? (prod.prices?.other || 0) : 0;
         document.getElementById('modalPriceTotal').value = prod ? (prod.prices?.sell_total || 0) : 0;
         
         const urls = prod ? (prod.detail_urls || []) : [];
@@ -409,9 +429,10 @@
 
     function calculateTotal() {
         const purchase = parseInt(document.getElementById('modalPricePurchase').value) || 0;
-        const sell = parseInt(document.getElementById('modalPriceSell').value) || 0;
         const inst = parseInt(document.getElementById('modalPriceInstall').value) || 0;
-        document.getElementById('modalPriceTotal').value = sell + inst;
+        const opt = parseInt(document.getElementById('modalPriceOptions').value) || 0;
+        const other = parseInt(document.getElementById('modalPriceOther').value) || 0;
+        document.getElementById('modalPriceTotal').value = purchase + inst + opt + other;
     }
 
     async function saveProduct() {
@@ -426,8 +447,9 @@
             is_set: isSet,
             prices: {
                 purchase: parseInt(document.getElementById('modalPricePurchase').value) || 0,
-                sell_product: parseInt(document.getElementById('modalPriceSell').value) || 0,
                 sell_install: parseInt(document.getElementById('modalPriceInstall').value) || 0,
+                options: parseInt(document.getElementById('modalPriceOptions').value) || 0,
+                other: parseInt(document.getElementById('modalPriceOther').value) || 0,
                 sell_total: parseInt(document.getElementById('modalPriceTotal').value) || 0
             },
             detail_urls: [

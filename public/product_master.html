@@ -235,9 +235,19 @@
                 if (targetProd) {
                     openProductModal(targetProd);
                     document.getElementById('modalPricePurchase').value = urlParams.get('cost') || 0;
-                    document.getElementById('modalPriceInstall').value = urlParams.get('install') || 0;
-                    document.getElementById('modalPriceOptions').value = urlParams.get('options') || 0;
-                    document.getElementById('modalPriceOther').value = urlParams.get('other') || 0;
+                    
+                    const inst = parseInt(urlParams.get('install') || 0);
+                    const opt = parseInt(urlParams.get('options') || 0);
+                    const other = parseInt(urlParams.get('other') || 0);
+                    
+                    document.getElementById('modalPriceInstall').value = inst;
+                    document.getElementById('modalPriceOptions').value = opt;
+                    document.getElementById('modalPriceOther').value = other;
+                    
+                    if (document.getElementById('readPriceInstall')) document.getElementById('readPriceInstall').textContent = inst.toLocaleString();
+                    if (document.getElementById('readPriceOptions')) document.getElementById('readPriceOptions').textContent = opt.toLocaleString();
+                    if (document.getElementById('readPriceOther')) document.getElementById('readPriceOther').textContent = other.toLocaleString();
+
                     calculateTotal();
                 }
             }, 500);

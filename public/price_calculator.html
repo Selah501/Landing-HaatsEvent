@@ -773,6 +773,7 @@ function selectProduct(id) {
   document.getElementById('naverSearchBtn').onclick = openNaverSearch;
   document.getElementById('applyBtn').disabled = false;
   recalc();
+  renderHistory();
 }
 
 function matchProduct(p, term, category) {
@@ -1103,6 +1104,26 @@ function loadFromHistory(id) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+async function deleteHistory(id) {
+  if (!confirm('이 판매가 견적을 삭제하시겠습니까?')) return;
+  if (!selectedProduct) return;
+  
+  if (!selectedProduct.details) selectedProduct.details = {};
+  if (!selectedProduct.details.price_histories) selectedProduct.details.price_histories = [];
+  
+  selectedProduct.details.price_histories = selectedProduct.details.price_histories.filter(h => h.id !== id);
+  
+  try {
+    const { error } = await sb.from('products').update({ details: selectedProduct.details }).eq('id', selectedProduct.id);
+    if (error) throw error;
+    showToast('삭제되었습니다.');
+    if (currentHistoryId === id) currentHistoryId = null;
+    renderHistory();
+  } catch(e) {
+    alert('삭제 실패: ' + e.message);
+  }
+}
+
 function applyToMaster(id) {
   if (!selectedProduct) return;
   const histories = (selectedProduct.details && selectedProduct.details.price_histories) || [];
@@ -1148,6 +1169,7 @@ function renderHistory() {
       <div style="display: flex; gap: 6px;">
         <button class="btn btn-ghost" style="flex:1; padding: 4px; font-size: 11px;" onclick="loadFromHistory('${h.id}')">🔄 불러오기 및 수정</button>
         <button class="btn btn-lime" style="flex:1; padding: 4px; font-size: 11px;" onclick="applyToMaster('${h.id}')">🚀 상품마스터에 적용</button>
+        <button class="btn" style="flex:0 0 30px; padding: 4px; font-size: 11px; background:var(--red); color:#fff; border:none; border-radius:4px; cursor:pointer;" onclick="deleteHistory('${h.id}')">🗑️</button>
       </div>
     </div>
   `).join('');

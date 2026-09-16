@@ -46,6 +46,23 @@
         .btn-ai { background: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; }
         
         .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #6b7280; }
+    
+        /* 교체 품목 테이블 스타일 */
+        .replacement-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        .replacement-table th, .replacement-table td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; }
+        .replacement-table th { background: #f9fafb; font-weight: 600; color: #374151; }
+        .replacement-table input, .replacement-table select { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; }
+        .replacement-table .img-preview { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+        .replacement-table .img-preview img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #d1d5db; }
+        .replacement-table .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 4px; cursor: pointer; border: none; }
+        .btn-upload { background: #3b82f6; color: white; }
+        .btn-del-row { background: #ef4444; color: white; }
+        
+        /* 모달 스타일 */
+        #img-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; }
+        #img-modal img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+        #img-modal .close-btn { position: absolute; top: 20px; right: 20px; font-size: 30px; color: white; cursor: pointer; }
+
     </style>
 </head>
 <body>
@@ -102,6 +119,10 @@
                                 <label>세대수</label>
                                 <input type="text" id="f_total_units" placeholder="예: 1024세대">
                             </div>
+                            <div class="form-group">
+                                <label>준공년도</label>
+                                <input type="text" id="f_build_year" placeholder="예: 2021년">
+                            </div>
                         </div>
                     </div>
 
@@ -123,6 +144,10 @@
                             <div class="form-group">
                                 <label>매출총액</label>
                                 <input type="text" id="f_sales_revenue" placeholder="예: 3,500,000원">
+                            </div>
+                            <div class="form-group">
+                                <label>마진총액</label>
+                                <input type="text" id="f_sales_margin" placeholder="예: 1,500,000원">
                             </div>
                         </div>
                     </div>
@@ -157,6 +182,40 @@
                         </div>
                     </div>
 
+                    
+                    <div class="form-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f3f4f6; padding-bottom: 10px;">
+                            <h3 style="margin: 0; border: none; padding: 0; display: flex; align-items: center;">교체 품목 및 자료 (문서/이미지) <button type="button" class="btn-sm" style="background:#f3f4f6; color:#374151; border:1px solid #d1d5db; margin-left:10px;" onclick="manageCategories()">⚙️ 구분 관리</button></h3>
+                            <div>
+                                <input type="text" id="search-replacement" placeholder="항목 검색..." style="padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; margin-right: 8px;" oninput="renderReplacements()">
+                                <select id="sort-replacement" style="padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; margin-right: 8px;" onchange="renderReplacements()">
+                                    <option value="none">정렬 안함</option>
+                                    <option value="old_asc">교체전 제품 (오름차순)</option>
+                                    <option value="cat_asc">구분 (오름차순)</option>
+                                </select>
+                                <button type="button" class="btn-primary btn-sm" onclick="addReplacementRow()" style="padding: 6px 12px; font-size: 13px;">+ 행 추가</button>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="replacement-table" id="replacement-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%;">교체전 제품</th>
+                                        <th style="width: 15%;">교체제품</th>
+                                        <th style="width: 12%;">구분</th>
+                                        <th style="width: 15%;">특징</th>
+                                        <th style="width: 25%;">이미지/문서 (최대 5장)</th>
+                                        <th style="width: 13%;">특기사항</th>
+                                        <th style="width: 5%;">관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rows will be injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="form-section">
                         <h3>관리 정보 & 비고</h3>
                         <div class="form-grid">
@@ -181,6 +240,30 @@
     </div>
 
     <script src="./auth.js?v=2"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+            projectId: "flyer-event-page-2026",
+            storageBucket: "flyer-event-page-2026.firebasestorage.app"
+        };
+        const app = initializeApp(firebaseConfig);
+        window.firebaseStorage = getStorage(app);
+        window.sRef = sRef;
+        window.uploadBytes = uploadBytes;
+        window.getDownloadURL = getDownloadURL;
+
+        import { getDatabase, ref as dbRef, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        window.firebaseDb = getDatabase(app);
+        window.dbRef = dbRef;
+        window.dbGet = get;
+        window.dbSet = set;
+
+    </script>
+
     <script>
         const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
@@ -188,6 +271,230 @@
         
         let aptList = [];
         let currentId = null;
+
+        
+        let currentCategories = ['주방후드', '영업자료']; // 초기 기본값
+
+        async function loadCategories() {
+            if(!window.firebaseDb) {
+                setTimeout(loadCategories, 200);
+                return;
+            }
+            const r = window.dbRef(window.firebaseDb, 'system/apt_categories');
+            try {
+                const snapshot = await window.dbGet(r);
+                if (snapshot.exists()) {
+                    currentCategories = snapshot.val();
+                }
+                renderCategoryOptions();
+            } catch (err) {
+                console.error("Categories load failed:", err);
+            }
+        }
+
+        function renderCategoryOptions() {
+            let dl = document.getElementById('global-cat-list');
+            if(!dl) {
+                dl = document.createElement('datalist');
+                dl.id = 'global-cat-list';
+                document.body.appendChild(dl);
+            }
+            dl.innerHTML = currentCategories.map(c => `<option value="${c}">`).join('');
+            
+            // 기존 렌더링된 select나 input이 있으면 업데이트
+            if (typeof renderReplacements === 'function') {
+                renderReplacements();
+            }
+        }
+
+        window.manageCategories = async () => {
+            let html = `<div style="text-align:left; max-height:250px; overflow-y:auto; margin-bottom:10px;" id="cat-manage-list">`;
+            currentCategories.forEach((cat, i) => {
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; padding:5px; border-bottom:1px solid #ddd;">
+                    <span>${cat}</span>
+                    <button class="btn-sm btn-del-row" onclick="window.removeCat(${i})">삭제</button>
+                </div>`;
+            });
+            html += `</div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="new-cat-input" class="swal2-input" placeholder="새 구분 입력" style="margin:0; flex:1;">
+                <button class="btn-primary" style="padding:10px;" onclick="window.addCat()">추가</button>
+            </div>`;
+
+            await Swal.fire({
+                title: '구분 목록 관리',
+                html: html,
+                showConfirmButton: true,
+                confirmButtonText: '닫기'
+            });
+        }
+
+        window.removeCat = async (idx) => {
+            currentCategories.splice(idx, 1);
+            if(window.firebaseDb) await window.dbSet(window.dbRef(window.firebaseDb, 'system/apt_categories'), currentCategories);
+            renderCategoryOptions();
+            manageCategories(); // 팝업 재렌더링
+        }
+        
+        window.addCat = async () => {
+            const val = document.getElementById('new-cat-input').value.trim();
+            if(!val) return;
+            if(currentCategories.includes(val)) {
+                Swal.showValidationMessage('이미 존재하는 구분입니다.');
+                return;
+            }
+            currentCategories.push(val);
+            if(window.firebaseDb) await window.dbSet(window.dbRef(window.firebaseDb, 'system/apt_categories'), currentCategories);
+            renderCategoryOptions();
+            manageCategories();
+        }
+        
+        // 페이지 로드 시 카테고리 로드
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories(); 
+        });
+
+        let currentReplacements = []; // 현재 선택된 아파트의 교체품목 데이터 배열
+
+        function renderReplacements() {
+            const tbody = document.querySelector('#replacement-table tbody');
+            tbody.innerHTML = '';
+            
+            const keyword = document.getElementById('search-replacement').value.toLowerCase();
+            const sortMode = document.getElementById('sort-replacement').value;
+            
+            let filtered = currentReplacements.filter(item => {
+                return (item.old_product || '').toLowerCase().includes(keyword) ||
+                       (item.new_product || '').toLowerCase().includes(keyword) ||
+                       (item.category || '').toLowerCase().includes(keyword) ||
+                       (item.features || '').toLowerCase().includes(keyword) ||
+                       (item.notes || '').toLowerCase().includes(keyword);
+            });
+            
+            if (sortMode === 'old_asc') {
+                filtered.sort((a, b) => (a.old_product || '').localeCompare(b.old_product || ''));
+            } else if (sortMode === 'cat_asc') {
+                filtered.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="color:#6b7280; padding: 20px;">등록된 품목이 없습니다.</td></tr>';
+                return;
+            }
+
+            filtered.forEach((item) => {
+                const idx = currentReplacements.indexOf(item);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${item.old_product || ''}" onchange="updateReplacement(${idx}, 'old_product', this.value)"></td>
+                    <td><input type="text" value="${item.new_product || ''}" onchange="updateReplacement(${idx}, 'new_product', this.value)"></td>
+                    <td>
+                        <input type="text" list="global-cat-list" value="${item.category || ''}" onchange="updateReplacement(${idx}, 'category', this.value)" style="width:100%;">
+                        
+                    </td>
+                    <td><input type="text" value="${item.features || ''}" onchange="updateReplacement(${idx}, 'features', this.value)"></td>
+                    <td>
+                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+                            <button type="button" class="btn-sm btn-upload" onclick="uploadReplacementMedia(${idx})" ${item.mediaUrls && item.mediaUrls.length >= 5 ? 'disabled style="opacity:0.5;"' : ''}>첨부 (${item.mediaUrls ? item.mediaUrls.length : 0}/5)</button>
+                            <div class="img-preview">
+                                ${(item.mediaUrls || []).map((url, mIdx) => `
+                                    <div style="position:relative; display:inline-block;">
+                                        <img src="${url}" onclick="openImgModal('${url}')">
+                                        <div onclick="removeReplacementMedia(${idx}, ${mIdx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; width:16px; height:16px; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </td>
+                    <td><input type="text" value="${item.notes || ''}" onchange="updateReplacement(${idx}, 'notes', this.value)"></td>
+                    <td><button type="button" class="btn-sm btn-del-row" onclick="deleteReplacementRow(${idx})">❌</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addReplacementRow() {
+            currentReplacements.push({
+                old_product: '',
+                new_product: '-',
+                category: '',
+                features: '',
+                mediaUrls: [],
+                notes: ''
+            });
+            renderReplacements();
+        }
+
+        function updateReplacement(idx, field, value) {
+            if(currentReplacements[idx]) {
+                currentReplacements[idx][field] = value;
+            }
+        }
+
+        function deleteReplacementRow(idx) {
+            if(confirm('해당 행을 삭제하시겠습니까?')) {
+                currentReplacements.splice(idx, 1);
+                renderReplacements();
+            }
+        }
+
+        function openImgModal(url) {
+            document.getElementById('img-modal-content').src = url;
+            document.getElementById('img-modal').style.display = 'flex';
+        }
+
+        async function uploadReplacementMedia(idx) {
+            if (!window.firebaseStorage || !window.uploadBytes) {
+                Swal.fire('오류', '업로드 모듈 초기화 중입니다. 잠시 후 다시 시도해주세요.', 'warning');
+                return;
+            }
+            
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*,application/pdf';
+            fileInput.multiple = true;
+            fileInput.onchange = async (e) => {
+                const files = Array.from(e.target.files);
+                if(files.length === 0) return;
+                
+                const item = currentReplacements[idx];
+                const currentCount = item.mediaUrls ? item.mediaUrls.length : 0;
+                if(currentCount + files.length > 5) {
+                    Swal.fire('오류', '최대 5장까지만 업로드 가능합니다.', 'error');
+                    return;
+                }
+
+                Swal.fire({ title: '업로드 중...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                
+                try {
+                    const uploaded = [];
+                    for(const file of files) {
+                        const filename = Date.now() + '_' + file.name;
+                        const storageRef = window.sRef(window.firebaseStorage, 'apt_db/' + filename);
+                        await window.uploadBytes(storageRef, file);
+                        const url = await window.getDownloadURL(storageRef);
+                        uploaded.push(url);
+                    }
+                    
+                    if(!item.mediaUrls) item.mediaUrls = [];
+                    item.mediaUrls = [...item.mediaUrls, ...uploaded];
+                    renderReplacements();
+                    Swal.close();
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('오류', '파일 업로드 실패: ' + err.message, 'error');
+                }
+            };
+            fileInput.click();
+        }
+
+        function removeReplacementMedia(rowIdx, mediaIdx) {
+            if(confirm('이 이미지를 삭제하시겠습니까?')) {
+                currentReplacements[rowIdx].mediaUrls.splice(mediaIdx, 1);
+                renderReplacements();
+            }
+        }
+
 
         initAdminAuth(() => {
             document.getElementById('unified-header').innerHTML = renderUnifiedHeader('apt_db', '🏢 아파트 사전조사 DB');
@@ -245,9 +552,11 @@
             document.getElementById('f_apt_name').value = apt.apt_name || '';
             document.getElementById('f_apt_type').value = apt.apt_type || '';
             document.getElementById('f_total_units').value = apt.total_units || '';
+            document.getElementById('f_build_year').value = apt.build_year || '';
             document.getElementById('f_campaign_period').value = apt.campaign_period || '';
             document.getElementById('f_sales_count').value = apt.sales_count || '';
             document.getElementById('f_sales_revenue').value = apt.sales_revenue || '';
+            document.getElementById('f_sales_margin').value = apt.sales_margin || '';
             document.getElementById('f_spec_hood').value = apt.spec_hood || '';
             document.getElementById('f_spec_range').value = apt.spec_range || '';
             document.getElementById('f_has_oven').checked = apt.has_oven || false;
@@ -256,6 +565,8 @@
             document.getElementById('f_office_phone').value = apt.office_phone || '';
             document.getElementById('f_post_day').value = apt.post_day || '';
             document.getElementById('f_next_sales_notes').value = apt.next_sales_notes || '';
+            currentReplacements = apt.replacement_items || [];
+            renderReplacements();
         }
 
         function createNew() {
@@ -334,9 +645,11 @@
                 apt_name: name,
                 apt_type: document.getElementById('f_apt_type').value,
                 total_units: document.getElementById('f_total_units').value,
+                build_year: document.getElementById('f_build_year').value,
                 campaign_period: document.getElementById('f_campaign_period').value,
                 sales_count: document.getElementById('f_sales_count').value,
                 sales_revenue: document.getElementById('f_sales_revenue').value,
+                sales_margin: document.getElementById('f_sales_margin').value,
                 spec_hood: document.getElementById('f_spec_hood').value,
                 spec_range: document.getElementById('f_spec_range').value,
                 has_oven: document.getElementById('f_has_oven').checked,
@@ -344,7 +657,8 @@
                 spec_bathroom: document.getElementById('f_spec_bathroom').value,
                 office_phone: document.getElementById('f_office_phone').value,
                 post_day: document.getElementById('f_post_day').value,
-                next_sales_notes: document.getElementById('f_next_sales_notes').value
+                next_sales_notes: document.getElementById('f_next_sales_notes').value,
+                replacement_items: currentReplacements
             };
 
             const id = document.getElementById('f_id').value;
@@ -408,6 +722,7 @@
                 
                 let texts = [];
                 let totalSales = 0;
+                let totalMargin = 0;
                 let totalCount = 0;
                 let mediaUrls = [];
 
@@ -425,6 +740,10 @@
                                 
                                 const payAmount = parseInt(res.report?.payAmount || 0);
                                 if (payAmount > 0) totalSales += payAmount;
+
+                                const margin = parseInt(res.report?.actualMargin || res.report?.margin || 0);
+                                if (margin > 0) totalMargin += margin;
+
                                 totalCount += 1;
 
                                 if (res.report?.mediaUrls) {
@@ -443,9 +762,10 @@
                 // 통계값 즉시 폼에 채우기
                 document.getElementById('f_sales_count').value = totalCount + "세대";
                 document.getElementById('f_sales_revenue').value = totalSales.toLocaleString() + "원";
+                document.getElementById('f_sales_margin').value = totalMargin.toLocaleString() + "원";
 
-                // 사진은 최근 5장만 AI 분석에 사용 (Payload 크기 최적화 및 시간 단축)
-                mediaUrls = mediaUrls.slice(0, 5);
+                // 최근 10장의 사진만 AI 분석에 사용 (가장 최신 시공 사진 기준)
+                mediaUrls = mediaUrls.slice(-10);
 
                 // 2. Cloud Function 호출
                 const analyzeCall = await fetch('https://us-central1-flyer-event-page-2026.cloudfunctions.net/analyzeApartmentSpec', {
@@ -470,5 +790,12 @@
             }
         }
     </script>
+
+    <!-- 이미지 모달 -->
+    <div id="img-modal" onclick="this.style.display='none'">
+        <span class="close-btn">&times;</span>
+        <img id="img-modal-content" src="" alt="Full size" onclick="event.stopPropagation()">
+    </div>
+
 </body>
 </html>

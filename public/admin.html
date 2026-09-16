@@ -39,7 +39,11 @@
         
         .form-group { margin-bottom: 16px; }
         label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
+        input[type="text"] { 
+            width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; 
+            user-select: text !important; 
+            -webkit-user-select: text !important;
+        }
         
         button { background-color: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 14px; }
         button:hover { background-color: #1d4ed8; }
@@ -315,6 +319,10 @@
         <div class="form-group">
             <label>접수 기간 문구</label>
             <input type="text" id="ev-period">
+        </div>
+        <div class="form-group">
+            <label>현장별 도입 문구 (예: 풍요롭고 행복한 한가위 특별 혜택&lt;br&gt;우리집 주방 후드, 벌써 10년이 넘으셨나요?)</label>
+            <textarea id="ev-heroTitle" rows="2" placeholder="전단지 진입 시 상품 목록 바로 위에 노출될 도입 멘트를 입력하세요 (HTML 태그 지원)" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;"></textarea>
         </div>
         <div class="form-group">
             <label>담당자 선택</label>
@@ -691,6 +699,7 @@
             reservationNotice: document.getElementById('ev-reservationNotice').value || '',
             displayDays: parseInt(document.getElementById('ev-displayDays').value) || 14,
             periodText: periodText,
+            heroTitle: document.getElementById('ev-heroTitle').value || '',
             managerId: managerId,
             mainProducts: window._editMainProds || [],
             addonProducts: window._editAddonProds || [],
@@ -714,16 +723,45 @@
         document.getElementById('modal-title').innerText = isEdit ? '현장 수정' : '신규 현장 추가';
         document.getElementById('modal-index').value = index;
 
-        const ev = isEdit ? window.currentData[index] : { title: '', targetApt: '', priceText: '', periodText: '', managerId: '', mainProducts: [], addonProducts: [], eventStartDate: '', reservationDateRange: '', reservationNotice: '', displayDays: 14 };
+        const ev = isEdit ? window.currentData[index] : { title: '', targetApt: '', priceText: '', periodText: '', heroTitle: '', managerId: '', mainProducts: [], addonProducts: [], eventStartDate: '', reservationDateRange: '', reservationNotice: '', displayDays: 14 };
         
-        document.getElementById('ev-title').value = ev.title;
-        document.getElementById('ev-targetApt').value = ev.targetApt || '';
+        let targetAptVal = ev.targetApt || '';
+        if (isEdit && !targetAptVal && ev.title) {
+            const match = ev.title.match(/\[(.*?)\]\s*([^\s]+)/);
+            if (match) {
+                targetAptVal = `${match[2]} [${match[1]}]`;
+            } else {
+                targetAptVal = ev.title.split(' ')[0] || '';
+            }
+        }
+        
+        const titleInput = document.getElementById('ev-title');
+        titleInput.value = ev.title;
+        
+        const targetAptInput = document.getElementById('ev-targetApt');
+        targetAptInput.value = targetAptVal;
+        
+        // 제목 입력 시 스마트 자동 완성 로직
+        titleInput.oninput = function() {
+            if (!targetAptInput.value || targetAptInput.dataset.autoFilled === 'true') {
+                const match = this.value.match(/\[(.*?)\]\s*([^\s]+)/);
+                if (match) {
+                    targetAptInput.value = `${match[2]} [${match[1]}]`;
+                    targetAptInput.dataset.autoFilled = 'true';
+                }
+            }
+        };
+        // 직접 수정 시 플래그 해제
+        targetAptInput.oninput = function() {
+            this.dataset.autoFilled = 'false';
+        };
         document.getElementById('ev-price').value = ev.priceText || '';
         document.getElementById('ev-eventStartDate').value = ev.eventStartDate || '';
         document.getElementById('ev-reservationDateRange').value = ev.reservationDateRange || '';
         document.getElementById('ev-reservationNotice').value = ev.reservationNotice || '';
         document.getElementById('ev-displayDays').value = ev.displayDays || 14;
         document.getElementById('ev-period').value = ev.periodText || '';
+        document.getElementById('ev-heroTitle').value = ev.heroTitle || '';
         
         // 담당자 세팅
         const managerSelect = document.getElementById('ev-manager');

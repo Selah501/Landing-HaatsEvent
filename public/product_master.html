@@ -209,6 +209,12 @@
             return;
         }
         allProducts = data;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchParam = urlParams.get('search');
+        if (searchParam) {
+            document.getElementById('searchInput').value = searchParam;
+        }
         
         // Ensure default properties
         allProducts.forEach(p => {

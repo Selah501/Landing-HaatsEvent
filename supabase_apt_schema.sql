@@ -8,6 +8,8 @@ CREATE TABLE public.apartment_specs (
   campaign_period text,   -- 전단지 영업기간 (예: 26.7.26~8.2)
   sales_count text,       -- 시공세대수 (영업실적)
   sales_revenue text,     -- 매출총액 (영업실적)
+  sales_margin text,      -- 마진총액 (영업실적)
+  build_year text,        -- 준공년도
   spec_hood text,         -- 주방 후드 규격
   spec_range text,        -- 주방 레인지 (가스/인덕션)
   has_oven boolean DEFAULT false, -- 전기오븐 유무
@@ -41,3 +43,5 @@ USING (true);
 CREATE POLICY "Enable delete for all users"
 ON public.apartment_specs FOR DELETE
 USING (true);
+ALTER TABLE public.apartment_specs ADD COLUMN sales_margin text;
+ALTER TABLE public.apartment_specs ADD COLUMN build_year text;

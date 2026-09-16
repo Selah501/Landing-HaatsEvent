@@ -679,7 +679,8 @@ const INSTALL_FEE_DATA = {
 // ═══════════════════════════════════════════════════════
 let allProducts = [];
 let selectedProduct = null;
-let history5 = JSON.parse(localStorage.getItem('priceCalcHistory') || '[]');
+let currentHistoryId = null;
+const uuidv4 = () => crypto.randomUUID();
 
 // ═══════════════════════════════════════════════════════
 // UTILS
@@ -948,88 +949,198 @@ function openNaverSearch() {
 }
 
 // ═══════════════════════════════════════════════════════
-// SAVE TO DB
+// SAVE & HISTORY LOGIC
 // ═══════════════════════════════════════════════════════
-async function saveToDb() {
-  if (!selectedProduct) { showToast('⚠️ 제품을 먼저 선택하세요', 'var(--red)'); return; }
-
+function getCalcState() {
   const cost = parseInt(document.getElementById('costInput').value) || 0;
+  const baseInstallIndex = document.getElementById('baseInstallSelect').selectedIndex;
   const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
-  const optTotal = Array.from(document.querySelectorAll('[id^="opt-"]'))
-    .reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
+  
+  const options = [];
+  let optTotal = 0;
+  document.querySelectorAll('[id^="opt-"]').forEach((cb, idx) => {
+    if (cb.checked) {
+      options.push(idx);
+      optTotal += parseInt(cb.value) || 0;
+    }
+  });
+
   const base = roundTo5K(cost + installFee + optTotal);
   const adjust = parseInt(document.getElementById('adjustAmount').value) || 0;
   const finalPrice = base + adjust;
+  
+  return {
+    cost, baseInstallIndex, installFee, options, optTotal, adjust, finalPrice,
+    onlinePrice: parseInt(document.getElementById('onlinePrice').value) || 0,
+    shippingFee: parseInt(document.getElementById('shippingFee').value) || 0,
+    notes: document.getElementById('priceNotes').value.trim(),
+    catVal: document.getElementById('categorySelect').value
+  };
+}
 
-  if (finalPrice <= 0) { showToast('⚠️ 판매가를 확인하세요', 'var(--red)'); return; }
-
-  const onlinePrice = parseInt(document.getElementById('onlinePrice').value) || 0;
-  const shipping = parseInt(document.getElementById('shippingFee').value) || 0;
-  const notes = document.getElementById('priceNotes').value.trim();
-  const catVal = document.getElementById('categorySelect').value;
-  const baseLabel = document.getElementById('baseInstallSelect').options[document.getElementById('baseInstallSelect').selectedIndex]?.text || '';
-
+async function persistHistory(histories, successMsg) {
+  if (!selectedProduct) return;
   const btn = document.getElementById('applyBtn');
   btn.disabled = true;
-  btn.textContent = '저장 중...';
 
-  const updateData = {
-    price_purchase: cost || null,
-    price_selling: finalPrice,
-    price_online: (onlinePrice + shipping) || null,
-    install_fee_tier: catVal ? `${catVal} / ${baseLabel}` : null,
-  };
-
-  // price_install, price_options 컬럼이 있으면 저장 (없어도 무시)
-  try {
-    updateData.price_install = installFee;
-    updateData.price_options = optTotal;
-    if (notes) updateData.price_notes = notes;
-  } catch(e) {}
+  const details = selectedProduct.details || {};
+  details.price_histories = histories;
 
   try {
-    const { error } = await sb.from('products').update(updateData).eq('id', selectedProduct.id);
+    const { error } = await sb.from('products').update({ details }).eq('id', selectedProduct.id);
     if (error) throw error;
-
-    showToast(`✅ ${selectedProduct.name} 판매가 ${fmt(finalPrice)} 저장!`);
-
-    // 히스토리
-    const now = new Date();
-    const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-    history5.unshift({ name: selectedProduct.name, price: finalPrice, date: dateStr });
-    history5 = history5.slice(0, 5);
-    localStorage.setItem('priceCalcHistory', JSON.stringify(history5));
+    selectedProduct.details = details;
+    showToast(successMsg);
     renderHistory();
-
-    // 선택된 제품 업데이트
-    selectedProduct.price_selling = finalPrice;
-    selectedProduct.price_purchase = cost;
-
   } catch (e) {
-    showToast(`❌ 저장 실패: ${e.message}`, 'var(--red)');
+    showToast('❌ 실패: ' + e.message, 'var(--red)');
     console.error(e);
   } finally {
     btn.disabled = false;
-    btn.textContent = '💾 DB에 판매가 저장 (적용)';
   }
 }
 
-// ═══════════════════════════════════════════════════════
-// HISTORY
-// ═══════════════════════════════════════════════════════
+async function saveNewHistory() {
+  if (!selectedProduct) { showToast('⚠️ 제품을 먼저 선택하세요', 'var(--red)'); return; }
+  const state = getCalcState();
+  if (state.finalPrice <= 0) { showToast('⚠️ 판매가를 확인하세요', 'var(--red)'); return; }
+
+  let histories = (selectedProduct.details && selectedProduct.details.price_histories) || [];
+  
+  const now = new Date();
+  const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const name = `${selectedProduct.name}_${fmt(state.finalPrice)}`;
+
+  const newRecord = {
+    id: uuidv4(),
+    name: name,
+    price: state.finalPrice,
+    date: dateStr,
+    state: state
+  };
+
+  histories.unshift(newRecord);
+  if (histories.length > 4) histories = histories.slice(0, 4);
+  
+  await persistHistory(histories, `✅ ${name} 저장 완료!`);
+}
+
+async function updateCurrentHistory() {
+  if (!selectedProduct || !currentHistoryId) return;
+  const state = getCalcState();
+  if (state.finalPrice <= 0) { showToast('⚠️ 판매가를 확인하세요', 'var(--red)'); return; }
+
+  let histories = (selectedProduct.details && selectedProduct.details.price_histories) || [];
+  const idx = histories.findIndex(h => h.id === currentHistoryId);
+  if (idx === -1) { showToast('⚠️ 내역을 찾을 수 없습니다.', 'var(--red)'); return; }
+
+  const now = new Date();
+  const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const name = `${selectedProduct.name}_${fmt(state.finalPrice)}`;
+
+  histories[idx].name = name;
+  histories[idx].price = state.finalPrice;
+  histories[idx].date = dateStr;
+  histories[idx].state = state;
+
+  await persistHistory(histories, `✅ ${name} 수정 완료!`);
+}
+
+async function deleteCurrentHistory() {
+  if (!selectedProduct || !currentHistoryId) return;
+  if (!confirm('현재 불러온 내역을 삭제하시겠습니까?')) return;
+
+  let histories = (selectedProduct.details && selectedProduct.details.price_histories) || [];
+  histories = histories.filter(h => h.id !== currentHistoryId);
+  
+  await persistHistory(histories, `✅ 내역이 삭제되었습니다.`);
+  currentHistoryId = null;
+  renderHistory();
+}
+
+function loadFromHistory(id) {
+  if (!selectedProduct) return;
+  const histories = (selectedProduct.details && selectedProduct.details.price_histories) || [];
+  const record = histories.find(h => h.id === id);
+  if (!record) return;
+
+  currentHistoryId = id;
+  const st = record.state;
+  
+  document.getElementById('costInput').value = st.cost || '';
+  document.getElementById('categorySelect').value = st.catVal || '';
+  onCategoryChange(); 
+  
+  if (st.baseInstallIndex !== undefined) {
+    document.getElementById('baseInstallSelect').selectedIndex = st.baseInstallIndex;
+  }
+  
+  document.querySelectorAll('[id^="opt-"]').forEach((cb, idx) => {
+    if (st.options && st.options.includes(idx)) {
+      cb.checked = true;
+      document.getElementById(`opt-label-${idx}`).classList.add('checked');
+    } else {
+      cb.checked = false;
+      document.getElementById(`opt-label-${idx}`).classList.remove('checked');
+    }
+  });
+
+  document.getElementById('adjustAmount').value = st.adjust || '';
+  document.getElementById('priceNotes').value = st.notes || '';
+  document.getElementById('onlinePrice').value = st.onlinePrice || '';
+  document.getElementById('shippingFee').value = st.shippingFee || '';
+
+  recalc();
+  showToast('✅ 견적이 로드되었습니다. 수정 또는 덮어쓰기가 가능합니다.');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function applyToMaster(id) {
+  if (!selectedProduct) return;
+  const histories = (selectedProduct.details && selectedProduct.details.price_histories) || [];
+  const record = histories.find(h => h.id === id);
+  if (!record) return;
+  
+  const st = record.state;
+  const url = `product_master.html?apply_product_id=${selectedProduct.id}&cost=${st.cost}&install=${st.installFee}&options=${st.optTotal}&other=${st.adjust}&total=${st.finalPrice}`;
+  window.open(url, '_blank');
+}
+
 function renderHistory() {
   const el = document.getElementById('historyList');
-  if (history5.length === 0) {
-    el.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">저장 기록이 없습니다</div>';
+  if (!selectedProduct) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">제품을 선택하세요</div>';
+    document.getElementById('editActions').style.display = 'none';
+    document.getElementById('applyBtn').style.display = 'block';
     return;
   }
-  el.innerHTML = history5.map(h => `
-    <div class="history-item">
-      <div>
-        <div class="history-name">${h.name}</div>
-        <div class="history-date">${h.date}</div>
+
+  if (currentHistoryId) {
+    document.getElementById('editActions').style.display = 'flex';
+  } else {
+    document.getElementById('editActions').style.display = 'none';
+  }
+
+  const histories = (selectedProduct.details && selectedProduct.details.price_histories) || [];
+  
+  if (histories.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:10px;">저장된 판매가가 없습니다</div>';
+    return;
+  }
+  
+  el.innerHTML = histories.map(h => `
+    <div class="history-item" style="flex-direction: column; align-items: stretch; gap: 8px; ${currentHistoryId === h.id ? 'border-color:var(--lime); background:rgba(201,255,0,0.05);' : ''}">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div class="history-name">${h.name}</div>
+          <div class="history-date">${h.date}</div>
+        </div>
+        <div class="history-price">${fmt(h.price)}</div>
       </div>
-      <div class="history-price">${fmt(h.price)}</div>
+      <div style="display: flex; gap: 6px;">
+        <button class="btn btn-ghost" style="flex:1; padding: 4px; font-size: 11px;" onclick="loadFromHistory('${h.id}')">🔄 불러오기 및 수정</button>
+        <button class="btn btn-lime" style="flex:1; padding: 4px; font-size: 11px;" onclick="applyToMaster('${h.id}')">🚀 상품마스터에 적용</button>
+      </div>
     </div>
   `).join('');
 }

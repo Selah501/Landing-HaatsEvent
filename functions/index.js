@@ -225,7 +225,9 @@ exports.analyzeVoiceReport = functions.https.onCall(async (data, context) => {
     }
 });
 
-exports.analyzeApartmentSpec = functions.https.onCall(async (data, context) => {
+exports.analyzeApartmentSpec = functions
+    .runWith({ timeoutSeconds: 300, memory: '1GB' })
+    .https.onCall(async (data, context) => {
     const { aptName, texts, mediaUrls } = data;
     if (!aptName || !texts) {
         throw new functions.https.HttpsError("invalid-argument", "aptName and texts are required.");
@@ -236,7 +238,7 @@ exports.analyzeApartmentSpec = functions.https.onCall(async (data, context) => {
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" }); 
+        const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" }); 
         
         const promptText = `
 당신은 아파트 시공 내역과 현장 사진을 분석하여 아파트 스펙 DB를 구축하는 보조 AI입니다.

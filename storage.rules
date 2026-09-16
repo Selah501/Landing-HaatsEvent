@@ -22,6 +22,11 @@ service firebase.storage {
       allow read, write: if true;
     }
     
+    // 아파트 교체 품목 미디어 (사진/영상/문서) 허용
+    match /apt_db/{allPaths=**} {
+      allow read, write: if true;
+    }
+    
     // 기존 다른 경로는 기본 차단
     match /{allPaths=**} {
       allow read, write: if false;

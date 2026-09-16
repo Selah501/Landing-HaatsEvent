@@ -284,7 +284,7 @@
                             <span id="daily-total-expense" style="color:var(--color-danger); font-weight:bold;">0 원</span>
                         </div>
                         <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #444; font-size:18px; display:flex; justify-content:space-between; color:var(--color-interactive-lime);">
-                            <span>💰 일일 순수익 (매출 - 지출):</span>
+                            <span>💰 일일 순수익 (매출 - 원가 - 순수경비):</span>
                             <span id="daily-net-profit" style="font-weight:bold;">0 원</span>
                         </div>
                     </div>
@@ -470,6 +470,13 @@
     <div id="tx-modal" class="modal-overlay">
         <div class="modal">
             <h3 style="margin-top:0; margin-bottom: 20px;" id="tx-modal-title">장부 수동 등록</h3>
+            
+            <div style="margin-bottom: 20px; background: rgba(59, 130, 246, 0.1); border: 1px solid var(--color-info); padding: 12px; border-radius: 8px; text-align: center;">
+                <button id="btn-voice-tx" class="btn" style="width: 100%; font-size: 16px; background: var(--color-info); color: white; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="startVoiceTx()">
+                    🎙️ 음성으로 채우기
+                </button>
+                <div id="voice-tx-status" style="margin-top: 8px; font-size: 13px; color: #93c5fd; display: none;">마이크 접근 권한을 확인해주세요...</div>
+            </div>
             <input type="hidden" id="tx-id">
             <input type="hidden" id="tx-pending-id">
             
@@ -855,6 +862,7 @@
             const resData = window.allReservations[dateStr] || {};
             
             let dailySales = 0;
+            let dailyCostOfGoodsSold = 0;
             let taskListHtml = '';
 
             // 1. 해당 날짜 예약 중 완료된 항목 추리기
@@ -880,6 +888,25 @@
                     const amt = parseInt(r.payAmount) || 0;
                     dailySales += amt;
                     
+                    let costForTask = 0;
+                    (r.usedProducts||[]).forEach(p => {
+                         let cost = 0;
+                         let qty = 1;
+                         if (typeof p === 'object') {
+                             cost = Number(p.cost) || 0;
+                             qty = Number(p.qty) || 1;
+                             if (!cost) {
+                                 const mp = window.masterProducts.find(m => m.name === p.name);
+                                 if (mp) cost = Number(mp.costPrice) || 0;
+                             }
+                         } else {
+                             const mp = window.masterProducts.find(m => m.name === p);
+                             if (mp) cost = Number(mp.costPrice) || 0;
+                         }
+                         costForTask += cost * qty;
+                    });
+                    dailyCostOfGoodsSold += costForTask;
+                    
                     taskListHtml += `
                         <div class="report-list-item">
                             <span style="color:var(--color-info); font-weight:bold;">[${window.mapPaymentMethod(r.payMethod)}]</span> 
@@ -895,7 +922,8 @@
             document.getElementById('daily-total-sales').innerText = dailySales.toLocaleString() + ' 원';
 
             // 1.5 해당 날짜 지출 내역 장부에서 추리기
-            let dailyExpense = 0;
+            let dailyTotalExpense = 0;
+            let dailyPureExpense = 0;
             let expListHtml = '';
             const dayTxs = window.currentLedger.filter(item => item.date === dateStr && item.type === 'expense');
             
@@ -904,7 +932,11 @@
             } else {
                 dayTxs.forEach(tx => {
                     const amt = Number(tx.amount) || 0;
-                    dailyExpense += amt;
+                    dailyTotalExpense += amt;
+                    
+                    if (tx.category !== '현금매입(재고)' && tx.category !== '외상매입' && tx.category !== '외상대금 결제') {
+                        dailyPureExpense += amt;
+                    }
                     
                     let pInfo = '';
                     if (tx.purchasedProducts && tx.purchasedProducts.length > 0) {
@@ -925,8 +957,8 @@
             }
 
             document.getElementById('daily-expense-list').innerHTML = expListHtml;
-            document.getElementById('daily-total-expense').innerText = dailyExpense.toLocaleString() + ' 원';
-            document.getElementById('daily-net-profit').innerText = (dailySales - dailyExpense).toLocaleString() + ' 원';
+            document.getElementById('daily-total-expense').innerText = dailyTotalExpense.toLocaleString() + ' 원';
+            document.getElementById('daily-net-profit').innerText = (dailySales - dailyCostOfGoodsSold - dailyPureExpense).toLocaleString() + ' 원';
 
             // 2. 이미 작성된 보고서 내용 불러오기
             const existingReport = window.allDailyReports[dateStr];
@@ -1849,6 +1881,154 @@
                 document.getElementById('vm-memo').value = '';
             }).catch(e => alert(e.message));
         }
+        window.startVoiceTx = function() {
+            const statusEl = document.getElementById('voice-tx-status');
+            const btn = document.getElementById('btn-voice-tx');
+            
+            if (btn.innerHTML.includes('듣는 중')) {
+                if (window.currentVoiceRecognition) window.currentVoiceRecognition.stop();
+                return;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('현재 브라우저에서는 음성 인식을 지원하지 않습니다. Chrome이나 Safari(모바일)를 이용해주세요.');
+                return;
+            }
+            
+            const recognition = new SpeechRecognition();
+            window.currentVoiceRecognition = recognition;
+            recognition.lang = 'ko-KR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            recognition.onstart = function() {
+                statusEl.style.display = 'block';
+                statusEl.innerText = '듣고 있습니다... 말씀해 주세요!\n(예: "철물점 현금 만오천원 피스 매입")';
+                btn.style.background = 'var(--color-danger)';
+                btn.innerHTML = '🛑 듣는 중... (클릭 시 중지)';
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                statusEl.innerText = '인식 결과: "' + transcript + '"\n분석 중...';
+                
+                setTimeout(() => {
+                    window.parseVoiceToForm(transcript);
+                    statusEl.innerText = '인식 완료! 내용을 확인하고 부족한 부분을 마저 채워주세요.';
+                    btn.style.background = 'var(--color-info)';
+                    btn.innerHTML = '🎙️ 다시 음성 입력';
+                }, 500);
+            };
+            
+            recognition.onerror = function(event) {
+                statusEl.innerText = '오류 발생: ' + event.error;
+                btn.style.background = 'var(--color-info)';
+                btn.innerHTML = '🎙️ 음성으로 채우기';
+            };
+            
+            recognition.onend = function() {
+                if (btn.innerHTML.includes('듣는 중')) {
+                    btn.style.background = 'var(--color-info)';
+                    btn.innerHTML = '🎙️ 음성으로 채우기';
+                }
+            };
+            
+            recognition.start();
+        };
+
+        window.parseVoiceToForm = function(text) {
+            const lowerText = text.toLowerCase();
+            
+            // 1. 수입/지출 판별
+            if (lowerText.includes('수입') || lowerText.includes('매출') || lowerText.includes('받았') || lowerText.includes('들어왔')) {
+                document.querySelector('input[name="tx-type"][value="income"]').checked = true;
+            } else {
+                document.querySelector('input[name="tx-type"][value="expense"]').checked = true;
+            }
+            window.updateCategories();
+
+            // 2. 금액 파싱
+            let amount = 0;
+            // Web Speech는 "15,000원", "1만 5,000원", "15000원" 등으로 텍스트를 줌
+            const numMatch = text.match(/([0-9,]+)\s*(원|만원)/);
+            if (numMatch) {
+                amount = parseInt(numMatch[1].replace(/,/g, ''));
+                if (numMatch[2] === '만원' || text.includes(numMatch[1]+'만')) amount *= 10000;
+            } else {
+                const korMatch = text.match(/([일이삼사오육칠팔구십백천만]+)\s*원/);
+                if (korMatch) amount = window.parseKoreanNumber(korMatch[1]);
+                else {
+                    const onlyNum = text.match(/([0-9]+)\s*만/);
+                    if (onlyNum) amount = parseInt(onlyNum[1]) * 10000;
+                }
+            }
+            if (amount > 0) {
+                document.getElementById('tx-amount-1').value = amount;
+            }
+
+            // 3. 계좌 파싱
+            if (lowerText.includes('카드')) {
+                document.getElementById('tx-account-1').value = '카드(우리기업)';
+            } else if (lowerText.includes('이체') || lowerText.includes('보냈') || lowerText.includes('입금')) {
+                document.getElementById('tx-account-1').value = '이체(우리 기업)';
+            } else if (lowerText.includes('외상')) {
+                document.getElementById('tx-account-1').value = '외상매입금';
+            } else if (lowerText.includes('현금')) {
+                document.getElementById('tx-account-1').value = '현금';
+            }
+
+            // 4. 항목 파싱 (지출 기준)
+            const type = document.querySelector('input[name="tx-type"]:checked').value;
+            if (type === 'expense') {
+                if (lowerText.includes('식대') || lowerText.includes('밥') || lowerText.includes('커피') || lowerText.includes('주유') || lowerText.includes('기름') || lowerText.includes('경비')) {
+                    document.getElementById('tx-category').value = '경비(식대/유류비 등)';
+                } else if (lowerText.includes('재고') || lowerText.includes('피스') || lowerText.includes('철물') || lowerText.includes('부속') || lowerText.includes('매입')) {
+                    document.getElementById('tx-category').value = '현금매입(재고)';
+                    if(document.getElementById('tx-account-1').value === '외상매입금') {
+                        document.getElementById('tx-category').value = '외상매입';
+                    }
+                } else {
+                    document.getElementById('tx-category').value = '잡지출';
+                }
+            }
+            window.toggleProductSelect();
+
+            // 5. 메모 및 거래처 파싱
+            document.getElementById('tx-memo').value = text;
+            
+            for (let v in window.masterVendors) {
+                if (lowerText.includes(v.toLowerCase())) {
+                    document.getElementById('tx-vendor').value = v;
+                    break;
+                }
+            }
+        };
+
+        window.parseKoreanNumber = function(korStr) {
+            const numMap = {'일':1, '이':2, '삼':3, '사':4, '오':5, '육':6, '칠':7, '팔':8, '구':9};
+            let result = 0;
+            let temp = 0;
+            for (let i = 0; i < korStr.length; i++) {
+                const char = korStr[i];
+                if (numMap[char]) {
+                    temp = numMap[char];
+                } else {
+                    if (temp === 0) temp = 1;
+                    if (char === '십') result += temp * 10;
+                    else if (char === '백') result += temp * 100;
+                    else if (char === '천') result += temp * 1000;
+                    else if (char === '만') {
+                        result = (result + temp) * 10000;
+                        temp = 0;
+                        continue;
+                    }
+                    temp = 0;
+                }
+            }
+            result += temp;
+            return result;
+        };
     </script>
 </body>
 </html>

@@ -849,7 +849,7 @@ function recalc() {
   const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
 
   let optTotal = 0;
-  document.querySelectorAll('[id^="opt-"]').forEach(cb => {
+  document.querySelectorAll('input[id^="opt-"]').forEach(cb => {
     if (cb.checked) optTotal += parseInt(cb.value) || 0;
   });
 
@@ -872,7 +872,7 @@ function recalcOnline() {
   const onlinePrice = parseInt(document.getElementById('onlinePrice').value) || 0;
   const shipping = parseInt(document.getElementById('shippingFee').value) || 0;
   const installOnly = (parseInt(document.getElementById('baseInstallSelect').value) || 0) +
-    Array.from(document.querySelectorAll('[id^="opt-"]')).reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
+    Array.from(document.querySelectorAll('input[id^="opt-"]')).reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
 
   if (onlinePrice === 0) {
     document.getElementById('r-online-prod').textContent = '-';
@@ -888,7 +888,7 @@ function recalcOnline() {
   // Compare
   const cost = parseInt(document.getElementById('costInput').value) || 0;
   const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
-  const optTotal = Array.from(document.querySelectorAll('[id^="opt-"]'))
+  const optTotal = Array.from(document.querySelectorAll('input[id^="opt-"]'))
     .reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
   const ourPrice = roundTo5K(cost + installFee + optTotal);
 
@@ -925,7 +925,7 @@ function recalcOnline() {
 function recalcFinal() {
   const cost = parseInt(document.getElementById('costInput').value) || 0;
   const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
-  const optTotal = Array.from(document.querySelectorAll('[id^="opt-"]'))
+  const optTotal = Array.from(document.querySelectorAll('input[id^="opt-"]'))
     .reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
   const base = roundTo5K(cost + installFee + optTotal);
   const adjust = parseInt(document.getElementById('adjustAmount').value) || 0;
@@ -936,7 +936,7 @@ function recalcFinal() {
 function applyRounded() {
   const cost = parseInt(document.getElementById('costInput').value) || 0;
   const installFee = parseInt(document.getElementById('baseInstallSelect').value) || 0;
-  const optTotal = Array.from(document.querySelectorAll('[id^="opt-"]'))
+  const optTotal = Array.from(document.querySelectorAll('input[id^="opt-"]'))
     .reduce((s, cb) => s + (cb.checked ? (parseInt(cb.value)||0) : 0), 0);
   const rounded = roundTo5K(cost + installFee + optTotal);
   document.getElementById('adjustAmount').value = 0;
@@ -964,7 +964,7 @@ function getCalcState() {
   
   const options = [];
   let optTotal = 0;
-  document.querySelectorAll('[id^="opt-"]').forEach((cb, idx) => {
+  document.querySelectorAll('input[id^="opt-"]').forEach((cb, idx) => {
     if (cb.checked) {
       options.push(idx);
       optTotal += parseInt(cb.value) || 0;
@@ -1081,7 +1081,7 @@ function loadFromHistory(id) {
     document.getElementById('baseInstallSelect').selectedIndex = st.baseInstallIndex;
   }
   
-  document.querySelectorAll('[id^="opt-"]').forEach((cb, idx) => {
+  document.querySelectorAll('input[id^="opt-"]').forEach((cb, idx) => {
     if (st.options && st.options.includes(idx)) {
       cb.checked = true;
       document.getElementById(`opt-label-${idx}`).classList.add('checked');

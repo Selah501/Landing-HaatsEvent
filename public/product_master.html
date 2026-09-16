@@ -117,27 +117,35 @@
             <input type="text" id="modalMarketingMemo" placeholder="예: 구형, 단종, 대체품 등">
         </div>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div class="form-group">
-                <label>제품 원가</label>
-                <input type="number" id="modalPricePurchase" oninput="calculateTotal()">
+        <div style="border: 1px solid #444; border-radius: 6px; padding: 12px; background: rgba(0,0,0,0.2); margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="margin: 0; color: var(--color-interactive-lime);">💰 가격 및 판매가 정보</label>
+                <button type="button" onclick="goToCalculator()" style="background:var(--color-interactive-lime); color:#000; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">이 상품의 판매가 세팅하러 가기 ↗</button>
             </div>
-            <div class="form-group">
-                <label>기본 설치비</label>
-                <input type="number" id="modalPriceInstall" oninput="calculateTotal()">
+            
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="flex: 1;">
+                    <label style="font-size: 11px; color: #888; margin-bottom: 4px;">제품 원가 (유일한 수정 가능 항목)</label>
+                    <input type="number" id="modalPricePurchase" oninput="calculateTotal()" style="padding: 6px; font-size: 13px;">
+                </div>
+                <div style="flex: 2; display: flex; gap: 12px; padding-left: 12px; border-left: 1px solid #444; color: #ccc; font-size: 12px;">
+                    <div><div style="color:#888; font-size:10px; margin-bottom:4px;">기본설치비</div><span id="readPriceInstall">0</span>원</div>
+                    <div><div style="color:#888; font-size:10px; margin-bottom:4px;">옵션비용</div><span id="readPriceOptions">0</span>원</div>
+                    <div><div style="color:#888; font-size:10px; margin-bottom:4px;">기타(조정)</div><span id="readPriceOther">0</span>원</div>
+                    <div><div style="color:#888; font-size:10px; margin-bottom:4px;">총 판매가 합계</div><span id="readPriceTotal" style="color:var(--color-interactive-lime); font-weight:bold; font-size:14px;">0</span>원</div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>옵션 비용</label>
-                <input type="number" id="modalPriceOptions" oninput="calculateTotal()">
+
+            <div id="priceHistoriesContainer" style="margin-top: 12px; border-top: 1px dashed #444; padding-top: 10px; display: none;">
+                <div style="font-size: 11px; color: #888; margin-bottom: 6px;">🕐 저장된 계산기 견적 (최근 4개)</div>
+                <div id="priceHistoriesList" style="display: flex; flex-direction: column; gap: 4px; font-size: 12px;"></div>
             </div>
-            <div class="form-group">
-                <label>기타(조정금액)</label>
-                <input type="number" id="modalPriceOther" oninput="calculateTotal()">
-            </div>
-            <div class="form-group" style="grid-column: span 2;">
-                <label>합계 (관리자최종조정 반영)</label>
-                <input type="number" id="modalPriceTotal" readonly style="background:#111; border-color:#333; font-weight:bold; color:var(--color-interactive-lime); font-size:16px;">
-            </div>
+            
+            <!-- Hidden inputs for backend saving -->
+            <input type="hidden" id="modalPriceInstall">
+            <input type="hidden" id="modalPriceOptions">
+            <input type="hidden" id="modalPriceOther">
+            <input type="hidden" id="modalPriceTotal">
         </div>
 
         <div class="form-group" id="setComponentsGroup" style="display: none; background: #222; padding: 12px; border-radius: 6px;">
@@ -375,6 +383,40 @@
         }
     }
 
+    function goToCalculator() {
+        if (!currentEditProductId) {
+            alert('새로운 상품은 먼저 저장한 뒤 계산기로 이동할 수 있습니다.');
+            return;
+        }
+        window.open('price_calculator.html?product_id=' + currentEditProductId, '_blank');
+    }
+
+    function renderPriceHistories(prod) {
+        const container = document.getElementById('priceHistoriesContainer');
+        const listEl = document.getElementById('priceHistoriesList');
+        
+        if (!prod || !prod.details || !prod.details.price_histories || prod.details.price_histories.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+        
+        container.style.display = 'block';
+        let htmlStr = '';
+        prod.details.price_histories.forEach(h => {
+            htmlStr += `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#2c2c2e; padding:6px 10px; border-radius:4px;">
+                <div>
+                    <span style="color:#fff; font-weight:bold; margin-right:8px;">${h.name}</span>
+                    <span style="color:#888;">${h.date}</span>
+                </div>
+                <div style="color:var(--color-interactive-lime); font-weight:bold;">
+                    ${h.price.toLocaleString()}원
+                </div>
+            </div>`;
+        });
+        listEl.innerHTML = htmlStr;
+    }
+
     /* Modal Logic */
     function openProductModal(prod) {
         currentEditProductId = prod ? prod.id : null;
@@ -391,6 +433,13 @@
         document.getElementById('modalPriceOptions').value = prod ? (prod.prices?.options || 0) : 0;
         document.getElementById('modalPriceOther').value = prod ? (prod.prices?.other || 0) : 0;
         document.getElementById('modalPriceTotal').value = prod ? (prod.prices?.sell_total || 0) : 0;
+        
+        document.getElementById('readPriceInstall').textContent = (prod ? (prod.prices?.sell_install || 0) : 0).toLocaleString();
+        document.getElementById('readPriceOptions').textContent = (prod ? (prod.prices?.options || 0) : 0).toLocaleString();
+        document.getElementById('readPriceOther').textContent = (prod ? (prod.prices?.other || 0) : 0).toLocaleString();
+        document.getElementById('readPriceTotal').textContent = (prod ? (prod.prices?.sell_total || 0) : 0).toLocaleString();
+        
+        renderPriceHistories(prod);
         
         const urls = prod ? (prod.detail_urls || []) : [];
         document.getElementById('modalUrl1').value = urls[0] || '';
@@ -432,7 +481,11 @@
         const inst = parseInt(document.getElementById('modalPriceInstall').value) || 0;
         const opt = parseInt(document.getElementById('modalPriceOptions').value) || 0;
         const other = parseInt(document.getElementById('modalPriceOther').value) || 0;
-        document.getElementById('modalPriceTotal').value = purchase + inst + opt + other;
+        const total = purchase + inst + opt + other;
+        document.getElementById('modalPriceTotal').value = total;
+        // In the new UI, purchase cost doesn't automatically recalculate the read-only total
+        // But if we want to keep it consistent:
+        document.getElementById('readPriceTotal').textContent = total.toLocaleString();
     }
 
     async function saveProduct() {

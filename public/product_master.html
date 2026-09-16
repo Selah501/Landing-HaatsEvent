@@ -230,6 +230,9 @@
 
         const applyProductId = urlParams.get('apply_product_id');
         if (applyProductId) {
+            // Remove parameters so it doesn't reopen after save
+            window.history.replaceState(null, '', window.location.pathname);
+            
             setTimeout(() => {
                 const targetProd = allProducts.find(p => String(p.id) === String(applyProductId));
                 if (targetProd) {

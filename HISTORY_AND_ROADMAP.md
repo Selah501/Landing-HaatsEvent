@@ -77,6 +77,19 @@
    - Git Commit Message: `feat(apt_db): add replacement items UI, storage rules update, and category editor`
    - [상세 요약 워크스루](.agents/work_logs/20260915_아파트DB_품목저장_기능.md)
 
+
+## [2026-09-16] 판매가 계산기 복수 저장 및 상품마스터 연동
+### 주요 변경 사항
+1. **복수 판매가 저장 로직 완벽 구현**: 
+   - `price_calculator.html`에서 DB 스키마 우회(details JSONB) 방식으로 제품당 최대 4개의 판매가 견적(이름: 제품명+최종금액)을 영구 저장, 조회, 삭제할 수 있도록 함.
+2. **UI 및 연동 개선**: 
+   - 계산기 하단 저장 리스트에서 [🚀 상품마스터에 적용] 클릭 시, `product_master.html` 모달이 즉시 열리며 가격 정보(제품원가, 기본설치비, 옵션비, 조정금액, 최종합계)가 자동 기입됨.
+3. **상품 마스터 테이블 금액 항목 일치화**:
+   - `product_master.html`의 가격 구조를 계산기 항목과 통일시킴 (매입가 -> 제품원가, 설치비 -> 기본설치비, 기타 -> 옵션/기타 등).
+4. **작업 이력**:
+   - Git Commit Message: `feat: 복수 판매가 저장 및 상품마스터 연동 기능 구현`
+   - [상세 요약 워크스루](.agents/work_logs/20260916_판매가계산_복수저장_및_상품마스터연동.md)
+
 ## [Pending / Future Work]
 - **마스터 표(테이블) UI/UX 대대적 개편 (우선순위: 매우 높음):**
   - 확정된 달력 예약건(

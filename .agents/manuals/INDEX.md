@@ -22,4 +22,7 @@
 6. [🔗 상품 상세페이지 URL 총정리 가이드](file:///c:/dev/전단지이벤트/.agents/manuals/PRODUCT_DETAIL_PAGES.md)
    - *추석 테라 등 커스텀 상세페이지 URL 목록 및 현장 연결 방법*
 
+7. [📱 문자발송(이벤트) 캠페인 업무흐름 설명서](file:///c:/dev/전단지이벤트/.agents/manuals/SMS_CAMPAIGN_GUIDE.md)
+   - *PC에서 고객DB를 추출하여 스마트폰 문자 앱으로 단체 발송(10건 단위)하는 방법 가이드*
+
 - WORKFLOW_GUIDE.md: CRM 및 팔로업 보드 업무 흐름과 버튼별 역할 설명서

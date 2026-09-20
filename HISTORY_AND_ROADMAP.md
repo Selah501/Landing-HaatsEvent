@@ -45,6 +45,13 @@
 ### 🎯 비전 5: 스마트폰 발신자 식별 및 올인원 CRM
 - 고객 전화 수신 시 스마트폰 액정에 `[하츠] 내포중흥 101-102 홍길동 (시공완료)` 정보가 즉시 뜨도록 구글 주소록 API와 연동합니다.
 
+- [x] **고객디비 문자발송(이벤트) 캠페인 모듈 신설 (2026-09-17)**
+  - 시공완료(예약) 및 상담보류 고객 DB를 현장 키워드로 추출해 단체 문자를 발송하는 4번 탭 추가
+  - PC 기획(추출/검토) 및 모바일 발송(10건 단위 버튼화)으로 역할 분리
+  - 문자 내 QR 링크 클릭 시 랜딩페이지 이벤트 카드가 자동 확장(`?event=ID`)되도록 고도화
+  - 추출 목록에서 기존의 🔍상세 카드 모달(예약 상세, 상담 상세) 연동 확인 완료
+  - **관련 링크:** [Walkthrough 요약](file:///C:/Users/user/.gemini/antigravity-ide/brain/c1fdc934-e1f4-4f1a-a0ed-c6ffe72c90c1/walkthrough.md)
+
 - [x] **클라우드 파일 업로드/관리 전면 수정 (2026-08-20)**
   - Firebase Storage의 규칙을 인증 없이 읽고 쓸 수 있도록 개방 (`allow read, write: if true;`)
   - 전화 통화 녹음 후 모바일에서 curl로 Firebase Storage에 직접 파일 업로드하는 방식으로 변경
@@ -65,6 +72,43 @@
   - `index.html`: 최상단에 하드코딩된 도입 문구를 공용 타이틀로 변경하고, 현장 클릭 시 해당 현장 데이터(`heroTitle`)가 상품 리스트 상단에 노출되도록 렌더링 로직(`renderEvents`, `toggleCampaign`) 수정
   - `detail-page-maker` 스킬: AI가 다음부터 착각 없이 이벤트를 세팅할 수 있도록, `(a) 랜딩 화면`, `(b) 도입 문구`, `(c) 메인 상품`, `(d) 옵션 상품`의 구조 명칭 및 작업 순서를 매뉴얼에 명문화하여 학습시킴.
   - [작업 요약본 보기 (Work Logs)](file:///c:/dev/전단지이벤트/.agents/work_logs/20260915_이벤트_도입문구_동적노출_및_워크플로우세팅.md)
+
+
+## [2026-09-20] 문자 캠페인 링크 신규 도메인(haatz.shop) 하드코딩 적용
+### 주요 변경 사항
+1. **문자 발송 링크 도메인 변경**:
+   - `admin.html` 4번 탭에서 단체 문자 발송 시, 새롭게 연결할 공식 도메인(`www.haatz.shop`)이 찍혀서 발송되도록 로직 수정. (가비아 DNS_SERVFAIL 에러 우회를 위해 www 서브도메인 채택)
+   - 단축 URL 생성 로직을 `const baseUrl = 'https://www.haatz.shop';` 으로 고정하여 도메인 일관성 확보.
+2. **배포 및 호환성**:
+   - Firebase Hosting에 수정 사항 배포 완료.
+   - 기존 Firebase 주소는 그대로 살아있으므로 기 배포된 전단지의 QR코드는 모두 정상 작동함 (하위 호환성 100% 보장).
+3. **작업 이력**:
+   - Git Commit Message: `feat(admin): replace sms campaign link domain to haatz.shop`
+   - [상세 요약 워크스루](.agents/work_logs/20260920_문자발송링크_신규도메인_적용.md)
+
+## [2026-09-18] 테라 및 허리케인 상세페이지 이벤트 셋업
+### 주요 변경 사항
+1. **테라 상세페이지 수정 (`chuseok-terra.html`)**:
+   - 전문시공 항목에 이전설치와 폐기수거 포함 뱃지 문구 추가
+   - 하단 설치 전 확인사항 텍스트 제거 및 빈칸 처리
+2. **허리케인 상세페이지 DB 생성**:
+   - 기존 테라 상세페이지의 어두운 테마 HTML을 기반으로 텍스트 및 이미지 치환.
+   - 가격(335,000원) 및 사은품(기름받이 증정) 반영 후 Supabase 마스터 DB(`detail_pages`)에 신규 버전(`AI 생성 버전 (26.09.18)`)으로 업데이트 완료.
+3. **작업 이력**:
+   - Git Commit Message: `feat(landing): update terra detail page and generate hurricane event detail page to DB`
+   - [상세 요약 워크스루](.agents/work_logs/20260918_테라_및_허리케인_상세페이지_이벤트세팅.md)
+
+## [2026-09-18] 신규문자캠페인 타겟추출 V2 호환 버그 수정
+### 주요 변경 사항
+1. **타겟 스캔 스키마 V2 업데이트**:
+   - 문자발송 타겟 추출 로직이 구형 V1 데이터 구조(`res.address`, `res.cart`)만 참조하여 "경남" 등 최신 데이터를 찾지 못하는 버그 수정.
+   - 최신 V2 구조(`customerInfo.apt`, `customerInfo.phone`, `report.usedProducts`)에서도 완벽하게 키워드를 검색하고 파싱하도록 코드 개편.
+2. **상담보류(crm_pending) 스캔 누락 패치**:
+   - 기존에 누락되어 있던 탭 3 '상담보류' DB(`window.currentCrmPending`) 순회 로직 추가 완료.
+3. **작업 이력**:
+   - Git Commit Message: `fix(admin): update SMS target extraction logic to support V2 customerInfo schema`
+   - [상세 요약 워크스루](.agents/work_logs/20260918_신규문자캠페인_타겟추출_오류수정.md)
+
 
 
 ## [2026-09-15] 아파트 DB 교체 품목 및 자료 첨부 기능 추가

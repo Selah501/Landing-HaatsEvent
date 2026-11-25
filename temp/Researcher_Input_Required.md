@@ -28,6 +28,7 @@
   3. `지식메모리` ↔ `가_인프라개발` ↔ `전단지이벤트` 3자 지식·트러블슈팅 이력 동기화 구체화.
   4. **[2026-11-25 추가] Antigravity 2.0 '중앙 관제' 내일부터 실전 가동 챙기기:** `C:\dev\지식메모리\10_Knowledge\Infra\Antigravity_2.0_설치_및_병렬운영_가이드.md` 체크리스트(4대 프로젝트 등록, `Default` 권한, `Inbox` 결재, `New worktree` 격리) 완료 지원.
   5. **[2026-11-25 추가 — 랩탑 이관 시 원상복귀 메모] 작업 스케줄러 `pythonw.exe` 원상복귀:** 메인 데스크탑 영타 전환 방지를 위해 `\Haatz_CRM_Daemon_Watcher`와 `\Infra_Nightly_Audit_0300`을 `pythonw.exe`로 전환했음. **향후 구형 랩탑(24시간 전용 허브)으로 스케줄러를 옮길 때는 콘솔 로그/에러 즉시 확인을 위해 다시 `python.exe`로 원상복귀할 것.**
+  6. **[2026-11-25 추가] `C:\dev\AI_마케터` GitHub 저장소 연결 및 통합 백업 편입:** 현재 `.git` 미초기화 상태이므로, GitHub 리포지토리 생성·`git init`·민감정보(`.gitignore`) 점검 후 `C:\dev\가_인프라개발\routine_backup.ps1`의 5번째 백업 대상으로 편입할 것.
 
 ---
 

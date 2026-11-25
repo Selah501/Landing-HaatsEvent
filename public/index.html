@@ -94,26 +94,7 @@
 
 <body>
 
-    <!-- [임시 팝업] 내포 LH스타힐스 & 모아 엘가 오픈 안내 (제거 시 이 블록 삭제) -->
-    <div id="temp-notice-popup" class="temp-notice-overlay" role="dialog" aria-modal="true" aria-labelledby="temp-notice-title" onclick="if (event.target === this) closeTempNoticePopup();">
-        <div class="temp-notice-modal">
-            <button type="button" class="temp-notice-close" onclick="closeTempNoticePopup()" aria-label="팝업 닫기">✕</button>
-            <div class="temp-notice-badge">📢 오픈 안내</div>
-            <p id="temp-notice-title" class="temp-notice-title">
-                내포 LH스타힐스와 모아 엘가 아파트<br>
-                이벤트 페이지는 <strong style="color: var(--color-interactive-lime);">내일 (11/25) 오픈 예정</strong>입니다.
-            </p>
-            <p class="temp-notice-desc">
-                확인 버튼을 누르시면 현재 진행 중인 다른 이벤트도 둘러보실 수 있습니다.
-            </p>
-            <button type="button" class="btn btn-secondary" style="width: 100%; padding: 13px; font-size: 15px;" onclick="closeTempNoticePopup()">확인</button>
-        </div>
-    </div>
     <script>
-        function closeTempNoticePopup() {
-            const popup = document.getElementById('temp-notice-popup');
-            if (popup) popup.style.display = 'none';
-        }
         function openCardInstallmentPopup() {
             const popup = document.getElementById('card-installment-popup');
             if (popup) popup.style.display = 'flex';
@@ -148,6 +129,7 @@
                 </tr>
             </table>
             <p style="font-size:11px; color:#8e8e93; line-height:1.5; margin:0 0 16px 0;">
+                ※ 모든 표시 금액은 <strong>부가세(VAT) 포함</strong> 가격입니다.<br>
                 ※ 법인·체크·선불·기프트카드는 제외되며, 현장 무선단말기 및 카드사 정책에 따라 실제 적용 개월 수는 변동될 수 있습니다.
             </p>
             <button type="button" class="btn btn-secondary" style="width: 100%; padding: 12px; font-size: 14px;" onclick="closeCardInstallmentPopup()">확인</button>
@@ -156,8 +138,7 @@
 
     <div class="mobile-container">
         <header class="hero-section" id="global-hero" style="transition: all 0.3s ease;">
-            <h1 class="hero-title" style="font-size: 22px; color: var(--color-interactive-lime); margin-bottom: 8px;">하츠 충남(홍성/내포) 대리점</h1>
-            <h2 class="hero-title hero-subtitle" style="font-size: 18px; line-height: 1.4; color: #fff;">진행 중인 공동구매 / 특가 이벤트</h2>
+            <h1 class="hero-title" style="font-size: 22px; color: var(--color-interactive-lime); margin-bottom: 8px;">진행 중인 공동구매 / 특가 이벤트</h1>
             <div style="display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:12px; font-size:12px; color:#d1d5db;">
                 <span style="background:#1c1d22; border:1px solid #333; padding:4px 10px; border-radius:999px;">① 내 아파트 선택</span>
                 <span style="color:#6b7280; align-self:center;">→</span>
@@ -177,14 +158,10 @@
 
         <footer class="footer-area">
             <div class="quick-links">
-                <a href="./products/tioram-mini.html">티오람 미니 제품상세</a>
                 <a href="./guide/work-and-payment.html">교체공정 및 결제안내</a>
             </div>
-            <div class="brand-footer">캠페인 주관사: TBJ 홈케어 사업부</div>
-            <div style="text-align: center; margin-top: 20px; padding-bottom: 20px; display:flex; justify-content:center; gap:12px; align-items:center;">
-                <button onclick="window.location.href='./admin.html'" style="background:none; border:none; color:#6b7280; font-size:12px; cursor:pointer; text-decoration:underline; padding: 5px;">관리자 모드 접속</button>
-                <button id="btn-admin-preview" onclick="toggleAdminPreview()" style="background:transparent; border:1px solid #444; color:#888; font-size:11px; padding:4px 8px; border-radius:4px; cursor:pointer;">🔧 관리자 미리보기</button>
-            </div>
+            <div class="brand-footer" style="color: #9ca3af; font-size: 13px; margin-top: 10px;">캠페인 주관사: 올바른집</div>
+            <div style="margin-top: 8px; font-size: 13px; color: #e5e7eb; font-weight: 600;">※ 모든 표시 금액은 부가세(VAT) 포함 가격입니다.</div>
         </footer>
     </div>
 
@@ -232,6 +209,7 @@
 
                 window.eventsData = data.events || [];
                 window.globalManagers = data.managers || [];
+                window.optionPolicies = data.optionPolicies || null;
                 if (typeof window.renderEvents === 'function') {
                     window.renderEvents();
                     
@@ -298,7 +276,16 @@
                 prompt('아래 링크를 복사하세요:', url);
             }
         };
-        document.addEventListener('DOMContentLoaded', updateAdminPreviewBtn);
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAdminPreviewBtn();
+            const p = new URLSearchParams(window.location.search);
+            if (p.get('admin') === '1' && !window.isAdminPreview() && typeof initAdminAuth === 'function') {
+                initAdminAuth(() => {
+                    updateAdminPreviewBtn();
+                    if (typeof window.renderEvents === 'function') window.renderEvents();
+                });
+            }
+        });
 
         const urlParams = new URLSearchParams(window.location.search);
         const targetEventId = urlParams.get('e') || urlParams.get('event');
@@ -315,13 +302,35 @@
             const prodName = masterProd ? masterProd.name : "알 수 없는 상품";
             const custom = (prodObj.customText || "").trim();
             if (custom) {
-                if (masterProd && custom.includes(masterProd.name.split(' ')[0])) {
+                const nameTokens = prodName.split(/\s+/).filter(t => t.length >= 2);
+                if (nameTokens.some(t => custom.includes(t)) || custom.includes('·')) {
                     return custom;
                 }
                 return `${prodName} (${custom})`;
             }
             const defaultPrice = masterProd ? masterProd.defaultPriceText : "";
             return defaultPrice ? `${prodName} (${defaultPrice})` : prodName;
+        }
+
+        // 품목별 옵션 정책 요약 (RTDB /optionPolicies 기반 - 포함 내역만 단순 표기)
+        function getProductPolicySummary(mProd, ev) {
+            if (!mProd || !window.optionPolicies || !window.optionPolicies.categories) return '';
+            const cats = window.optionPolicies.categories;
+            const name = (mProd.name || '') + ' ' + (mProd.category || '');
+            let catKey = null;
+            if (name.includes('씽크볼') || name.includes('싱크볼') || name.includes('사각세트')) catKey = 'sink_set';
+            else if (name.includes('티오람')) catKey = 'bath_fan_tioram';
+            else if (name.includes('후드') || name.includes('허리케인') || name.includes('테라')) catKey = 'kitchen_hood';
+            else if (name.includes('환풍기') || name.includes('제로크') || name.includes('힘펠')) catKey = 'bath_fan_himpel';
+            else if (name.includes('건조대')) catKey = 'electric_dryer';
+            if (!catKey || !cats[catKey]) return '';
+
+            const mode = (ev && (ev.title || '').includes('상시')) ? 'regular' : 'naepo_event';
+            const pol = cats[catKey][mode] || cats[catKey].naepo_event;
+            if (!pol) return '';
+
+            const incText = (pol.included || []).filter(item => item !== '기본설치비 포함').join('·');
+            return incText ? `✅ ${incText} 포함` : '';
         }
 
         // 이벤트 렌더링 로직
@@ -356,7 +365,7 @@
                     let mainProductsHtml = '';
                     if (ev.mainProducts && ev.mainProducts.length > 0) {
                         mainProductsHtml += '<div style="margin-bottom: 24px;">';
-                        mainProductsHtml += '<div style="font-size: 14px; color: var(--color-interactive-lime); font-weight: bold; margin-bottom: 12px;">📌 메인 공동구매 상품</div>';
+                        mainProductsHtml += '<div style="font-size: 14px; color: var(--color-interactive-lime); font-weight: bold; margin-bottom: 12px;">📌 이벤트 메인 상품</div>';
                         ev.mainProducts.forEach(prod => {
                             const mProd = globalProducts.find(p => p.id === prod.id);
                             if(!mProd) return;
@@ -367,13 +376,25 @@
                             const sep = effectiveLink.includes('?') ? '&' : '?';
                             const dynamicLink = effectiveLink ? `${effectiveLink}${sep}phone=${managerPhone}&event=${encodeURIComponent(ev.id)}` : '';
 
+                            const policyLine = getProductPolicySummary(mProd, ev);
+                            const basePriceNum = prod.basePrice || (mProd.prices && mProd.prices.base_price) || null;
+                            const salePriceNum = prod.salePrice || null;
+                            const priceCompareHtml = (basePriceNum && salePriceNum && Number(basePriceNum) > Number(salePriceNum))
+                                ? `<div style="margin-bottom: 8px; font-size: 15px;">
+                                     <span style="text-decoration: line-through; color: #8e8e93; margin-right: 6px;">${Number(basePriceNum).toLocaleString()}원</span>
+                                     <span style="color: #9ea0a9;">→</span>
+                                     <strong style="color: var(--color-interactive-lime); font-size: 18px; margin-left: 6px;">${Number(salePriceNum).toLocaleString()}원</strong>
+                                   </div>`
+                                : '';
                             if (dynamicLink) {
                                 mainProductsHtml += `
                                     <a href="${dynamicLink}" style="display: block; background-color: #1a1a1a; border: 1px solid rgba(220,255,0,0.4); border-radius: 10px; padding: 16px; margin-bottom: 10px; text-decoration: none;">
                                         <div style="color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 6px; line-height: 1.4;">${text}</div>
-                                        <div style="color: #aaa; font-size: 13px; margin-bottom: 12px; line-height: 1.4;">${mProd.features || ''}</div>
+                                        ${priceCompareHtml}
+                                        ${mProd.features ? `<div style="color: #aaa; font-size: 13px; margin-bottom: 6px; line-height: 1.4;">${mProd.features}</div>` : ''}
+                                        ${policyLine ? `<div style="color: #a7f3d0; font-size: 12px; margin-bottom: 10px; line-height: 1.45;">${policyLine}</div>` : ''}
                                         <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #2b2b2e; padding-top: 10px;">
-                                            <span style="color: var(--color-interactive-lime); font-size: 13px; font-weight: bold;">👉 제품 상세페이지 & 시공안내 보기</span>
+                                            <span style="color: var(--color-interactive-lime); font-size: 13px; font-weight: bold;">👉 제품상세 & 시공안내 보기</span>
                                             <span style="color: var(--color-interactive-lime); font-size: 16px; font-weight: bold;">➔</span>
                                         </div>
                                     </a>
@@ -382,7 +403,9 @@
                                 mainProductsHtml += `
                                     <div style="background-color: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 16px; margin-bottom: 10px;">
                                         <div style="color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 4px;">${text}</div>
-                                        <div style="color: #aaa; font-size: 13px;">${mProd.features || ''}</div>
+                                        ${priceCompareHtml}
+                                        ${mProd.features ? `<div style="color: #aaa; font-size: 13px; margin-bottom: 4px;">${mProd.features}</div>` : ''}
+                                        ${policyLine ? `<div style="color: #a7f3d0; font-size: 12px; line-height: 1.45;">${policyLine}</div>` : ''}
                                     </div>
                                 `;
                             }
@@ -397,7 +420,8 @@
                             <div style="background: linear-gradient(135deg, #2a2a2d 0%, #1c1c1e 100%); border-radius: 12px; padding: 20px; border: 1px solid #444; margin-bottom: 24px;">
                                 <div style="text-align: center; margin-bottom: 16px;">
                                     <span style="display: inline-block; background: var(--color-interactive-lime); color: var(--color-pitch-black); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 20px; margin-bottom: 6px;">함께 신청하면 혜택 UP!</span>
-                                    <h3 style="color: var(--color-pure-white); font-size: 16px; margin: 0;">같이 바꾸면 좋은 프리미엄 특가</h3>
+                                    <h3 style="color: var(--color-pure-white); font-size: 16px; margin: 0 0 4px 0;">메인 과 같이 신청하면 추가 할인 !!</h3>
+                                    <div style="color: #9ea0a9; font-size: 12px;">(단독으로 신청도 가능)</div>
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 8px;">
                         `;
@@ -408,6 +432,7 @@
                             
                             const defaultAddonLink = `./product.html?id=${prod.id}`;
                             const effectiveAddonLink = prod.customLink || mProd.detailLink || defaultAddonLink;
+                            const addonPolicyLine = getProductPolicySummary(mProd, ev);
                             if(effectiveAddonLink) {
                                 const sep = effectiveAddonLink.includes('?') ? '&' : '?';
                                 const dynamicLink = `${effectiveAddonLink}${sep}phone=${managerPhone}&event=${encodeURIComponent(ev.id)}`;
@@ -416,7 +441,8 @@
                                         <div>
                                             <div style="color: var(--color-silver-mist); font-size: 12px; margin-bottom: 4px;">${mProd.features || '프리미엄 상품'}</div>
                                             <div style="color: #fff; font-size: 15px; font-weight: bold; line-height: 1.35;">${text}</div>
-                                            <div style="color: var(--color-interactive-lime); font-size: 12px; margin-top: 4px;">상세보기 ↗</div>
+                                            ${addonPolicyLine ? `<div style="color: #a7f3d0; font-size: 11.5px; margin-top: 4px; line-height: 1.4;">${addonPolicyLine}</div>` : ''}
+                                            <div style="color: var(--color-interactive-lime); font-size: 12px; margin-top: 5px;">상세보기 ↗</div>
                                         </div>
                                         <div style="color: var(--color-interactive-lime); font-size: 18px; font-weight: bold; flex-shrink:0;">➔</div>
                                     </a>
@@ -439,25 +465,58 @@
                     // 모든 선택 가능한 상품 (메인 + 부가)
                     const allProducts = [...(ev.mainProducts || []), ...(ev.addonProducts || [])];
                     let formProductsHtml = '';
+                    const isHyosung = (ev.title || '').includes('효성') || (ev.aptName || '').includes('효성');
+                    const isRegular = (ev.title || '').includes('상시');
                     allProducts.forEach((prod, idx) => {
+                        const mProd = globalProducts.find(p => p.id === prod.id);
                         const text = getProductText(prod);
                         const isFan = text.includes('환풍기') || text.includes('티오람') || text.includes('댐퍼') || text.includes('제로크');
+                        // 숫자 가격 추출 (salePrice 우선, 없으면 text/defaultPriceText에서 추출)
+                        let unitPrice = Number(prod.salePrice || (mProd && mProd.prices && mProd.prices.sale_price) || 0);
+                        if (!unitPrice) {
+                            const priceMatch = text.replace(/,/g, '').match(/(\d{5,7})\s*원/);
+                            if (priceMatch) unitPrice = Number(priceMatch[1]);
+                        }
                         let qtyHtml = '';
                         if(isFan) {
                             qtyHtml = `
-                                <select name="qty-${ev.id}-${prod.id}" style="margin-left:auto; padding: 4px 8px; border-radius: 4px; border: 1px solid #555; background-color: #222; color: white; font-size: 14px;">
+                                <select name="qty-${ev.id}-${prod.id}" onchange="updateConsultSummary('${ev.id}')" style="margin-left:auto; padding: 4px 8px; border-radius: 4px; border: 1px solid #555; background-color: #222; color: white; font-size: 14px;">
                                     <option value="1대">1대</option>
                                     <option value="2대">2대</option>
                                 </select>
                             `;
                         }
 
+                        // 품목별 고객 선택 유상옵션 (단순 유지: 해당 상품 체크 시에만 노출)
+                        let optHtml = '';
+                        const pName = (mProd ? mProd.name : '') + ' ' + text;
+                        if (pName.includes('후드') || pName.includes('허리케인') || pName.includes('테라')) {
+                            optHtml = `
+                                <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#d1d5db; cursor:pointer; padding:4px 0;">
+                                    <input type="checkbox" class="consult-opt-${ev.id}" data-prod="${prod.id}" data-price="88000" value="전동댐퍼(+88,000원)" onchange="updateConsultSummary('${ev.id}')">
+                                    <span>전동댐퍼 추가 <strong style="color:var(--color-interactive-lime);">+88,000원</strong></span>
+                                </label>`;
+                        } else if ((pName.includes('환풍기') || pName.includes('티오람') || pName.includes('제로크')) && isHyosung) {
+                            optHtml = `
+                                <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#d1d5db; cursor:pointer; padding:4px 0;">
+                                    <input type="checkbox" class="consult-opt-${ev.id}" data-prod="${prod.id}" data-price="30000" value="안방욕실 아크릴마감판(+30,000원)" onchange="updateConsultSummary('${ev.id}')">
+                                    <span>안방욕실 아크릴마감판 <strong style="color:var(--color-interactive-lime);">+30,000원</strong></span>
+                                </label>`;
+                        } else if (pName.includes('씽크볼') || pName.includes('싱크볼')) {
+                            if (!isRegular) {
+                                optHtml = `<div style="font-size:12px; color:#9ca3af; padding:2px 0;">※ 정수기 배수분기·절수기 재설치 기본 포함 (식세기 분기 필요 시 요청사항 기재)</div>`;
+                            }
+                        }
+
                         formProductsHtml += `
-                            <label class="checkbox-label" style="display: flex; align-items: center;">
-                                <input type="checkbox" name="product-${ev.id}" value="${text}" data-id="${prod.id}">
-                                <span>${text}</span>
-                                ${qtyHtml}
-                            </label>
+                            <div style="margin-bottom: 8px;">
+                                <label class="checkbox-label" style="display: flex; align-items: center; margin-bottom: 0;">
+                                    <input type="checkbox" name="product-${ev.id}" value="${text}" data-id="${prod.id}" data-price="${unitPrice}" onchange="toggleConsultOpt('${ev.id}', '${prod.id}', this.checked); updateConsultSummary('${ev.id}')">
+                                    <span>${text}</span>
+                                    ${qtyHtml}
+                                </label>
+                                ${optHtml ? `<div id="consult-opt-box-${ev.id}-${prod.id}" style="display:none; margin: 4px 0 6px 26px; padding: 8px 10px; background:#18191d; border-left:2px solid var(--color-interactive-lime); border-radius:0 6px 6px 0;">${optHtml}</div>` : ''}
+                            </div>
                         `;
                     });
 
@@ -521,15 +580,17 @@
                         ${mainProductsHtml}
                         ${addonProductsHtml}
 
-                        <div style="margin-bottom: 12px;">
-                            <button id="btn-show-form-${ev.id}" class="btn btn-primary" style="width: 100%; margin-bottom: 0; padding: 14px; font-size: 15px; font-weight: bold;" onclick="showForm('${ev.id}')">👉 무료상담 신청하기</button>
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <button id="btn-show-form-${ev.id}" class="btn btn-primary" style="flex: 1; margin-bottom: 0; padding: 14px 8px; font-size: 14px; font-weight: bold;" onclick="showForm('${ev.id}')">👉 무료상담 신청</button>
+                            <a href="./reservation_v2.html?eventId=${ev.id}&phone=${managerPhone}" class="btn btn-secondary" style="flex: 1; display: flex; justify-content: center; align-items: center; text-align: center; background-color: #6366f1; border-color: #6366f1; color: white; padding: 14px 8px; font-size: 14px; font-weight: bold; text-decoration: none;">🛠️ 설치예약 바로하기</a>
                         </div>
 
-                        <div id="form-container-${ev.id}" style="display: none; background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333;">
+                        <div id="form-container-${ev.id}" style="display: none; background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 12px;">
                             <div class="form-title">간편 상담 예약</div>
                             <div style="margin-bottom: 16px;">
-                                <div style="color: var(--color-pure-white); font-size: 14px; margin-bottom: 8px;">상담 희망 상품 (다중 선택 가능)</div>
+                                <div style="color: var(--color-pure-white); font-size: 14px; margin-bottom: 8px;">상담 희망 상품 (다중 선택 시 추가 상품당 2만원 할인!)</div>
                                 ${formProductsHtml}
+                                <div id="consult-summary-${ev.id}" style="display:none; margin-top:10px; padding:10px 12px; background:rgba(220,255,0,0.08); border:1px solid rgba(220,255,0,0.35); border-radius:8px; font-size:13px; color:#e5e7eb; line-height:1.5;"></div>
                             </div>
                             <div class="form-fields-container" style="margin-bottom: 20px;">
                                 <!-- 휴대폰 번호 입력 -->
@@ -571,7 +632,6 @@
                             <button class="btn btn-ghost" style="margin-top: 8px;" onclick="hideForm('${ev.id}')">입력 취소</button>
                         </div>
                         
-                        <a href="./reservation_v2.html?eventId=${ev.id}&phone=${managerPhone}" class="btn btn-secondary" style="margin-top: 14px; display: block; text-align: center; background-color: #6366f1; border-color: #6366f1; color: white; padding: 14px; font-size: 15px; font-weight: bold; text-decoration: none;">🛠️ 설치예약 바로하기</a>
                         <button class="btn btn-ghost" style="margin-top: 8px;" onclick="toggleCampaign('${ev.id}', '')">▲ 이벤트 접기 (목록으로)</button>
                     </div>`;
                 }
@@ -602,12 +662,66 @@
         // renderEvents();
         // 폼 열기/닫기 로직
         function showForm(id) {
-            document.getElementById(`form-container-${id}`).style.display = "block";
+            const formEl = document.getElementById(`form-container-${id}`);
+            formEl.style.display = "block";
             document.getElementById(`btn-show-form-${id}`).style.display = "none";
+            formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         function hideForm(id) {
             document.getElementById(`form-container-${id}`).style.display = "none";
             document.getElementById(`btn-show-form-${id}`).style.display = "flex";
+        }
+        function toggleConsultOpt(evId, prodId, isChecked) {
+            const box = document.getElementById(`consult-opt-box-${evId}-${prodId}`);
+            if (!box) return;
+            box.style.display = isChecked ? 'block' : 'none';
+            if (!isChecked) {
+                box.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            }
+        }
+        function updateConsultSummary(evId) {
+            const summaryEl = document.getElementById(`consult-summary-${evId}`);
+            if (!summaryEl) return;
+            const checkedBoxes = document.querySelectorAll(`input[name="product-${evId}"]:checked`);
+            if (checkedBoxes.length === 0) {
+                summaryEl.style.display = 'none';
+                summaryEl.innerHTML = '';
+                return;
+            }
+            let totalUnitCount = 0;
+            let totalPrice = 0;
+            let hasMissingPrice = false;
+            checkedBoxes.forEach(box => {
+                const prodId = box.getAttribute('data-id');
+                const unitPrice = Number(box.getAttribute('data-price') || 0);
+                const qtySelect = document.querySelector(`select[name="qty-${evId}-${prodId}"]`);
+                const qty = qtySelect ? parseInt(qtySelect.value, 10) || 1 : 1;
+                totalUnitCount += qty;
+                if (unitPrice > 0) totalPrice += unitPrice * qty;
+                else hasMissingPrice = true;
+
+                document.querySelectorAll(`.consult-opt-${evId}[data-prod="${prodId}"]:checked`).forEach(optCb => {
+                    totalPrice += Number(optCb.getAttribute('data-price') || 0);
+                });
+            });
+            const discount = totalUnitCount >= 2 ? (totalUnitCount - 1) * 20000 : 0;
+            const finalPrice = Math.max(0, totalPrice - discount);
+            let html = `<div>선택 상품: <strong>${totalUnitCount}개</strong></div>`;
+            if (discount > 0) {
+                html += `<div style="color:var(--color-interactive-lime); font-weight:bold;">🎉 동시신청 추가 할인: -${discount.toLocaleString()}원</div>`;
+            }
+            if (!hasMissingPrice && totalPrice > 0) {
+                html += `<div style="margin-top:2px;">예상 합계: <strong style="color:#fff; font-size:15px;">${finalPrice.toLocaleString()}원</strong> <span style="font-size:11px; color:#9ca3af;">(부가세 포함)</span></div>`;
+            }
+            summaryEl.innerHTML = html;
+            summaryEl.style.display = 'block';
+        }
+        function getLocalDateStr() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
         }
 
         // 박스 클릭 시 타 단지 숨기기 및 토글 로직
@@ -714,13 +828,22 @@
             }
 
             let selectedProducts = [];
+            let totalUnitCount = 0;
             checkedBoxes.forEach(box => {
                 const prodId = box.getAttribute('data-id');
                 const qtySelect = document.querySelector(`select[name="qty-${id}-${prodId}"]`);
+                const qty = qtySelect ? parseInt(qtySelect.value, 10) || 1 : 1;
+                totalUnitCount += qty;
                 const qtyText = qtySelect ? ` (${qtySelect.value})` : '';
-                selectedProducts.push(box.value + qtyText);
+                const opts = [];
+                document.querySelectorAll(`.consult-opt-${id}[data-prod="${prodId}"]:checked`).forEach(optCb => {
+                    opts.push(optCb.value);
+                });
+                const optText = opts.length > 0 ? ` [${opts.join(', ')}]` : '';
+                selectedProducts.push(box.value + qtyText + optText);
             });
-            const product = selectedProducts.join(' + ');
+            const discountTag = totalUnitCount >= 2 ? ` (동시할인 -${((totalUnitCount - 1) * 20000).toLocaleString()}원)` : '';
+            const product = selectedProducts.join(' + ') + discountTag;
 
             const payload = {
                 apartment: apartment,
@@ -732,10 +855,10 @@
                 sourceType: "web"
             };
 
-            // Firebase RTDB에 먼저 저장
+            // Firebase RTDB에 먼저 저장 (한국 로컬 날짜 기준)
             if (window.firebaseDB) {
                 try {
-                    const todayStr = new Date().toISOString().split('T')[0];
+                    const todayStr = getLocalDateStr();
                     const newResRef = window.firebasePush(window.firebaseRef(window.firebaseDB, `consultations/${todayStr}`));
                     window.firebaseSet(newResRef, payload);
                 } catch(e) {
@@ -764,13 +887,16 @@
                 submitBtn.style.cursor = "pointer";
 
                 alert(`상담신청이 완료되어 담당자가 곧 연락을 드리겠습니다. 신청해 주셔서 감사합니다.\n\n이벤트명 : ${currentEventName}\n하츠충남대리점`);
-                // 신청 성공 후 입력 칸 초기화 및 리셋
+                // 신청 성공 후 입력 칸 초기화 (단지명 readonly 값은 보존)
                 document.getElementById(`apt-dongho-${id}`).value = "";
-                document.getElementById(`apt-name-${id}`).value = "";
-                document.getElementById(`phone-${id}`).value = "";
+                document.getElementById(`phone-${id}`).value = "010-";
                 document.getElementById(`time-${id}`).value = "";
-                // 폼 체크박스 리셋
-                checkedBoxes.forEach(box => box.checked = false);
+                // 폼 체크박스 및 옵션/요약 리셋
+                checkedBoxes.forEach(box => {
+                    box.checked = false;
+                    toggleConsultOpt(id, box.getAttribute('data-id'), false);
+                });
+                updateConsultSummary(id);
                 toggleCampaign(id, currentEventName);
             }).catch(err => {
                 submitBtn.innerText = originalText;

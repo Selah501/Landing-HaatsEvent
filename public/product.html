@@ -122,7 +122,7 @@
     </div>
 
     <div class="fab-container">
-        <button class="fab-btn" onclick="goBack()">돌아가기 (닫기)</button>
+        <button class="fab-btn" id="fab-back-btn" onclick="goBack()">← 이벤트로 돌아가기</button>
     </div>
 
     <script>
@@ -134,15 +134,24 @@
         // URL 파라미터 파싱
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
+        const returnEventId = urlParams.get('event') || urlParams.get('e');
 
         const container = document.getElementById('content-container');
         const titleEl = document.getElementById('page-title');
+        const fabBackBtn = document.getElementById('fab-back-btn');
+        if (fabBackBtn && returnEventId) {
+            fabBackBtn.textContent = '← 내 아파트 이벤트로 돌아가기';
+        }
 
         function goBack() {
+            if (returnEventId) {
+                window.location.href = `./index.html?event=${encodeURIComponent(returnEventId)}`;
+                return;
+            }
             if (window.history.length > 1) {
                 window.history.back();
             } else {
-                window.close();
+                window.location.href = './index.html';
             }
         }
 

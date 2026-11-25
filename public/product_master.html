@@ -74,6 +74,16 @@
             </div>
         </div>
 
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;">
+            <span style="font-size: 13px; font-weight: bold; color: #a5b4fc;">⏱️ 제품군별 소요시간 일괄 설정</span>
+            <select id="bulkCategorySelect" style="width: auto; min-width: 170px; padding: 6px 10px; font-size: 13px;">
+                <option value="">제품군 선택...</option>
+            </select>
+            <input type="number" id="bulkDurationInput" min="10" step="10" placeholder="분 (예: 60)" style="width: 110px; padding: 6px 10px; font-size: 13px;">
+            <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 13px;" onclick="applyBulkDuration()">일괄 적용</button>
+            <span style="font-size: 12px; color: #9ca3af;">※ 개별 상품 수정 모달에서 다시 덮어쓸 수 있습니다. (예약시스템: 합산 분 ÷ 60 올림)</span>
+        </div>
+
         <div style="overflow-x: auto; max-height: 70vh;">
             <table id="productTable">
                 <thead>
@@ -86,11 +96,12 @@
                         <th>기본설치비</th>
                         <th>옵션/기타</th>
                         <th>합계</th>
+                        <th width="80">소요시간</th>
                         <th width="100">관리</th>
                     </tr>
                 </thead>
                 <tbody id="productTbody">
-                    <tr><td colspan="9" style="text-align: center;">데이터를 불러오는 중...</td></tr>
+                    <tr><td colspan="10" style="text-align: center;">데이터를 불러오는 중...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -115,6 +126,10 @@
         <div class="form-group">
             <label>마케팅 메모 (검색 키워드 등)</label>
             <input type="text" id="modalMarketingMemo" placeholder="예: 구형, 단종, 대체품 등">
+        </div>
+        <div class="form-group">
+            <label>⏱️ 시공 소요시간 (분) — 미입력 시 기본 60분 적용</label>
+            <input type="number" id="modalDuration" min="10" step="10" placeholder="예: 60 (예약시스템에서 합산 후 60분 단위 올림)">
         </div>
         
         <div style="border: 1px solid #444; border-radius: 6px; padding: 12px; background: rgba(0,0,0,0.2); margin-bottom: 16px;">
@@ -274,6 +289,7 @@
 
         renderTable();
         populateSetDropdown();
+        populateBulkCategoryDropdown();
     }
 
     function renderTable() {
@@ -296,7 +312,7 @@
         });
 
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">조건에 맞는 상품이 없습니다.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">조건에 맞는 상품이 없습니다.</td></tr>';
             return;
         }
 
@@ -329,6 +345,7 @@
                 <td>${(p.prices?.sell_install || 0).toLocaleString()}원</td>
                 <td>${((p.prices?.options || 0) + (p.prices?.other || 0)).toLocaleString()}원</td>
                 <td style="color:var(--color-interactive-lime); font-weight:bold;">${(p.prices?.sell_total || 0).toLocaleString()}원</td>
+                <td>${p.details?.duration ? `<span style="color:#93c5fd; font-weight:bold;">${p.details.duration}분</span>` : `<span style="color:#6b7280; font-size:12px;">기본(60분)</span>`}</td>
                 <td style="display:flex; gap:6px; align-items:center;">
                     <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="openProductModalById('${p.id}')">상세/수정</button>
                     <button style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer; background:${p.details?.tech_note ? '#0284c7' : '#374151'}; color:#fff;" onclick="openKnowhowModal('${p.id}')">📖 노하우</button>
@@ -516,6 +533,7 @@ function goToCalculator() {
         document.getElementById('modalName').value = prod ? (prod.name || '') : '';
         document.getElementById('modalModel').value = prod ? (prod.model || '') : '';
         document.getElementById('modalMarketingMemo').value = prod ? (prod.marketing_memo || '') : '';
+        document.getElementById('modalDuration').value = (prod && prod.details && prod.details.duration) ? prod.details.duration : '';
         
         document.getElementById('modalPricePurchase').value = prod ? (prod.prices?.purchase || 0) : 0;
         document.getElementById('modalPriceInstall').value = prod ? (prod.prices?.sell_install || 0) : 0;
@@ -580,6 +598,12 @@ function goToCalculator() {
         const installVal = parseInt(document.getElementById('modalPriceInstall').value) || 0;
         const totalVal = parseInt(document.getElementById('modalPriceTotal').value) || 0;
         
+        const durRaw = document.getElementById('modalDuration').value.trim();
+        const durNum = durRaw ? parseInt(durRaw, 10) : null;
+        const mergedDetails = { ...(existingProd && existingProd.details ? existingProd.details : {}) };
+        if (durNum && durNum > 0) mergedDetails.duration = durNum;
+        else delete mergedDetails.duration;
+
         const payload = {
             name: document.getElementById('modalName').value,
             model: document.getElementById('modalModel').value,
@@ -596,6 +620,7 @@ function goToCalculator() {
                 other: parseInt(document.getElementById('modalPriceOther').value) || 0,
                 sell_total: totalVal
             },
+            details: mergedDetails,
             detail_urls: currentDetailUrls
         };
 
@@ -603,14 +628,22 @@ function goToCalculator() {
             payload.set_components = currentSetComponents;
         }
 
+        let targetId = id;
         if (id) {
             const { error } = await sb.from('products').update(payload).eq('id', id);
             if(error) return alert("저장 실패: " + error.message);
         } else {
             // 신규 추가: Supabase id 컬럼에 기본값 없으므로 클라이언트에서 UUID 생성
             payload.id = crypto.randomUUID();
+            targetId = payload.id;
             const { error } = await sb.from('products').insert([payload]);
             if(error) return alert("추가 실패: " + error.message);
+        }
+
+        if (durNum && durNum > 0) {
+            await syncDurationsToRTDB({ [targetId]: durNum });
+        } else {
+            await syncDurationsToRTDB({ [targetId]: null });
         }
 
         closeModal();
@@ -689,6 +722,94 @@ function goToCalculator() {
         prod.details = newDetails;
         closeKnowhowModal();
         renderTable();
+    }
+
+    function getProductGroupLabel(p) {
+        if (p.category && String(p.category).trim()) return String(p.category).trim();
+        const name = (p.name || '').toLowerCase();
+        if (name.includes('티오람')) return '욕실복합환풍기(티오람)';
+        if (name.includes('후드') || name.includes('허리케인') || name.includes('테라')) return '주방후드';
+        if (name.includes('씽크볼') || name.includes('싱크볼') || name.includes('수전')) return '씽크볼/수전';
+        if (name.includes('환풍기') || name.includes('제로크') || name.includes('힘펠')) return '욕실환풍기(힘펠)';
+        if (name.includes('건조대')) return '전동빨래건조대';
+        return '기타';
+    }
+
+    function populateBulkCategoryDropdown() {
+        const sel = document.getElementById('bulkCategorySelect');
+        if (!sel) return;
+        const counts = {};
+        allProducts.forEach(p => {
+            const g = getProductGroupLabel(p);
+            counts[g] = (counts[g] || 0) + 1;
+        });
+        sel.innerHTML = '<option value="">제품군 선택...</option>';
+        Object.keys(counts).sort().forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g;
+            opt.textContent = `${g} (${counts[g]}개)`;
+            sel.appendChild(opt);
+        });
+    }
+
+    async function syncDurationsToRTDB(durationMap) {
+        try {
+            const RTDB_URL = 'https://flyer-event-page-2026-default-rtdb.firebaseio.com/products.json';
+            const res = await fetch(RTDB_URL);
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data) return;
+            let changed = false;
+            const updateEntry = (item) => {
+                if (!item || !item.id) return;
+                if (Object.prototype.hasOwnProperty.call(durationMap, item.id)) {
+                    const val = durationMap[item.id];
+                    if (val && val > 0) item.duration = val;
+                    else delete item.duration;
+                    changed = true;
+                }
+            };
+            if (Array.isArray(data)) {
+                data.forEach(updateEntry);
+            } else if (typeof data === 'object') {
+                Object.values(data).forEach(updateEntry);
+            }
+            if (changed) {
+                await fetch(RTDB_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            }
+        } catch (err) {
+            console.error('RTDB duration sync error:', err);
+        }
+    }
+
+    async function applyBulkDuration() {
+        const group = document.getElementById('bulkCategorySelect').value;
+        const durVal = parseInt(document.getElementById('bulkDurationInput').value, 10);
+        if (!group) return alert('먼저 제품군을 선택해 주세요.');
+        if (!durVal || durVal < 10) return alert('소요시간(분)을 10분 이상 숫자로 입력해 주세요.');
+
+        const targets = allProducts.filter(p => getProductGroupLabel(p) === group);
+        if (targets.length === 0) return alert('해당 제품군에 상품이 없습니다.');
+        if (!confirm(`[${group}] 제품군 ${targets.length}개 상품의 소요시간을 모두 ${durVal}분으로 일괄 적용하시겠습니까?`)) return;
+
+        const durationMap = {};
+        let successCount = 0;
+        for (const p of targets) {
+            const newDetails = { ...(p.details || {}), duration: durVal };
+            const { error } = await sb.from('products').update({ details: newDetails }).eq('id', p.id);
+            if (!error) {
+                p.details = newDetails;
+                durationMap[p.id] = durVal;
+                successCount++;
+            }
+        }
+        await syncDurationsToRTDB(durationMap);
+        renderTable();
+        alert(`✅ [${group}] ${successCount}개 상품에 ${durVal}분이 적용되었고 예약시스템에도 동기화되었습니다.`);
     }
 
 </script>

@@ -14,14 +14,15 @@ load_dotenv(dotenv_path=env_path)
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 WATCH_DIR = os.getenv("AUDIO_WATCH_DIR")
+SUPABASE_URL = "https://belchthacupzpgxevecx.supabase.co"
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 FIREBASE_DB_URL = "https://flyer-event-page-2026-default-rtdb.firebaseio.com/crm_pending.json"
 DAEMON_STATUS_URL = "https://flyer-event-page-2026-default-rtdb.firebaseio.com/system/daemon_status.json"
 if not API_KEY or not WATCH_DIR:
     raise RuntimeError("오류: .env 파일에 GEMINI_API_KEY 또는 AUDIO_WATCH_DIR이 설정되지 않았습니다.")
 
 if not os.path.exists(WATCH_DIR):
-    os.makedirs(WATCH_DIR, exist_ok=True)
-    print(f"감시 폴더가 없어서 새로 생성했습니다: {WATCH_DIR}")
+    raise RuntimeError(f"오류: 감시 폴더(Google Drive)가 마운트되지 않았거나 존재하지 않습니다: {WATCH_DIR}")
 
 # 로깅 설정
 LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
@@ -55,6 +56,21 @@ def update_daemon_status(status="OK", message=""):
         requests.put(DAEMON_STATUS_URL, json=data, timeout=5)
     except Exception as e:
         logger.error(f"RTDB 상태 업데이트 실패: {e}")
+
+def ping_supabase_keepalive():
+    """Supabase 무료 플랜 7일 미사용 일시중지(Pause) 방지를 위한 경량 Keep-Alive 조회"""
+    if not SUPABASE_KEY:
+        return
+    try:
+        url = f"{SUPABASE_URL}/rest/v1/products?select=id&limit=1"
+        headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
+        res = requests.get(url, headers=headers, timeout=5)
+        if res.status_code == 200:
+            logger.info("[Supabase Keep-Alive] 정상 응답 확인 (일시중지 방지 핑)")
+        else:
+            logger.warning(f"[Supabase Keep-Alive] 응답 코드 {res.status_code}: {res.text[:120]}")
+    except Exception as e:
+        logger.warning(f"[Supabase Keep-Alive] 연결 실패 (무시됨): {e}")
 
 
 

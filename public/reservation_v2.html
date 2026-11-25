@@ -225,20 +225,42 @@
             </div>
             <div id="admin-panel" class="admin-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
-                    <div style="color: var(--color-action-raspberry); font-weight: bold;">👑 관리자 모드</div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <div style="color: var(--color-action-raspberry); font-weight: bold;">👑 관리자 모드</div>
+                        <button type="button" id="btn-toggle-flow" onclick="toggleAdminFlowMode()" style="background:#6366f1; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">📱 고객·전화예약 플로우로 전환</button>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="date" id="admin-cal-start" style="background: var(--color-graphite-base); color: var(--color-pure-white); border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-family: inherit; color-scheme: dark; font-size: 16px; font-weight: bold;" onchange="renderCalendar()">
                         <span id="admin-cal-day" style="font-size: 20px; font-weight: bold; margin-left: 4px;"></span>
                     </div>
                 </div>
-                <p style="font-size: 13px; color: #ccc; margin: 0;">빈 슬롯을 클릭하여 통화협의 예약, AS일정, 관리작업을 등록하거나 기존 예약을 클릭하여 변경할 수 있습니다. (선택일 기준 4주 노출, 과거 날짜도 등록 가능)</p>
+                <p id="admin-panel-desc" style="font-size: 13px; color: #ccc; margin: 0;">빈 슬롯을 클릭하여 통화협의 예약, AS일정, 관리작업을 등록하거나 기존 예약을 클릭하여 변경할 수 있습니다. (선택일 기준 4주 노출, 과거 날짜도 등록 가능)</p>
             </div>
 
-            <!-- 1. 날짜 선택 -->
-            <div class="section-title">🗓 날짜를 선택해 주세요</div>
+            <!-- 1. 제품 선택 (고객 모드 우선) -->
+            <div id="product-section" style="background-color: var(--color-graphite-base); padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 24px;">
+                <div class="section-title" style="margin-bottom: 8px;">📦 1. 시공 제품을 선택해 주세요</div>
+                <div style="color: var(--color-silver-mist); font-size: 13px; margin-bottom: 14px;">
+                    제품을 먼저 고르시면 소요시간에 맞춰 <strong style="color:var(--color-interactive-lime);">예약 가능한 시간</strong>만 자동으로 안내해 드립니다. (다중 선택 시 추가 상품당 2만원 할인!)
+                </div>
+                <div id="product-list" style="margin-bottom: 8px;">
+                    <!-- JS로 동적 렌더링 됩니다 -->
+                </div>
+                <div id="duration-info" style="color: var(--color-interactive-lime); font-size: 14px; font-weight: bold; margin-top: 12px; display: none;">
+                    ⏱️ 예상 작업 시간: 총 <span id="duration-hours">0</span>시간 <span id="duration-detail" style="font-size:12px; color:#9ca3af; font-weight:normal;"></span>
+                </div>
+                <div id="v2-price-summary" style="display:none; margin-top:10px; padding:10px 12px; background:rgba(220,255,0,0.08); border:1px solid rgba(220,255,0,0.35); border-radius:8px; font-size:13px; color:#e5e7eb; line-height:1.5;"></div>
+            </div>
+
+            <!-- 2. 날짜 선택 -->
+            <div class="section-title">🗓 2. 날짜를 선택해 주세요</div>
             <div id="custom-date-range-badge" style="text-align: center; font-size: 14px; color: var(--color-highlight-gold); font-weight: bold; margin-bottom: 8px; display: none;"></div>
             <div class="calendar-header" id="current-month-label">2026.07</div>
-            <div id="contact-manager-notice" style="text-align:center; font-size:13px; color:#ef4444; margin-bottom:12px; font-weight:bold;">⚠️ 다른 날짜 예약이 필요하면 관리자에게 전화로 협의해 주세요.</div>
+            <div id="contact-manager-notice" style="text-align:center; font-size:13px; color:#ef4444; margin-bottom:8px; font-weight:bold;">⚠️ 다른 날짜 예약이 필요하면 관리자(오팀장 : 010-2886-5086)에게 전화로 협의해 주세요.</div>
+            <div id="reservation-wait-notice" style="text-align:center; font-size:12.5px; color:#d1d5db; background:rgba(255,255,255,0.04); border:1px solid #333; border-radius:8px; padding:10px 12px; margin-bottom:14px; line-height:1.55;">
+                현시점 다른 고객의 예약상태와 선택제품 설치 소요시간 반영하여 <strong style="color:var(--color-highlight-gold);">예약대기</strong>로 표시됩니다.<br>
+                이후 담당자 검토 후 확정 문자를 보내드립니다. 이 과정에서 담당자가 변경을 협의할 수도 있습니다.
+            </div>
             <div class="calendar-grid">
                 <div class="cal-header">일</div>
                 <div class="cal-header">월</div>
@@ -252,29 +274,22 @@
                 <!-- 달력 렌더링 -->
             </div>
 
-            <!-- 2. 시간 선택 -->
+            <!-- 3. 시간 선택 -->
             <div class="time-section" id="time-section">
-                <div class="section-title">⏰ 시간을 선택해 주세요 (1시간 단위)</div>
+                <div class="section-title">⏰ 3. 시간을 선택해 주세요 (1시간 단위)</div>
                 <div style="font-size: 12px; color: var(--color-silver-mist); margin-bottom: 8px;">
-                    <span style="color:var(--color-highlight-gold)">■ 대기중</span> | <span style="color:#555">■ 확정/일정완료</span>
+                    <span style="color:var(--color-highlight-gold)">■ 대기중</span> | <span style="color:#555">■ 확정/예약불가</span>
                 </div>
                 <div class="time-grid" id="time-grid">
                     <!-- 시간 슬롯 렌더링 -->
                 </div>
             </div>
 
-            <!-- 3. 상품 및 정보 입력 폼 -->
+            <!-- 4. 연락처 및 동·호수 입력 폼 -->
             <div class="form-section" id="form-section">
-                <div class="section-title">📦 제품 및 연락처 입력</div>
+                <div class="section-title">📱 4. 연락처 및 동·호수 입력</div>
                 <div style="color: var(--color-silver-mist); font-size: 13px; margin-bottom: 20px;">
                     확정된 일정이 아닙니다. 담당자와 확인 후 최종 확정됩니다.
-                </div>
-                
-                <div id="product-list" style="margin-bottom: 8px;">
-                    <!-- JS로 동적 렌더링 됩니다 -->
-                </div>
-                <div id="duration-info" style="color: var(--color-interactive-lime); font-size: 14px; font-weight: bold; margin-bottom: 24px; display: none;">
-                    작업은 총 <span id="duration-hours">0</span>시간 소요됩니다.
                 </div>
 
                 <div class="form-fields-container" style="margin-bottom: 24px;">
@@ -461,12 +476,40 @@
             document.getElementById('time-section').style.display = 'block';
         };
 
+        function getSelectedSlotsNeeded() {
+            let totalDuration = 0;
+            document.querySelectorAll('input[name="v2-prod"]:checked').forEach(box => {
+                let duration = parseInt(box.getAttribute('data-time') || '0');
+                const qtySelect = box.closest('label') && box.closest('label').querySelector('.prod-qty');
+                if (qtySelect) duration *= parseInt(qtySelect.value, 10) || 1;
+                totalDuration += duration;
+            });
+            return totalDuration > 0 ? Math.max(1, Math.ceil(totalDuration / 60)) : 1;
+        }
+
+        function canBookConsecutiveSlots(dateStr, startTime, slotsNeeded) {
+            const dayReservations = window.reservationsDB[dateStr] || {};
+            for (let i = 0; i < slotsNeeded; i++) {
+                const targetTime = addStepToTimeString(startTime, i);
+                if (targetTime > "18:00") return false;
+                const slot = dayReservations[targetTime];
+                const [hStr] = targetTime.split(':');
+                const slot30 = dayReservations[`${hStr}:30`];
+                if ((slot && slot.status && slot.status !== 'available') || (slot30 && slot30.status && slot30.status !== 'available')) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         function renderTimeSlots(dateStr) {
             const timeGrid = document.getElementById('time-grid');
             timeGrid.innerHTML = '';
             
             const times = window.MASTER_TIME_SLOTS;
             const dayReservations = window.reservationsDB[dateStr] || {};
+            const isAdminSlotMode = window.isAdmin && !window.adminCustomerFlow;
+            const slotsNeeded = !isAdminSlotMode ? getSelectedSlotsNeeded() : 1;
 
             times.forEach(time => {
                 // 1시간 슬롯 (:00) 및 기존 30분 슬롯 (:30) 병합 처리
@@ -503,7 +546,7 @@
                 } else if (status === "pending") {
                     classNames += " pending";
                     statusText = "예약대기";
-                    if (!window.isAdmin) {
+                    if (!isAdminSlotMode) {
                         classNames += " disabled";
                         isDisabled = true;
                     }
@@ -511,14 +554,22 @@
                     classNames += " disabled blocked";
                     statusText = "차단/관리일정";
                     isDisabled = true;
+                } else if (!isAdminSlotMode && slotsNeeded > 1 && !canBookConsecutiveSlots(dateStr, time, slotsNeeded)) {
+                    classNames += " disabled confirmed";
+                    statusText = `연속예약불가 (${slotsNeeded}시간)`;
+                    isDisabled = true;
                 }
 
                 if (hasExtra) {
                     statusText += " (+30분)";
                 }
 
+                if (window.selectedTime === time && !isDisabled) {
+                    classNames += " selected";
+                }
+
                 let onClickStr = `onclick="selectTime('${time}', '${status}')"`;
-                if (window.isAdmin) {
+                if (isAdminSlotMode) {
                     // 관리자는 빈 슬롯, 예약 슬롯 모두 클릭하여 관리
                     onClickStr = `onclick="adminHandleTimeClick('${time}', '${status}')"`;
                 } else if (isDisabled) {
@@ -539,7 +590,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('readonly') === 'true') return;
             
-            if (window.isAdmin) {
+            if (window.isAdmin && !window.adminCustomerFlow) {
                 adminHandleTimeClick(time, currentStatus);
                 return;
             }
@@ -555,21 +606,61 @@
             document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // --- 관리자 기능 ---
+        window.adminCustomerFlow = false;
+
+        function applyAdminFlowUI() {
+            const prodSection = document.getElementById('product-section');
+            const toggleBtn = document.getElementById('btn-toggle-flow');
+            const descEl = document.getElementById('admin-panel-desc');
+            const customerNotice = document.getElementById('customer-notice');
+            if (window.adminCustomerFlow) {
+                if (prodSection) prodSection.style.display = "block";
+                if (customerNotice) customerNotice.style.display = "block";
+                if (toggleBtn) {
+                    toggleBtn.innerText = "👑 관리자 일정관리 모드로 전환";
+                    toggleBtn.style.background = "#e11d48";
+                }
+                if (descEl) descEl.innerText = "현재 [고객 · 전화예약 플로우]입니다. 1.제품 → 2.날짜 → 3.시간 → 4.연락처 순서로 테스트 및 전화예약 등록을 진행할 수 있습니다.";
+            } else {
+                if (prodSection) prodSection.style.display = "none";
+                if (customerNotice) customerNotice.style.display = "none";
+                if (toggleBtn) {
+                    toggleBtn.innerText = "📱 고객·전화예약 플로우로 전환";
+                    toggleBtn.style.background = "#6366f1";
+                }
+                if (descEl) descEl.innerText = "빈 슬롯을 클릭하여 통화협의 예약, AS일정, 관리작업을 등록하거나 기존 예약을 클릭하여 변경할 수 있습니다. (선택일 기준 4주 노출, 과거 날짜도 등록 가능)";
+            }
+        }
+
+        window.toggleAdminFlowMode = function() {
+            window.adminCustomerFlow = !window.adminCustomerFlow;
+            window.selectedTime = null;
+            const formSec = document.getElementById('form-section');
+            if (formSec) formSec.style.display = "none";
+            applyAdminFlowUI();
+            if (window.selectedDate) renderTimeSlots(window.selectedDate);
+        };
+
+        // --- 관리자 기능 및 초기 진입 동선 ---
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
+            const eventIdParam = urlParams.get('eventId');
+            const btnBack = document.getElementById('btn-back');
+            if (btnBack && eventIdParam) {
+                btnBack.href = `./index.html?event=${encodeURIComponent(eventIdParam)}`;
+            }
+
             if(urlParams.get('admin') === 'true') {
                 sessionStorage.setItem('adminAuth', 'true');
             }
 
             if(sessionStorage.getItem('adminAuth') === 'true') {
                 window.isAdmin = true;
+                // 이벤트 화면에서 들어온 경우(eventId 존재) 기본적으로 고객·전화예약 플로우로 시작
+                window.adminCustomerFlow = Boolean(eventIdParam);
                 document.getElementById('admin-panel').style.display = "block";
                 document.getElementById('page-title').innerText = "설치예약시스템 (관리자)";
-                const customerNotice = document.getElementById('customer-notice');
-                if(customerNotice) customerNotice.style.display = "none";
-                const btnBack = document.getElementById('btn-back');
-                if(btnBack) btnBack.style.display = "none";
+                if(btnBack && !eventIdParam) btnBack.style.display = "none";
                 const btnAdminReturn = document.getElementById('btn-admin-return');
                 if(btnAdminReturn) btnAdminReturn.style.display = "inline-block";
                 const btnAdminV2 = document.getElementById('btn-admin-v2');
@@ -577,6 +668,7 @@
                 
                 const adminStartInput = document.getElementById('admin-cal-start');
                 if (adminStartInput) adminStartInput.value = todayStr;
+                applyAdminFlowUI();
             }
         });
 
@@ -609,7 +701,7 @@
                 return;
             }
 
-            const phone = document.getElementById('customer-phone').value;
+            let phone = document.getElementById('customer-phone').value;
             let apt = document.getElementById('customer-apt').value;
             const defaultApt = document.getElementById('customer-apt').getAttribute('data-default') || "";
             const notes = document.getElementById('customer-notes').value;
@@ -617,23 +709,39 @@
             const checkedBoxes = document.querySelectorAll('input[name="v2-prod"]:checked');
             let selectedProducts = [];
             let totalDuration = 0;
+            let totalUnitCount = 0;
             
             checkedBoxes.forEach(box => {
                 let prodName = box.value;
+                const prodId = box.getAttribute('data-id');
                 let duration = parseInt(box.getAttribute('data-time') || '0');
                 const qtySelect = box.closest('label').querySelector('.prod-qty');
+                let qty = 1;
                 if(qtySelect) {
+                    qty = parseInt(qtySelect.value, 10) || 1;
                     prodName += ` (${qtySelect.value})`;
-                    duration *= parseInt(qtySelect.value);
+                    duration *= qty;
                 }
+                const opts = [];
+                document.querySelectorAll(`.v2-opt[data-prod="${prodId}"]:checked`).forEach(optCb => {
+                    opts.push(optCb.value);
+                });
+                if (opts.length > 0) prodName += ` [${opts.join(', ')}]`;
                 selectedProducts.push(prodName);
                 totalDuration += duration;
+                totalUnitCount += qty;
             });
 
-            if (!phone || phone === "010-" || phone.replace(/[^0-9]/g, "").length < 10) {
+            const rawDigits = phone.replace(/[^0-9]/g, "");
+            if (!phone || phone === "010-" || rawDigits.length < 10) {
                 alert("⚠️ 정확한 휴대폰 번호를 입력해주세요 (예: 010-1234-5678).");
                 document.getElementById('customer-phone').focus();
                 return;
+            }
+            if (rawDigits.length === 11) {
+                phone = rawDigits.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+            } else if (rawDigits.length === 10) {
+                phone = rawDigits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
             }
 
             if (!apt || apt.trim().length < 3 || !/\d/.test(apt)) {
@@ -703,7 +811,8 @@
 
             update(ref(db), updates).then(() => {
                 const GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby4sFDQcQ8BWX0jLdKZq86Ob3z537xSaHZ7Xl2ecg1k4kLO9Qw0TtMPG8BgUIiiUfekRQ/exec";
-                const productStr = selectedProducts.length > 0 ? selectedProducts.join(' + ') : "미선택";
+                const discountTag = totalUnitCount >= 2 ? ` (동시할인 -${((totalUnitCount - 1) * 20000).toLocaleString()}원)` : '';
+                const productStr = selectedProducts.length > 0 ? selectedProducts.join(' + ') + discountTag : "미선택";
                 const payload = {
                     apartment: apt,
                     phone: phone,
@@ -721,15 +830,23 @@
                 alert("고객님의 상담/예약 신청이 접수되었습니다!\n\n※ 관리자 최종 확정 후 확인 문자를 발송해 드립니다.");
                 
                 document.getElementById('customer-phone').value = "010-";
-                document.getElementById('customer-apt').value = document.getElementById('customer-apt').getAttribute('data-default') || "";
+                document.getElementById('customer-apt').value = "";
                 document.getElementById('customer-notes').value = "";
                 checkedBoxes.forEach(box => {
                     box.checked = false;
-                    box.parentElement.classList.remove('selected-prod');
+                    box.closest('label').classList.remove('selected-prod');
+                    const pId = box.getAttribute('data-id');
+                    const optBox = document.getElementById(`v2-opt-box-${pId}`);
+                    if (optBox) {
+                        optBox.style.display = 'none';
+                        optBox.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                    }
                 });
                 
                 document.getElementById('form-section').style.display = "none";
                 document.getElementById('duration-info').style.display = "none";
+                const v2Summary = document.getElementById('v2-price-summary');
+                if (v2Summary) { v2Summary.style.display = "none"; v2Summary.innerHTML = ""; }
                 btn.innerText = "예약 신청하기";
                 btn.disabled = false;
                 
@@ -841,9 +958,25 @@
                 return;
             }
             
+            const evTitle = (window.currentEvent && window.currentEvent.title) || '';
+            const evApt = (window.currentEvent && window.currentEvent.aptName) || '';
+            const isHyosung = evTitle.includes('효성') || evApt.includes('효성');
+            const eventProdMap = {};
+            if (window.currentEvent) {
+                [...(window.currentEvent.mainProducts || []), ...(window.currentEvent.addonProducts || [])].forEach(ep => {
+                    eventProdMap[ep.id] = ep;
+                });
+            }
+
             productsToRender.forEach(prod => {
                 const duration = prod.duration || 60;
                 const isFan = prod.name.includes('환풍기') || prod.name.includes('티오람') || prod.name.includes('댐퍼') || prod.name.includes('제로크');
+                const evProd = eventProdMap[prod.id];
+                let unitPrice = Number((evProd && evProd.salePrice) || (prod.prices && prod.prices.sale_price) || 0);
+                if (!unitPrice && prod.defaultPriceText) {
+                    const pm = prod.defaultPriceText.replace(/,/g, '').match(/(\d{5,7})\s*원/);
+                    if (pm) unitPrice = Number(pm[1]);
+                }
                 let qtyHtml = '';
                 if(isFan) {
                     qtyHtml = `
@@ -853,12 +986,31 @@
                         </select>
                     `;
                 }
+                let optHtml = '';
+                const pName = prod.name || '';
+                if (pName.includes('후드') || pName.includes('허리케인') || pName.includes('테라')) {
+                    optHtml = `
+                        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#d1d5db; cursor:pointer; padding:4px 0;">
+                            <input type="checkbox" class="v2-opt" data-prod="${prod.id}" data-price="88000" value="전동댐퍼(+88,000원)" onchange="updateV2Summary()">
+                            <span>전동댐퍼 추가 <strong style="color:var(--color-interactive-lime);">+88,000원</strong></span>
+                        </label>`;
+                } else if ((pName.includes('환풍기') || pName.includes('티오람') || pName.includes('제로크')) && isHyosung) {
+                    optHtml = `
+                        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#d1d5db; cursor:pointer; padding:4px 0;">
+                            <input type="checkbox" class="v2-opt" data-prod="${prod.id}" data-price="30000" value="안방욕실 아크릴마감판(+30,000원)" onchange="updateV2Summary()">
+                            <span>안방욕실 아크릴마감판 <strong style="color:var(--color-interactive-lime);">+30,000원</strong></span>
+                        </label>`;
+                }
+                const priceTag = unitPrice > 0 ? `<span style="color:var(--color-interactive-lime); font-size:13px; margin-left:6px;">${unitPrice.toLocaleString()}원</span>` : '';
                 listDiv.innerHTML += `
-                    <label class="checkbox-label" onclick="toggleProdStyle(this)">
-                        <input type="checkbox" name="v2-prod" value="${prod.name}" data-time="${duration}">
-                        <span>${prod.name} <span style="font-size: 11px; margin-left: 6px; color:#aaa;">(${duration}분)</span></span>
-                        ${qtyHtml}
-                    </label>
+                    <div style="margin-bottom: 10px;">
+                        <label class="checkbox-label" style="margin-bottom: 0;" onclick="toggleProdStyle(this)">
+                            <input type="checkbox" name="v2-prod" value="${prod.name}" data-id="${prod.id}" data-time="${duration}" data-price="${unitPrice}">
+                            <span>${prod.name}${priceTag} <span style="font-size: 11px; margin-left: 4px; color:#aaa;">(${duration}분)</span></span>
+                            ${qtyHtml}
+                        </label>
+                        ${optHtml ? `<div id="v2-opt-box-${prod.id}" style="display:none; margin: 4px 0 4px 26px; padding: 8px 10px; background:#18191d; border-left:2px solid var(--color-interactive-lime); border-radius:0 6px 6px 0;">${optHtml}</div>` : ''}
+                    </div>
                 `;
             });
         }
@@ -901,34 +1053,81 @@
         // 초기 실행
         renderCalendar();
 
+        window.updateV2Summary = function() {
+            let totalDuration = 0;
+            let totalUnitCount = 0;
+            let totalPrice = 0;
+            let hasMissingPrice = false;
+            document.querySelectorAll('input[name="v2-prod"]:checked').forEach(box => {
+                const prodId = box.getAttribute('data-id');
+                let duration = parseInt(box.getAttribute('data-time') || '0');
+                const unitPrice = Number(box.getAttribute('data-price') || 0);
+                const qtySelect = box.closest('label').querySelector('.prod-qty');
+                const qty = qtySelect ? parseInt(qtySelect.value, 10) || 1 : 1;
+                duration *= qty;
+                totalDuration += duration;
+                totalUnitCount += qty;
+                if (unitPrice > 0) totalPrice += unitPrice * qty;
+                else hasMissingPrice = true;
+
+                document.querySelectorAll(`.v2-opt[data-prod="${prodId}"]:checked`).forEach(optCb => {
+                    totalPrice += Number(optCb.getAttribute('data-price') || 0);
+                });
+            });
+
+            const durationInfo = document.getElementById('duration-info');
+            const summaryEl = document.getElementById('v2-price-summary');
+            if (totalDuration > 0) {
+                const hoursNeeded = Math.max(1, Math.ceil(totalDuration / 60));
+                document.getElementById('duration-hours').innerText = hoursNeeded;
+                const detailEl = document.getElementById('duration-detail');
+                if (detailEl) detailEl.innerText = `(선택 합계 ${totalDuration}분 · 60분 단위 올림)`;
+                durationInfo.style.display = 'block';
+
+                const discount = totalUnitCount >= 2 ? (totalUnitCount - 1) * 20000 : 0;
+                const finalPrice = Math.max(0, totalPrice - discount);
+                let html = `<div>선택 상품: <strong>${totalUnitCount}개</strong></div>`;
+                if (discount > 0) {
+                    html += `<div style="color:var(--color-interactive-lime); font-weight:bold;">🎉 동시신청 추가 할인: -${discount.toLocaleString()}원</div>`;
+                }
+                if (!hasMissingPrice && totalPrice > 0) {
+                    html += `<div style="margin-top:2px;">예상 합계: <strong style="color:#fff; font-size:15px;">${finalPrice.toLocaleString()}원</strong> <span style="font-size:11px; color:#9ca3af;">(부가세 포함)</span></div>`;
+                }
+                summaryEl.innerHTML = html;
+                summaryEl.style.display = 'block';
+            } else {
+                durationInfo.style.display = 'none';
+                summaryEl.style.display = 'none';
+                summaryEl.innerHTML = '';
+            }
+
+            if (window.selectedDate && (!window.isAdmin || window.adminCustomerFlow)) {
+                const needed = getSelectedSlotsNeeded();
+                if (window.selectedTime && !canBookConsecutiveSlots(window.selectedDate, window.selectedTime, needed)) {
+                    window.selectedTime = null;
+                    document.getElementById('form-section').style.display = 'none';
+                }
+                renderTimeSlots(window.selectedDate);
+            }
+        };
+
         // UI Interaction
         window.toggleProdStyle = function(labelEl) {
             const checkbox = labelEl.querySelector('input[type="checkbox"]');
             setTimeout(() => {
+                const prodId = checkbox.getAttribute('data-id');
+                const optBox = document.getElementById(`v2-opt-box-${prodId}`);
                 if(checkbox.checked) {
                     labelEl.classList.add('selected-prod');
+                    if (optBox) optBox.style.display = 'block';
                 } else {
                     labelEl.classList.remove('selected-prod');
-                }
-                
-                let totalDuration = 0;
-                document.querySelectorAll('input[name="v2-prod"]:checked').forEach(box => {
-                    let duration = parseInt(box.getAttribute('data-time') || '0');
-                    const qtySelect = box.closest('label').querySelector('.prod-qty');
-                    if(qtySelect) {
-                        duration *= parseInt(qtySelect.value);
+                    if (optBox) {
+                        optBox.style.display = 'none';
+                        optBox.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
                     }
-                    totalDuration += duration;
-                });
-                
-                const durationInfo = document.getElementById('duration-info');
-                if (totalDuration > 0) {
-                    const hoursNeeded = Math.max(1, Math.ceil(totalDuration / 60));
-                    document.getElementById('duration-hours').innerText = hoursNeeded;
-                    durationInfo.style.display = 'block';
-                } else {
-                    durationInfo.style.display = 'none';
                 }
+                window.updateV2Summary();
             }, 10);
         };
 

@@ -57,9 +57,16 @@ def check_and_restart():
             # CREATE_NO_WINDOW = 0x08000000 (Windows에서 창 띄우지 않고 백그라운드 실행)
             # CREATE_NEW_PROCESS_GROUP = 0x00000200
             creationflags = 0x08000000 | 0x00000200
+
+            # 콘솔 창 깜빡임 및 IME 영타 전환 방지를 위해 pythonw.exe 우선 사용
+            py_exe = sys.executable
+            if py_exe.lower().endswith("python.exe"):
+                candidate = py_exe[:-10] + "pythonw.exe"
+                if os.path.exists(candidate):
+                    py_exe = candidate
             
             subprocess.Popen(
-                [sys.executable, DAEMON_SCRIPT],
+                [py_exe, DAEMON_SCRIPT],
                 creationflags=creationflags,
                 cwd=os.path.dirname(__file__)
             )

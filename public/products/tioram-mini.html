@@ -59,12 +59,23 @@
 </head>
 <body>
     <div class="mobile-container">
-        <nav class="sticky-nav">
-            <div class="nav-logo"><span>[공식]</span>하츠 충남대리점</div>
-            <a href="tel:010-2886-5086" class="btn btn-secondary">전화 문의</a>
-        </nav>
+        <header style="background-color: rgba(10, 10, 10, 0.9); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding: 16px 20px; display: flex; align-items: center; border-bottom: 1px solid #333;">
+            <button type="button" onclick="goBackToEvent()" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; padding: 0; margin-right: 16px;">←</button>
+            <h1 style="font-size: 18px; font-weight: 600; margin: 0; color: #ffffff;">티오람 미니 욕실복합환풍기</h1>
+        </header>
 
-        <div class="container" style="padding: 24px; flex: 1;">
+        <div class="container" style="padding: 18px 16px 32px; flex: 1;">
+            <div style="background: linear-gradient(180deg, #17181c 0%, #111215 100%); border: 1.5px solid #c9ff00; border-radius: 14px; padding: 22px 18px; text-align: center; margin-bottom: 18px;">
+                <div style="display: inline-block; background: #c9ff00; color: #000; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 999px; margin-bottom: 10px;">온풍 · 제습 · 냄새 차단</div>
+                <h1 style="font-size: 22px; font-weight: 800; line-height: 1.35; margin: 0 0 6px 0; color: #fff; word-break: keep-all;">하츠 욕실 복합 환풍기 <span style="color:#c9ff00;">티오람 미니</span></h1>
+                <div style="font-size: 13px; color: #9ea0a9; font-weight: 400; margin: 0 0 10px 0;">정품 모델명: HMF-J300-01</div>
+                <p style="font-size: 14px; color: #d1d5db; line-height: 1.5; margin: 0; word-break: keep-all;">추운 겨울 욕실도 따뜻하게! 온풍·제습·전동댐퍼까지 한 번에 업그레이드</p>
+                <div style="background: rgba(201,255,0,0.08); border: 1px solid rgba(201,255,0,0.4); border-radius: 10px; padding: 14px; margin-top: 12px;">
+                    <div style="font-size: 13px; color: #9ea0a9;">단독 시공가 240,000원</div>
+                    <div style="font-size: 21px; font-weight: 800; color: #c9ff00; margin-top: 4px;">씽크볼 함께 신청 시 220,000원 (2만원 할인)</div>
+                </div>
+            </div>
+
             <div class="video-container">
                 <!-- 제품 설명 영상 -->
                 <video controls autoplay muted playsinline>
@@ -103,23 +114,58 @@
                 </p>
             </div>
             
+            <div style="background:#1c1c1e; border:1px solid #333; border-radius:12px; padding:18px; margin-top:20px; margin-bottom:18px;">
+                <h3 style="color:#c9ff00; font-size:16px; margin:0 0 10px 0;">💳 카드 무이자 할부 안내 (2026.11~12월 기준)</h3>
+                <p style="font-size:12px; color:#9ea0a9; margin:0 0 10px 0; line-height:1.5;">5만원 이상 신용카드 결제 시 (개인카드 기준 / 현장 단말기 및 카드사 정책에 따라 변동 가능)</p>
+                <table style="width:100%; border-collapse:collapse; font-size:13px; color:#e5e7eb;">
+                    <tr><td style="padding:7px 0; border-bottom:1px solid #333;">NH농협카드</td><td style="padding:7px 0; border-bottom:1px solid #333; text-align:right; color:#c9ff00; font-weight:700;">2~6개월 무이자</td></tr>
+                    <tr><td style="padding:7px 0; border-bottom:1px solid #333;">하나 / BC / 우리카드</td><td style="padding:7px 0; border-bottom:1px solid #333; text-align:right; color:#fff; font-weight:600;">2~5개월 무이자</td></tr>
+                    <tr><td style="padding:7px 0;">신한 / KB국민 / 현대 / 삼성 / 롯데</td><td style="padding:7px 0; text-align:right; color:#fff; font-weight:600;">2~3개월 무이자</td></tr>
+                </table>
+            </div>
+
+            <div style="background:#1c1c1e; border:1px solid #333; border-radius:12px; padding:18px; margin-bottom:18px;">
+                <h3 style="font-size:17px; font-weight:700; color:#fff; border-bottom:2px solid #c9ff00; padding-bottom:6px; margin:0 0 14px 0; display:inline-block;">시공 및 안내사항</h3>
+                <ul style="margin:0; padding-left:18px; font-size:13px; color:#d1d5db; line-height:1.75;">
+                    <li>기존 환풍기 철거, 천정 타공 후 티오람 설치 + 전문 기사 방문 시공, 기존 무료 폐기 수거까지 모두 포함입니다.</li>
+                    <li>천정 내부 상태는 세대별로 다릅니다. 간혹 내부 배관 간섭으로 복합기 설치가 불가능할 수 있습니다. 작업 전 미리 확인합니다.</li>
+                </ul>
+            </div>
+
             <!-- 추후 추가될 내용을 위한 여유 공간 -->
-            <div style="padding-bottom: 40px;"></div>
+            <div style="padding-bottom: 80px;"></div>
         </div>
 
-        <!-- 하단 고정 버튼 영역 -->
-        <div class="bottom-fixed-buttons" style="position: sticky; bottom: 0; background-color: var(--color-graphite-base); padding: 16px 24px; border-top: 1px solid #1c1c1e; display: flex; flex-direction: column; gap: 12px; z-index: 100;">
-            <a href="https://blog.naver.com/haatz_official/224193594619" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
-                공식 블로그에서 티오람 미니 자세히 보기 ↗
-            </a>
-            
-            <a href="../index.html" class="btn btn-ghost">
-                ← 이벤트 메인 화면으로 돌아가기
-            </a>
+        <!-- 하단 고정 플로팅 버튼 (주방후드 상세페이지와 동일) -->
+        <div style="position: fixed; bottom: 24px; left: 0; width: 100%; display: flex; justify-content: center; pointer-events: none; z-index: 1000;">
+            <button type="button" id="back-to-event-btn" onclick="goBackToEvent()" style="background: linear-gradient(135deg, #e32652 0%, #ff4b72 100%); color: white; border: none; padding: 16px 32px; border-radius: 30px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(227, 38, 82, 0.4); pointer-events: auto; cursor: pointer;">
+                ← 내 아파트 이벤트로 돌아가기
+            </button>
         </div>
     </div>
 
     <script>
+        function goBackToEvent() {
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get('event') || params.get('e');
+            if (eventId) {
+                window.location.href = `../index.html?event=${encodeURIComponent(eventId)}`;
+                return;
+            }
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '../index.html';
+            }
+        }
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get('event') || params.get('e');
+            const backBtn = document.getElementById('back-to-event-btn');
+            if (backBtn && !eventId) {
+                backBtn.textContent = '← 이벤트로 돌아가기';
+            }
+        })();
         var acc = document.getElementsByClassName("accordion");
         for (var i = 0; i < acc.length; i++) {
             acc[i].addEventListener("click", function() {

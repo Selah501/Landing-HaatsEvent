@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📸 시공사진 갤러리 - 하츠 충남대리점</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #f3f4f6;
+            color: #111827;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .filter-panel {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 16px;
+        }
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+        .field label { font-size: 12px; font-weight: 700; color: #374151; }
+        .field input, .field select {
+            padding: 9px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+        }
+        .btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-ghost { background: #e5e7eb; color: #374151; }
+        .btn-ghost:hover { background: #d1d5db; }
+        .apt-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+        .chip {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #eef2ff;
+            color: #1e40af;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #c7d2fe;
+            cursor: pointer;
+        }
+        .chip.active, .chip:hover {
+            background: #1e40af;
+            color: #fff;
+            border-color: #1e40af;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding: 10px 14px;
+            background: #fff;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .size-btns button {
+            padding: 5px 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .size-btns button.active {
+            background: #111827;
+            color: #fff;
+            border-color: #111827;
+        }
+        .job-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
+        }
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .job-title { font-size: 16px; font-weight: 700; color: #111827; }
+        .job-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .job-sub { font-size: 13px; color: #4b5563; margin-bottom: 10px; line-height: 1.5; }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(var(--thumb-size, 210px), 1fr));
+            gap: 10px;
+        }
+        .photo-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            cursor: pointer;
+            aspect-ratio: 4 / 3;
+        }
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.15s;
+        }
+        .photo-item:hover img { transform: scale(1.04); }
+        .photo-num {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            background: rgba(0,0,0,0.65);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        /* 라이트박스 모달 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 99999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img {
+            max-width: 92vw;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .lb-bar {
+            margin-top: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            color: #fff;
+            font-size: 14px;
+        }
+        .lb-btn {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .lb-btn:hover { background: rgba(255,255,255,0.3); }
+        .loading { text-align: center; padding: 60px; font-size: 16px; color: #6b7280; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="unified-header"></div>
+
+    <div class="filter-panel">
+        <div class="filter-row">
+            <div class="field">
+                <label>🏢 아파트명 / 동호수 / 주소</label>
+                <input type="text" id="q-apt" placeholder="예: 효성, 모아엘가, LH, 중흥, 104동">
+            </div>
+            <div class="field">
+                <label>🔧 시공품목 / 메모 키워드</label>
+                <input type="text" id="q-item" placeholder="예: 티오람, 허리케인, 씽크볼, 제로크">
+            </div>
+            <div class="field" style="max-width: 155px;">
+                <label>📅 시작일</label>
+                <input type="date" id="q-start">
+            </div>
+            <div class="field" style="max-width: 155px;">
+                <label>📅 종료일</label>
+                <input type="date" id="q-end">
+            </div>
+            <button class="btn btn-primary" onclick="applyFilters()">🔍 검색</button>
+            <button class="btn btn-ghost" onclick="resetFilters()">초기화</button>
+        </div>
+        <div class="apt-chips" id="apt-chips"></div>
+    </div>
+
+    <div class="toolbar">
+        <div id="result-summary">데이터를 불러오는 중...</div>
+        <div class="size-btns">
+            사진 크기:
+            <button onclick="setThumbSize(150, this)">작게</button>
+            <button class="active" onclick="setThumbSize(210, this)">보통(추천)</button>
+            <button onclick="setThumbSize(300, this)">크게</button>
+        </div>
+    </div>
+
+    <div id="gallery-root">
+        <div class="loading">⏳ 실시간 시공보고서 사진을 불러오고 있습니다...</div>
+    </div>
+</div>
+
+<!-- 고화질 라이트박스 모달 -->
+<div class="lightbox" id="lightbox" onclick="if(event.target===this) closeLightbox()">
+    <img id="lb-img" src="" alt="원본 사진">
+    <div class="lb-bar">
+        <button class="lb-btn" onclick="stepLightbox(-1)">◀ 이전 (←)</button>
+        <span id="lb-caption"></span>
+        <button class="lb-btn" onclick="stepLightbox(1)">다음 (→) ▶</button>
+        <a id="lb-open" class="lb-btn" href="#" target="_blank">새 창 원본</a>
+        <button class="lb-btn" onclick="closeLightbox()">닫기 (ESC)</button>
+    </div>
+</div>
+
+<script src="./auth.js?v=2"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref as dbRef, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+        databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+        projectId: "flyer-event-page-2026",
+        storageBucket: "flyer-event-page-2026.firebasestorage.app"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let allJobs = [];
+    let currentFiltered = [];
+    let lbList = [];
+    let lbIndex = 0;
+
+    function normalizeAptGroup(text) {
+        if (!text) return "기타";
+        const t = text.replace(/\s+/g, "").toLowerCase();
+        if (t.includes("효성") || t.includes("해링턴")) return "내포 효성";
+        if (t.includes("중흥") || t.includes("자경")) return "내포 중흥";
+        if (t.includes("극동") || t.includes("스타클래스")) return "내포 극동";
+        if (t.includes("경남") || t.includes("아너스")) return "내포 경남";
+        if (t.includes("롯데") || t.includes("캐슬")) return "내포 롯데캐슬";
+        if (t.includes("모아") || t.includes("엘가")) return "내포 모아엘가";
+        if (t.includes("lh") || t.includes("스타힐스")) return "내포 LH스타힐스";
+        if (t.includes("이지") || t.includes("더원")) return "내포 이지더원";
+        return "기타 단지";
+    }
+
+    function escapeHtml(str) {
+        return String(str || "").replace(/[&<>"']/g, s => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+        }[s]));
+    }
+
+    async function loadGalleryData() {
+        try {
+            const snap = await get(dbRef(db, "reservations"));
+            const reservations = snap.val() || {};
+            const seen = new Set();
+            const parsed = [];
+
+            Object.keys(reservations).sort().reverse().forEach(dk => {
+                const slots = reservations[dk];
+                if (!slots || typeof slots !== "object") return;
+                Object.keys(slots).sort().forEach(tk => {
+                    const r = slots[tk];
+                    if (!r || typeof r !== "object") return;
+                    if (r.status === "cancelled" || r.type === "admin_block" || r.type === "blocked" || r.type === "test") return;
+                    const ci = r.customerInfo || {};
+                    if (ci.parentTime && ci.parentTime !== tk) return;
+                    const resId = r.reservationId || `${dk}_${tk}_${ci.phone || ""}`;
+                    if (seen.has(resId)) return;
+                    seen.add(resId);
+
+                    const rep = r.report || {};
+                    const urls = (rep.mediaUrls || []).filter(u => typeof u === "string" && u.startsWith("http"));
+                    if (urls.length === 0) return;
+
+                    const aptRaw = `${ci.apt || ""} ${ci.address || ""} ${ci.siteInfo || ""}`.trim();
+                    if (aptRaw.includes("테스트")) return;
+
+                    const usedArr = (rep.usedProducts || []).map(u => typeof u === "object" ? (u.name || "") : String(u)).filter(Boolean);
+                    const itemsText = usedArr.length ? usedArr.join(", ") : (ci.items || []).join(", ");
+                    const memo = (rep.memo || rep.note || ci.notes || "").trim();
+
+                    parsed.push({
+                        date: dk,
+                        time: tk,
+                        aptGroup: normalizeAptGroup(aptRaw),
+                        aptRaw: aptRaw || "-",
+                        name: ci.name || "",
+                        items: itemsText || "-",
+                        memo,
+                        urls
+                    });
+                });
+            });
+
+            allJobs = parsed;
+            renderAptChips();
+            applyFilters();
+        } catch (err) {
+            document.getElementById("gallery-root").innerHTML =
+                `<div class="loading" style="color:#dc2626;">데이터 로드 오류: ${escapeHtml(err.message)}</div>`;
+        }
+    }
+
+    function renderAptChips() {
+        const counts = {};
+        allJobs.forEach(j => { counts[j.aptGroup] = (counts[j.aptGroup] || 0) + 1; });
+        const order = Object.keys(counts).sort((a, b) => (a === "기타 단지" ? 1 : b === "기타 단지" ? -1 : counts[b] - counts[a]));
+        const wrap = document.getElementById("apt-chips");
+        let html = `<button class="chip active" onclick="selectAptChip('', this)">전체 (${allJobs.length}건)</button>`;
+        order.forEach(grp => {
+            const kw = grp.replace("내포 ", "");
+            html += `<button class="chip" onclick="selectAptChip('${escapeHtml(kw)}', this)">${escapeHtml(grp)} (${counts[grp]}건)</button>`;
+        });
+        wrap.innerHTML = html;
+    }
+
+    window.selectAptChip = function(keyword, btn) {
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+        document.getElementById("q-apt").value = keyword;
+        applyFilters();
+    };
+
+    window.applyFilters = function(showAllOverride = false) {
+        const qApt = document.getElementById("q-apt").value.trim().toLowerCase();
+        const qItem = document.getElementById("q-item").value.trim().toLowerCase();
+        const qStart = document.getElementById("q-start").value;
+        const qEnd = document.getElementById("q-end").value;
+
+        currentFiltered = allJobs.filter(j => {
+            if (qApt && !(j.aptRaw.toLowerCase().includes(qApt) || j.aptGroup.toLowerCase().includes(qApt))) return false;
+            if (qItem && !(j.items.toLowerCase().includes(qItem) || j.memo.toLowerCase().includes(qItem))) return false;
+            if (qStart && j.date < qStart) return false;
+            if (qEnd && j.date > qEnd) return false;
+            return true;
+        });
+
+        const hasFilter = !!(qApt || qItem || qStart || qEnd || showAllOverride);
+        const visible = hasFilter ? currentFiltered : currentFiltered.slice(0, 20);
+        const totalPhotos = currentFiltered.reduce((acc, j) => acc + j.urls.length, 0);
+
+        document.getElementById("result-summary").innerHTML =
+            `검색 결과: <b>${currentFiltered.length}건</b> / 총 <b>${totalPhotos.toLocaleString()}장</b>` +
+            (!hasFilter && currentFiltered.length > 20 ? ` <span style="color:#6b7280; font-size:13px;">(초기 로딩 최적화를 위해 최근 20건만 표시 중 — 위 아파트 버튼을 누르거나 검색하세요)</span>` : "");
+
+        const root = document.getElementById("gallery-root");
+        if (visible.length === 0) {
+            root.innerHTML = `<div class="loading">조건에 일치하는 시공사진이 없습니다.</div>`;
+            return;
+        }
+
+        let html = "";
+        visible.forEach((j, jIdx) => {
+            html += `<div class="job-card">
+                <div class="job-header">
+                    <div class="job-title">[${escapeHtml(j.date)} ${escapeHtml(j.time)}] ${escapeHtml(j.aptRaw)}</div>
+                    <span class="job-badge">📸 ${j.urls.length}장</span>
+                </div>
+                <div class="job-sub">
+                    <b>시공품목:</b> ${escapeHtml(j.items)}
+                    ${j.memo ? `<br><span style="color:#6b7280;"><b>메모:</b> ${escapeHtml(j.memo)}</span>` : ""}
+                </div>
+                <div class="photo-grid">`;
+            j.urls.forEach((u, uIdx) => {
+                html += `<div class="photo-item" onclick="openLightbox(${jIdx}, ${uIdx})">
+                    <img loading="lazy" src="${escapeHtml(u)}" alt="시공사진">
+                    <span class="photo-num">${uIdx + 1}/${j.urls.length}</span>
+                </div>`;
+            });
+            html += `</div></div>`;
+        });
+
+        if (!hasFilter && currentFiltered.length > 20) {
+            html += `<div style="text-align:center; margin: 20px 0;">
+                <button class="btn btn-primary" onclick="applyFilters(true)">전체 ${currentFiltered.length}건 모두 펼쳐보기</button>
+            </div>`;
+        }
+        root.innerHTML = html;
+        window._visibleJobs = visible;
+    };
+
+    window.resetFilters = function() {
+        document.getElementById("q-apt").value = "";
+        document.getElementById("q-item").value = "";
+        document.getElementById("q-start").value = "";
+        document.getElementById("q-end").value = "";
+        document.querySelectorAll(".chip").forEach((c, idx) => c.classList.toggle("active", idx === 0));
+        applyFilters();
+    };
+
+    window.setThumbSize = function(px, btn) {
+        document.documentElement.style.setProperty("--thumb-size", px + "px");
+        document.querySelectorAll(".size-btns button").forEach(b => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+    };
+
+    window.openLightbox = function(jobIdx, photoIdx) {
+        const job = (window._visibleJobs || [])[jobIdx];
+        if (!job) return;
+        lbList = job.urls.map((url, i) => ({
+            url,
+            caption: `[${job.date}] ${job.aptRaw} (${i + 1}/${job.urls.length})`
+        }));
+        lbIndex = photoIdx;
+        renderLightbox();
+        document.getElementById("lightbox").classList.add("open");
+    };
+
+    function renderLightbox() {
+        const item = lbList[lbIndex];
+        if (!item) return;
+        document.getElementById("lb-img").src = item.url;
+        document.getElementById("lb-caption").textContent = item.caption;
+        document.getElementById("lb-open").href = item.url;
+    }
+
+    window.stepLightbox = function(delta) {
+        if (!lbList.length) return;
+        lbIndex = (lbIndex + delta + lbList.length) % lbList.length;
+        renderLightbox();
+    };
+
+    window.closeLightbox = function() {
+        document.getElementById("lightbox").classList.remove("open");
+    };
+
+    document.addEventListener("keydown", e => {
+        if (!document.getElementById("lightbox").classList.contains("open")) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") stepLightbox(-1);
+        if (e.key === "ArrowRight") stepLightbox(1);
+    });
+
+    ["q-apt", "q-item"].forEach(id => {
+        document.getElementById(id).addEventListener("keypress", e => {
+            if (e.key === "Enter") applyFilters();
+        });
+    });
+
+    initAdminAuth(() => {
+        document.getElementById("unified-header").innerHTML = renderUnifiedHeader("photo_gallery", "📸 시공사진 갤러리");
+        loadGalleryData();
+    });
+</script>
+</body>
+</html>

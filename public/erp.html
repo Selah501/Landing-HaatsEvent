@@ -211,6 +211,7 @@
                 <div style="background: var(--color-graphite-base); padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:12px;">
                         <div style="font-weight:bold; color:var(--color-silver-mist);">📅 실적 집계 필터</div>
+                        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="exportDashboardToCSV()">📥 엑셀(CSV) 다운로드</button>
                     </div>
                     <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
                         <select id="dashboard-period-type" class="form-control" style="width:auto;" onchange="toggleDashboardPeriodInputs(); updateDashboardStats();">
@@ -240,12 +241,26 @@
                         <div class="stat-value" id="stat-purchase" style="color: var(--color-danger);">0 원</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-title">매출 이익 (발생주의)</div>
+                        <div class="stat-value" id="stat-gross-profit" style="color: var(--color-interactive-lime);">0 원</div>
+                    </div>
+                    <div class="stat-card">
                         <div class="stat-title">기타 총 경비</div>
                         <div class="stat-value" id="stat-expense" style="color: var(--color-action-raspberry);">0 원</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">순 이익 (발생주의)</div>
+                        <div class="stat-title">순 이익 (최종)</div>
                         <div class="stat-value" id="stat-profit" style="color: var(--color-success);">0 원</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">작업 일수 (%)</div>
+                        <div class="stat-value" id="stat-work-days" style="color: #eed37f;">0 일</div>
+                    </div>
+                    <div class="stat-card" style="grid-column: span 2; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="stat-title">일평균 지표 (작업일 기준)</div>
+                        <div class="stat-value" id="stat-avg-all" style="font-size: 16px; font-weight: normal; margin-top: 4px; line-height: 1.6; color: #eee;">
+                            -
+                        </div>
                     </div>
                 </div>
 
@@ -793,6 +808,7 @@
             let totalInc = 0;
             let totalCostOfGoodsSold = 0; // 매출원가
             let totalExp = 0; // 기타경비
+            let workDaysSet = new Set();
             
             const pType = document.getElementById('dashboard-period-type') ? document.getElementById('dashboard-period-type').value : 'month';
             const pMonth = document.getElementById('dashboard-filter-month') ? document.getElementById('dashboard-filter-month').value : '';
@@ -804,57 +820,320 @@
             const currYear = today.getFullYear();
             const currMonth = today.getMonth() + 1;
             const currQuarter = Math.floor((currMonth - 1) / 3) + 1;
-            
-            window.currentLedger.forEach(item => {
-                let inRange = true;
-                const itemDate = item.date;
-                if (!itemDate) inRange = false;
-                else if (pType === 'month') {
-                    if (pMonth && !itemDate.startsWith(pMonth)) inRange = false;
+
+            const checkRange = (itemDate) => {
+                if (!itemDate) return false;
+                if (pType === 'month') {
+                    if (pMonth && !itemDate.startsWith(pMonth)) return false;
                 } else if (pType === 'quarter') {
                     const itemYr = parseInt(itemDate.substring(0, 4));
                     const itemM = parseInt(itemDate.substring(5, 7));
                     const itemQ = Math.floor((itemM - 1) / 3) + 1;
-                    if (itemYr !== currYear || itemQ !== currQuarter) inRange = false;
+                    if (itemYr !== currYear || itemQ !== currQuarter) return false;
                 } else if (pType === 'year') {
-                    if (!itemDate.startsWith(String(currYear))) inRange = false;
+                    if (!itemDate.startsWith(String(currYear))) return false;
                 } else if (pType === 'custom') {
-                    if (pStart && itemDate < pStart) inRange = false;
-                    if (pEnd && itemDate > pEnd) inRange = false;
+                    if (pStart && itemDate < pStart) return false;
+                    if (pEnd && itemDate > pEnd) return false;
                 }
-                
-                if (!inRange) return;
-                
-                if (pApt) {
-                    const memo = (item.memo || '').toLowerCase();
-                    const vendor = (item.vendor || '').toLowerCase();
-                    if (!memo.includes(pApt) && !vendor.includes(pApt)) return;
-                }
+                return true;
+            };
 
-                const isInc = item.type === 'income';
-                const amt = Number(item.amount) || 0;
-                
-                if (isInc) {
-                    totalInc += amt;
-                    const costAmt = Number(item.costAmount) || 0;
-                    totalCostOfGoodsSold += costAmt;
-                } else {
-                    // 재고 매입은 매출원가에서 이미 차감되므로 경비(Exp)에서 제외
-                    if (item.category !== '현금매입(재고)' && item.category !== '외상매입' && item.category !== '외상대금 결제') {
-                        totalExp += amt;
+            // 1. 작업지시서(Reservations)에서 시공 매출 및 원가 집계 (중복 방지)
+            if (window.allReservations) {
+                Object.keys(window.allReservations).forEach(dateStr => {
+                    if (!checkRange(dateStr)) return;
+
+                    const dayRes = window.allReservations[dateStr];
+                    const tasksMap = new Map();
+                    Object.keys(dayRes).forEach(time => {
+                        const slot = dayRes[time];
+                        if (slot.status === 'completed' && slot.report) {
+                            const rId = slot.reservationId || time;
+                            if (!tasksMap.has(rId)) {
+                                tasksMap.set(rId, slot);
+                            }
+                        }
+                    });
+
+                    let hasWorkForDay = false;
+
+                    Array.from(tasksMap.values()).forEach(task => {
+                        if (pApt) {
+                            const apt = (task.customerInfo && task.customerInfo.apt) ? task.customerInfo.apt.toLowerCase() : '';
+                            if (!apt.includes(pApt)) return;
+                        }
+
+                        const r = task.report;
+                        const amt = parseInt(r.payAmount) || 0;
+                        totalInc += amt;
+
+                        let costForTask = 0;
+                        (r.usedProducts || []).forEach(p => {
+                            let cost = 0;
+                            let qty = 1;
+                            if (typeof p === 'object') {
+                                cost = Number(p.cost) || 0;
+                                qty = Number(p.qty) || 1;
+                                if (!cost) {
+                                    const mp = window.masterProducts.find(m => m.name === p.name);
+                                    if (mp) cost = Number(mp.costPrice) || 0;
+                                }
+                            } else {
+                                const mp = window.masterProducts.find(m => m.name === p);
+                                if (mp) cost = Number(mp.costPrice) || 0;
+                            }
+                            costForTask += cost * qty;
+                        });
+                        totalCostOfGoodsSold += costForTask;
+
+                        if (amt > 0 || costForTask > 0) hasWorkForDay = true;
+                    });
+
+                    if (hasWorkForDay) workDaysSet.add(dateStr);
+                });
+            }
+
+            // 2. 장부(Ledger)에서 수동 수입 및 지출 집계
+            if (window.currentLedger) {
+                window.currentLedger.forEach(item => {
+                    if (!checkRange(item.date)) return;
+                    
+                    if (pApt) {
+                        const memo = (item.memo || '').toLowerCase();
+                        const vendor = (item.vendor || '').toLowerCase();
+                        if (!memo.includes(pApt) && !vendor.includes(pApt)) return;
                     }
-                }
-            });
+
+                    const isInc = item.type === 'income';
+                    const amt = Number(item.amount) || 0;
+                    
+                    if (isInc) {
+                        // 관리자가 수동 입력한 수입만 포함 (시공 수입은 제외)
+                        if (item.category !== '시공 수입' && amt > 0) {
+                            totalInc += amt;
+                            totalCostOfGoodsSold += Number(item.costAmount) || 0;
+                            workDaysSet.add(item.date);
+                        }
+                    } else {
+                        // 재고 매입은 매출원가에서 이미 차감되므로 경비(Exp)에서 제외
+                        if (item.category !== '현금매입(재고)' && item.category !== '외상매입' && item.category !== '외상대금 결제' && amt > 0) {
+                            totalExp += amt;
+                            workDaysSet.add(item.date);
+                        }
+                    }
+                });
+            }
 
             const elemInc = document.getElementById('stat-income');
             const elemPurch = document.getElementById('stat-purchase');
+            const elemGrossProf = document.getElementById('stat-gross-profit');
             const elemExp = document.getElementById('stat-expense');
             const elemProf = document.getElementById('stat-profit');
+            const elemWorkDays = document.getElementById('stat-work-days');
+            const elemAvgAll = document.getElementById('stat-avg-all');
+
+            const grossProfit = totalInc - totalCostOfGoodsSold;
+            const totalProfit = grossProfit - totalExp;
+            const workDays = workDaysSet.size;
+            
+            // 기간 총 일수 계산 로직
+            let totalDaysInPeriod = 30; // 기본값
+            if (pType === 'month' && pMonth) {
+                const [y, m] = pMonth.split('-');
+                totalDaysInPeriod = new Date(y, m, 0).getDate();
+            } else if (pType === 'quarter') {
+                totalDaysInPeriod = 90;
+            } else if (pType === 'year') {
+                const isLeapYear = (currYear % 4 === 0 && currYear % 100 !== 0) || (currYear % 400 === 0);
+                totalDaysInPeriod = isLeapYear ? 366 : 365;
+            } else if (pType === 'custom' && pStart && pEnd) {
+                const startD = new Date(pStart);
+                const endD = new Date(pEnd);
+                totalDaysInPeriod = Math.max(1, Math.floor((endD - startD) / (1000 * 60 * 60 * 24)) + 1);
+            } else if (pType === 'all') {
+                totalDaysInPeriod = Math.max(workDays, 1); // 전체일 때는 비율 계산이 모호하므로 작업일수=전체일수로 취급
+            }
+            
+            const workDaysPct = totalDaysInPeriod > 0 ? Math.round((workDays / totalDaysInPeriod) * 100) : 0;
+            const workDaysText = pType === 'all' ? `${workDays} 일` : `${workDays} 일 / ${totalDaysInPeriod} 일 (${workDaysPct}%)`;
+
+            const avgInc = workDays > 0 ? Math.round(totalInc / workDays) : 0;
+            const avgGross = workDays > 0 ? Math.round(grossProfit / workDays) : 0;
+            const avgExp = workDays > 0 ? Math.round(totalExp / workDays) : 0;
+            const avgProfit = workDays > 0 ? Math.round(totalProfit / workDays) : 0;
 
             if (elemInc) elemInc.innerText = totalInc.toLocaleString() + ' 원';
             if (elemPurch) elemPurch.innerText = totalCostOfGoodsSold.toLocaleString() + ' 원';
+            if (elemGrossProf) elemGrossProf.innerText = grossProfit.toLocaleString() + ' 원';
             if (elemExp) elemExp.innerText = totalExp.toLocaleString() + ' 원';
-            if (elemProf) elemProf.innerText = (totalInc - totalCostOfGoodsSold - totalExp).toLocaleString() + ' 원';
+            if (elemProf) elemProf.innerText = totalProfit.toLocaleString() + ' 원';
+            if (elemWorkDays) elemWorkDays.innerText = workDaysText;
+            if (elemAvgAll) {
+                elemAvgAll.innerHTML = `
+                    <div><span style="color:var(--color-info); font-weight:bold;">매출:</span> ${avgInc.toLocaleString()}원 <span style="margin:0 6px; color:#555;">|</span> <span style="color:var(--color-interactive-lime); font-weight:bold;">매출이익:</span> ${avgGross.toLocaleString()}원</div>
+                    <div><span style="color:var(--color-action-raspberry); font-weight:bold;">경비:</span> ${avgExp.toLocaleString()}원 <span style="margin:0 6px; color:#555;">|</span> <span style="color:var(--color-success); font-weight:bold;">순이익:</span> ${avgProfit.toLocaleString()}원</div>
+                `;
+            }
+        }
+
+        window.exportDashboardToCSV = function() {
+            const pType = document.getElementById('dashboard-period-type') ? document.getElementById('dashboard-period-type').value : 'month';
+            const pMonth = document.getElementById('dashboard-filter-month') ? document.getElementById('dashboard-filter-month').value : '';
+            const pStart = document.getElementById('dashboard-start-date') ? document.getElementById('dashboard-start-date').value : '';
+            const pEnd = document.getElementById('dashboard-end-date') ? document.getElementById('dashboard-end-date').value : '';
+            
+            const today = new Date();
+            const currYear = today.getFullYear();
+            const currMonth = today.getMonth() + 1;
+            const currQuarter = Math.floor((currMonth - 1) / 3) + 1;
+
+            const checkRange = (itemDate) => {
+                if (!itemDate) return false;
+                if (pType === 'month') {
+                    if (pMonth && !itemDate.startsWith(pMonth)) return false;
+                } else if (pType === 'quarter') {
+                    const itemYr = parseInt(itemDate.substring(0, 4));
+                    const itemM = parseInt(itemDate.substring(5, 7));
+                    const itemQ = Math.floor((itemM - 1) / 3) + 1;
+                    if (itemYr !== currYear || itemQ !== currQuarter) return false;
+                } else if (pType === 'year') {
+                    if (!itemDate.startsWith(String(currYear))) return false;
+                } else if (pType === 'custom') {
+                    if (pStart && itemDate < pStart) return false;
+                    if (pEnd && itemDate > pEnd) return false;
+                }
+                return true;
+            };
+
+            const dailyData = {};
+
+            // 1. Reservations
+            if (window.allReservations) {
+                Object.keys(window.allReservations).forEach(dateStr => {
+                    if (!checkRange(dateStr)) return;
+
+                    const dayRes = window.allReservations[dateStr];
+                    const tasksMap = new Map();
+                    Object.keys(dayRes).forEach(time => {
+                        const slot = dayRes[time];
+                        if (slot.status === 'completed' && slot.report) {
+                            const rId = slot.reservationId || time;
+                            if (!tasksMap.has(rId)) {
+                                tasksMap.set(rId, slot);
+                            }
+                        }
+                    });
+
+                    Array.from(tasksMap.values()).forEach(task => {
+                        const r = task.report;
+                        const amt = parseInt(r.payAmount) || 0;
+                        
+                        let costForTask = 0;
+                        (r.usedProducts || []).forEach(p => {
+                            let cost = 0;
+                            let qty = 1;
+                            if (typeof p === 'object') {
+                                cost = Number(p.cost) || 0;
+                                qty = Number(p.qty) || 1;
+                                if (!cost) {
+                                    const mp = window.masterProducts.find(m => m.name === p.name);
+                                    if (mp) cost = Number(mp.costPrice) || 0;
+                                }
+                            } else {
+                                const mp = window.masterProducts.find(m => m.name === p);
+                                if (mp) cost = Number(mp.costPrice) || 0;
+                            }
+                            costForTask += cost * qty;
+                        });
+
+                        if (amt > 0 || costForTask > 0) {
+                            if (!dailyData[dateStr]) dailyData[dateStr] = { sales:0, cogs:0, exp:0, memos:[] };
+                            dailyData[dateStr].sales += amt;
+                            dailyData[dateStr].cogs += costForTask;
+                            const cInfo = task.customerInfo || {};
+                            if (cInfo.apt) dailyData[dateStr].memos.push(`[시공] ${cInfo.apt}`);
+                        }
+                    });
+                });
+            }
+
+            // 2. Ledger
+            if (window.currentLedger) {
+                window.currentLedger.forEach(item => {
+                    const itemDate = item.date;
+                    if (!checkRange(itemDate)) return;
+
+                    const isInc = item.type === 'income';
+                    const amt = Number(item.amount) || 0;
+                    
+                    if (isInc) {
+                        if (item.category !== '시공 수입' && amt > 0) {
+                            if (!dailyData[itemDate]) dailyData[itemDate] = { sales:0, cogs:0, exp:0, memos:[] };
+                            dailyData[itemDate].sales += amt;
+                            dailyData[itemDate].cogs += Number(item.costAmount) || 0;
+                            if (item.memo) dailyData[itemDate].memos.push(`[수입] ${item.memo}`);
+                        }
+                    } else {
+                        if (item.category !== '현금매입(재고)' && item.category !== '외상매입' && item.category !== '외상대금 결제' && amt > 0) {
+                            if (!dailyData[itemDate]) dailyData[itemDate] = { sales:0, cogs:0, exp:0, memos:[] };
+                            dailyData[itemDate].exp += amt;
+                            if (item.memo) dailyData[itemDate].memos.push(`[지출] ${item.memo}`);
+                        }
+                    }
+                });
+            }
+
+            const sortedDates = Object.keys(dailyData).sort();
+            if (sortedDates.length === 0) {
+                alert('해당 기간에 조회된 데이터가 없습니다.');
+                return;
+            }
+
+            let csvContent = '\uFEFF';
+            csvContent += '날짜,총매출(수입),매출원가(부품대금),매출이익,지출(순수경비),순이익,적요(메모)\n';
+
+            let sumSales = 0;
+            let sumCogs = 0;
+            let sumExp = 0;
+            let sumProfit = 0;
+
+            sortedDates.forEach(date => {
+                const d = dailyData[date];
+                const profit = d.sales - d.cogs - d.exp;
+                
+                sumSales += d.sales;
+                sumCogs += d.cogs;
+                sumExp += d.exp;
+                sumProfit += profit;
+
+                const gross = d.sales - d.cogs;
+                const memoStr = d.memos.join(' / ').replace(/,/g, ' '); 
+                csvContent += `${date},${d.sales},${d.cogs},${gross},${d.exp},${profit},"${memoStr}"\n`;
+            });
+
+            const workDays = sortedDates.length;
+            const sumGross = sumSales - sumCogs;
+            
+            const avgSales = workDays > 0 ? Math.round(sumSales / workDays) : 0;
+            const avgGross = workDays > 0 ? Math.round(sumGross / workDays) : 0;
+            const avgExp = workDays > 0 ? Math.round(sumExp / workDays) : 0;
+            const avgProfit = workDays > 0 ? Math.round(sumProfit / workDays) : 0;
+
+            csvContent += `\n`;
+            csvContent += `${workDays},${sumSales},${sumCogs},${sumGross},${sumExp},${sumProfit},\n`;
+            csvContent += `\n`;
+            csvContent += `일평균,,매출:${avgSales}원,매출이익:${avgGross}원,경비:${avgExp}원,순이익:${avgProfit}원,\n`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `재무집계_${pMonth || pStart || '전체'}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         window.loadDailyReport = function() {
@@ -1564,8 +1843,9 @@
             tbody.innerHTML = '';
             
             let salesItems = [];
+            const tasksMap = new Map();
             
-            // 모든 예약 중 완료된 내역에서 출고 상품 추출
+            // 모든 예약 중 완료된 내역에서 출고 상품 추출 (슬롯 중복 방지)
             for (const date in window.allReservations) {
                 if (monthFilter && !date.startsWith(monthFilter)) continue;
                 
@@ -1573,31 +1853,41 @@
                 for (const time in dayData) {
                     const slot = dayData[time];
                     if (slot.status === 'completed' && slot.report) {
-                        const aptInfo = (slot.customerInfo && slot.customerInfo.apt) ? slot.customerInfo.apt : '주소/동호수 불명';
-                        const report = slot.report;
-                        
-                        let products = [];
-                        if (report.usedProducts) {
-                            products = report.usedProducts.map(p => {
-                                if (typeof p === 'string') return { name: p, qty: 1 };
-                                return p;
-                            });
+                        const rId = slot.reservationId || `${date}_${time}`;
+                        if (!tasksMap.has(rId)) {
+                            tasksMap.set(rId, { date, time, slot });
                         }
-                        
-                        products.forEach(p => {
-                            salesItems.push({
-                                date: date,
-                                time: time,
-                                apt: aptInfo,
-                                productName: p.name,
-                                qty: p.qty,
-                                amount: (p.qty * p.sell) || 0,
-                                totalPay: report.payAmount || 0 // 전체 결제액 참고용
-                            });
-                        });
                     }
                 }
             }
+
+            const uniqueTasks = Array.from(tasksMap.values());
+            
+            uniqueTasks.forEach(taskInfo => {
+                const { date, time, slot } = taskInfo;
+                const aptInfo = (slot.customerInfo && slot.customerInfo.apt) ? slot.customerInfo.apt : '주소/동호수 불명';
+                const report = slot.report;
+                
+                let products = [];
+                if (report.usedProducts) {
+                    products = report.usedProducts.map(p => {
+                        if (typeof p === 'string') return { name: p, qty: 1 };
+                        return p;
+                    });
+                }
+                
+                products.forEach(p => {
+                    salesItems.push({
+                        date: date,
+                        time: time,
+                        apt: aptInfo,
+                        productName: p.name,
+                        qty: p.qty,
+                        amount: (p.qty * p.sell) || 0,
+                        totalPay: report.payAmount || 0
+                    });
+                });
+            });
 
             salesItems.sort((a,b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
 

@@ -307,3 +307,67 @@ exports.processCallRecording = processCallRecording;
 
 const { diagnoseCallStatus } = require("./diagnoseCallStatus");
 exports.diagnoseCallStatus = diagnoseCallStatus;
+
+// =========================================================================
+// Cloud Function: 문자발송 캠페인 AI 문구 초안 생성
+// =========================================================================
+exports.generateSmsDraft = functions
+    .runWith({ timeoutSeconds: 30, memory: "256MB" })
+    .https.onCall(async (data, context) => {
+    const { scopeLabel, regionName, targetAudience, purposeSummary, eventTitle } = data || {};
+    if (!purposeSummary || !String(purposeSummary).trim()) {
+        throw new functions.https.HttpsError("invalid-argument", "발송 목적 개요를 입력해주세요.");
+    }
+    if (!GEMINI_API_KEY) {
+        throw new functions.https.HttpsError("internal", "Gemini API 키가 설정되어 있지 않습니다.");
+    }
+
+    const OPT_OUT_LINE = '🚫 본 이벤트 알림을 원하지 않으시면 간단히 "수신거부" 문자를 보내주세요.';
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const promptText = `
+당신은 충남 지역(내포, 홍성, 아산, 천안 등) 주방후드·욕실환풍기·사각싱크볼 공식 시공 전문점 '하츠 충남대리점'의 마케팅 실무자입니다.
+대표님이 고객에게 보낼 안내 문자(LMS) 초안을 작성해주세요.
+
+[캠페인 정보]
+- 발송 범위: ${scopeLabel || '전체'}
+- 대상 지역: ${regionName || '충남/내포'}
+- 대상 고객군: ${targetAudience || '전체'}
+- 연결 이벤트/링크명: ${eventTitle || '하츠 충남대리점 이벤트'}
+- 대표님 발송 목적 개요: ${purposeSummary}
+
+[작성 원칙]
+1. 스팸처럼 과장되거나 딱딱한 광고 말투를 피하고, 동네 공식 대리점 대표가 직접 보내는 정중하고 신뢰감 있는 말투로 작성하세요.
+2. 대상 고객군이 '시공고객(기존고객)'이면 기존 시공 감사 인사와 연계 혜택 톤으로, '상담고객'이면 지난 문의 감사 및 이번 행사 혜택 안내 톤으로 맞추세요.
+3. 도입 문구(introText)는 '[하츠 충남대리점]'으로 시작하며 2~4줄로 간결하게 작성하세요.
+4. 링크 제목(linkTitle)은 '▼ '로 시작하고 '👉 바로가기'로 끝나는 1줄로 작성하세요.
+5. 맺음말(outroText)은 따뜻한 마무리 인사 1줄만 작성하세요. (수신거부 문구는 시스템이 자동으로 붙이므로 직접 쓰지 마세요.)
+6. 반드시 마크다운 백틱 없이 순수 JSON 객체만 출력하세요.
+
+{
+  "introText": "...",
+  "linkTitle": "...",
+  "outroText": "..."
+}
+        `;
+
+        const result = await model.generateContent(promptText);
+        const responseText = result.response.text();
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error("AI 응답에서 JSON을 파싱하지 못했습니다.");
+        }
+        const parsed = JSON.parse(jsonMatch[0]);
+        const cleanOutro = String(parsed.outroText || "궁금하신 점은 편하게 답장이나 전화 주세요.").trim();
+
+        return {
+            introText: String(parsed.introText || "").trim(),
+            linkTitle: String(parsed.linkTitle || "").trim(),
+            outroText: `${cleanOutro}\n${OPT_OUT_LINE}`
+        };
+    } catch (error) {
+        console.error("Gemini AI Error in generateSmsDraft:", error);
+        throw new functions.https.HttpsError("internal", error.message || "AI 문구 생성 중 오류가 발생했습니다.");
+    }
+});

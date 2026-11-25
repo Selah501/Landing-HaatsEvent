@@ -22,7 +22,7 @@ elif sys.stdout.encoding != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
 
 # 공통 모듈 임포트
-from crm_shared import WATCH_DIR, process_audio_file, logger, update_daemon_status
+from crm_shared import WATCH_DIR, process_audio_file, logger, update_daemon_status, ping_supabase_keepalive
 
 PID_FILE = os.path.join(os.path.dirname(__file__), "crm_daemon.pid")
 HEARTBEAT_FILE = os.path.join(os.path.dirname(__file__), "crm_daemon_heartbeat.txt")
@@ -31,19 +31,37 @@ def is_already_running():
     if os.path.exists(PID_FILE):
         try:
             with open(PID_FILE) as f:
-                old_pid = int(f.read().strip())
+                content = f.read().strip()
+                if not content:
+                    os.remove(PID_FILE)
+                    return False
+                old_pid = int(content)
             
-            # Windows에서 해당 PID가 살아있는지 확인
+            # Windows에서 해당 PID가 살아있는지 정밀 확인
             kernel32 = ctypes.windll.kernel32
             # PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
             handle = kernel32.OpenProcess(0x1000, 0, old_pid)
             if handle:
-                # 프로세스가 살아 있음
+                exit_code = ctypes.c_ulong()
+                res = kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code))
                 kernel32.CloseHandle(handle)
-                return True
+                
+                # STILL_ACTIVE (259) 상태인 경우에만 살아있는 것으로 간주
+                if res and exit_code.value == 259:
+                    return True
+            
+            # 프로세스가 없거나 이미 종료(STILL_ACTIVE 아님)된 경우
+            logger.info(f"기존 프로세스(PID: {old_pid})가 비정상 종료된 상태입니다. 찌꺼기 락 파일을 삭제합니다.")
+            os.remove(PID_FILE)
+            return False
+
         except Exception as e:
             logger.error(f"기존 PID 확인 중 오류: {e}")
-            pass
+            try:
+                os.remove(PID_FILE)
+            except:
+                pass
+            return False
     return False
 
 def write_pid():
@@ -68,6 +86,7 @@ def write_heartbeat():
         current_time = time.time()
         if not hasattr(write_heartbeat, "last_rtdb_time") or current_time - write_heartbeat.last_rtdb_time >= 28800:
             update_daemon_status("OK", "데몬 정상 작동 중")
+            ping_supabase_keepalive()
             write_heartbeat.last_rtdb_time = current_time
     except Exception as e:
         logger.error(f"하트비트 기록 실패: {e}")

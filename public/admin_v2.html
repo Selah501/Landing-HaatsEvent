@@ -1861,7 +1861,7 @@
             }
 
             const numericAmount = parseInt(payAmount);
-            if (!isNaN(numericAmount) && numericAmount > 0) {
+            if (!isNaN(numericAmount) && numericAmount > 0 && isFirstCompletion) {
                 const ledgerAccount = payMethod;
 
                 const newLedgerKey = push(ref(window.db, 'ledger')).key;

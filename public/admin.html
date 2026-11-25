@@ -34,7 +34,9 @@
         td input[type="text"] { width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; }
         
         .badge { font-size: 12px; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-right: 8px; display: inline-block; }
+        .badge.planning { background-color: #8b5cf6; color: white; }
         .badge.active { background-color: #10b981; color: white; }
+        .badge.hold { background-color: #f59e0b; color: white; }
         .badge.ended { background-color: #9ca3af; color: white; }
         
         .form-group { margin-bottom: 16px; }
@@ -122,6 +124,7 @@
         <div class="tab active" onclick="switchTab('tab-events', this)">1. 현장별 이벤트 관리</div>
         <div class="tab" onclick="switchTab('tab-consultations', this)">2. 통화 AI 및 웹 상담 DB</div>
         <div class="tab" onclick="switchTab('tab-managers', this)">3. 담당자 관리</div>
+        <div class="tab" onclick="switchTab('tab-sms', this)">4. 고객디비 문자발송</div>
     </div>
 
     <!-- 탭 2: 현장별 이벤트 -->
@@ -232,6 +235,41 @@
         </div>
     </div>
 
+    <!-- 탭 4: 고객디비 문자발송 -->
+    <div id="tab-sms" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h3 style="margin: 0; color: #111;">💻 문자 발송(이벤트) 캠페인 <span style="font-size:12px; color:#2563eb; background:#dbeafe; padding:2px 8px; border-radius:999px; vertical-align:middle;">PC 전용 운영</span></h3>
+                <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 13px;">전체·지역·현장별 고객을 추출하고 AI로 문구를 작성해 PC에서 10명 단위로 복사 발송합니다. (모바일 발송 홀딩)</p>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn-secondary" onclick="openSmsOptOutModal()" style="font-weight: bold;">🚫 수신거부 관리 (<span id="sms-optout-count-badge">0</span>)</button>
+                <button class="btn btn-primary" onclick="openSmsCampaignModal(-1)" style="font-weight: bold;">+ 신규 문자발송 캠페인</button>
+            </div>
+        </div>
+
+        <div id="sms-tab-summary-bar" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #334155;">
+            <!-- JS 렌더링: 전체 발송 이력 요약 -->
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="10%">상태</th>
+                        <th width="35%">캠페인(타겟현장)</th>
+                        <th width="15%">발송대상수</th>
+                        <th width="20%">생성일</th>
+                        <th width="20%">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="sms-campaign-tbody">
+                    <!-- JS 렌더링 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 <!-- 통합 예약 관리 및 문자발송 모달 -->
@@ -308,8 +346,9 @@
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
-                <label>이벤트 타이틀 (예: [내포] 효성 핫썸머)</label>
-                <input type="text" id="ev-title">
+                <label>이벤트 타이틀 <span style="color:#ef4444; font-size:12px;">(* [지역] 머리말 필수: 예 [내포] 효성 핫썸머)</span></label>
+                <input type="text" id="ev-title" placeholder="예: [내포] LH스타힐스 사각씽크볼">
+                <div id="ev-region-quick-btns" style="display:flex; gap:4px; flex-wrap:wrap; margin-top:6px;"></div>
             </div>
             <div class="form-group">
                 <label>표준 현장 명칭 (DB 분석용, 예: 효성해링턴 [내포])</label>
@@ -394,10 +433,171 @@
     </div>
 </div>
 
+<!-- SMS Campaign Modal (PC Review & Setup) -->
+<div id="sms-campaign-modal" class="modal-overlay">
+    <div class="modal">
+        <h2 id="sms-modal-title">문자발송 캠페인 설정 (PC 전용)</h2>
+        <input type="hidden" id="sms-modal-index" value="">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+                <label>1. 타겟 범위 선택 (전체 / 지역 / 개별 현장)</label>
+                <select id="sms-target-event" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    <!-- JS 렌더링 -->
+                </select>
+                <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">전체, 지역([내포] 등), 또는 개별 현장을 선택하세요.</div>
+            </div>
+            <div class="form-group">
+                <label>2. 문자 내 연결 링크 선택</label>
+                <select id="sms-link-target" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    <!-- JS 렌더링 -->
+                </select>
+                <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">고객이 문자를 눌러 이동할 랜딩페이지 주소입니다.</div>
+            </div>
+        </div>
+
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                <label style="margin: 0; font-weight: bold; color: #1e40af;">✨ AI 문구 초안 생성 (발송 목적 개요만 입력하세요)</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <select id="sms-ai-audience" style="padding: 6px 8px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 12px; background: white;">
+                        <option value="전체 고객">전체 고객 톤</option>
+                        <option value="상담고객(미시공)">상담고객(신규안내) 톤</option>
+                        <option value="시공고객(기존고객)">시공고객(기존고객관리) 톤</option>
+                    </select>
+                    <button type="button" id="btn-sms-ai-draft" class="btn btn-primary btn-sm" onclick="generateSmsAiDraft()" style="font-weight: bold;">✨ AI 문구 초안 생성</button>
+                </div>
+            </div>
+            <input type="text" id="sms-purpose-summary" class="form-control" placeholder="예: 내포 지역 씽크볼 공동구매 마감 임박, 기존 시공고객 추가 할인 및 상담고객 안내" style="width: 100%; padding: 9px 10px; border: 1px solid #93c5fd; border-radius: 6px; box-sizing: border-box; background: white;">
+        </div>
+
+        <div class="form-group">
+            <label>도입 문구 (AI 생성 후 자유롭게 수정 가능)</label>
+            <textarea id="sms-intro-text" rows="3" placeholder="목적 개요를 입력하고 [✨ AI 문구 초안 생성]을 누르거나 직접 입력하세요." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>링크 문구 (자동 생성되는 URL 바로 위에 표시될 텍스트)</label>
+            <input type="text" id="sms-link-title" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 4px;" placeholder="예: ▼ [내포] 사각씽크볼 8502 특가 👉 바로가기">
+        </div>
+
+        <div class="form-group">
+            <label>맺음말 <span style="color:#dc2626; font-size:12px;">(* 수신거부 안내 문구는 저장 시 자동 필수 포함)</span></label>
+            <textarea id="sms-outro-text" rows="2" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;"></textarea>
+        </div>
+
+        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                <h4 style="margin: 0;">👥 고객 DB 추출 및 리뷰</h4>
+                <div style="text-align: right;">
+                    <button id="btn-sms-test-extract" class="btn-secondary" onclick="extractTestCustomersForSms()" style="font-weight: bold; margin-right: 8px;">🧪 테스트 명단(2인) 생성</button>
+                    <button id="btn-sms-real-extract" class="btn btn-warning" onclick="extractCustomersForSms()" style="font-weight: bold;">🔍 DB 스캔 및 타겟 추출</button>
+                    <div id="sms-extract-lock-msg" style="display: none; font-size: 12px; color: #ef4444; margin-top: 8px;">
+                        ⚠️ 이미 모바일 발송이 시작된 캠페인이라 명단 수정(재추출)이 불가능합니다.<br>문구만 수정할 수 있으며, 명단을 다시 만들려면 <strong>[📋복제]</strong> 버튼을 이용하세요.
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; padding: 8px 10px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 6px;">
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button type="button" class="btn-secondary btn-sm" onclick="selectSmsCategory('all')" style="font-size: 12px;">☑️ 전체 선택</button>
+                    <button type="button" class="btn-secondary btn-sm" onclick="selectSmsCategory('installed')" style="font-size: 12px; background: #dbeafe; color: #1e40af; border-color: #93c5fd;">🔵 시공고객만 선택</button>
+                    <button type="button" class="btn-secondary btn-sm" onclick="selectSmsCategory('consulting')" style="font-size: 12px; background: #fef3c7; color: #b45309; border-color: #fcd34d;">🟠 상담고객만 선택</button>
+                    <button type="button" class="btn-secondary btn-sm" onclick="selectSmsCategory('none')" style="font-size: 12px;">⬜ 전체 해제</button>
+                </div>
+                <div id="sms-category-summary" style="font-size: 12px; color: #4b5563; font-weight: 600;">
+                    시공고객 0명 · 상담고객 0명
+                </div>
+            </div>
+            
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 6px; background: white;">
+                <table style="margin: 0;">
+                    <thead style="position: sticky; top: 0; z-index: 1;">
+                        <tr>
+                            <th width="5%"><input type="checkbox" id="sms-check-all" onclick="toggleAllSmsCheckboxes(this)" checked></th>
+                            <th width="20%">고객명/연락처</th>
+                            <th width="15%">출처(유형)</th>
+                            <th width="50%">시공제품 및 상담요약(특기사항)</th>
+                            <th width="10%">상세</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sms-extracted-tbody">
+                        <tr><td colspan="5" style="text-align: center; color: #6b7280; padding: 20px;">타겟 현장을 선택하고 [추출] 버튼을 눌러주세요.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: right; margin-top: 8px; font-size: 13px; font-weight: bold; color: #2563eb;">
+                총 <span id="sms-extracted-count">0</span>명 추출됨 (발송 대상: <span id="sms-selected-count">0</span>명)
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+            <button class="btn-secondary" onclick="closeSmsCampaignModal()">취소</button>
+            <button class="btn-success" onclick="saveSmsCampaign()">💾 캠페인 저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- SMS Sending Dashboard Modal (Desktop PC View) -->
+<div id="sms-send-dashboard-modal" class="modal-overlay">
+    <div class="modal" style="background: #f3f4f6; padding: 20px; max-width: 820px; width: 95%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="margin: 0; color: #111;">💻 데스크탑(PC) 문자 발송 대시보드</h3>
+            <button class="btn-secondary" onclick="closeSmsDashboardModal()" style="padding: 6px 12px;">닫기</button>
+        </div>
+        <div id="sms-send-campaign-title" style="font-weight: bold; font-size: 16px; margin-bottom: 12px; color: #2563eb;"></div>
+
+        <!-- 발송 개요 및 통계 -->
+        <div id="sms-dash-stats" style="background: white; border: 1px solid #d1d5db; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+            <!-- JS 렌더링 -->
+        </div>
+
+        <!-- 이전 발송 이력 요약 -->
+        <details id="sms-dash-history-details" style="background: white; border: 1px solid #d1d5db; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;" open>
+            <summary style="cursor: pointer; font-weight: bold; font-size: 14px; color: #1f2937;">📊 이전 발송 이력 요약 (전체 발송 흐름 & 데이터 분석)</summary>
+            <div id="sms-dash-history" style="margin-top: 10px; font-size: 12px; color: #374151;">
+                <!-- JS 렌더링 -->
+            </div>
+        </details>
+
+        <p style="font-size: 12px; color: #4b5563; margin-bottom: 12px; background: #eff6ff; padding: 10px; border-radius: 6px; border: 1px solid #bfdbfe;">
+            💡 <strong>PC 발송 방법:</strong> 그룹별로 <strong>[📋 번호 복사]</strong> → PC 문자 프로그램(Windows 휴대폰과 연결 / 구글 메시지 웹) 수신자에 붙여넣기 → <strong>[📋 본문 복사]</strong> → 전송 후 <strong>[✅ 발송완료 체크]</strong>를 눌러주세요.
+        </p>
+
+        <input type="hidden" id="sms-dash-index" value="">
+        
+        <div id="sms-groups-container">
+            <!-- JS 렌더링: 10명 단위 박스들 -->
+        </div>
+    </div>
+</div>
+
+<!-- SMS Opt-Out Management Modal -->
+<div id="sms-optout-modal" class="modal-overlay">
+    <div class="modal modal-sm" style="max-width: 520px; width: 92%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="margin: 0;">🚫 수신거부 번호 관리</h3>
+            <button class="btn-secondary" onclick="closeSmsOptOutModal()" style="padding: 4px 10px;">닫기</button>
+        </div>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 0;">
+            "수신거부" 문자를 보낸 고객의 전화번호를 등록하면, 앞으로 DB 추출 시 <strong>자동으로 제외</strong>됩니다.
+        </p>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" id="sms-optout-input" class="form-control" placeholder="전화번호 입력 (예: 010-1234-5678 또는 쉼표로 여러 개)" style="flex: 1; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+            <button class="btn btn-danger" onclick="addSmsOptOutNumbers()" style="white-space: nowrap;">+ 등록</button>
+        </div>
+        <div style="max-height: 260px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px; background: #f9fafb;">
+            <div id="sms-optout-list"></div>
+        </div>
+    </div>
+</div>
+
+
+
 <script src="./auth.js?v=2"></script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, onValue, set, get, update, push, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
     import { injectTestData } from "./test_data.js";
 
     const firebaseConfig = {
@@ -407,6 +607,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const functions = getFunctions(app);
+    window.callGenerateSmsDraft = httpsCallable(functions, 'generateSmsDraft');
 
     // 전역 변수
     window.currentProducts = [];
@@ -457,7 +659,10 @@
                         price_selling: p.price_selling,
                         costPrice: p.price_purchase,
                         sellPrice: p.price_selling,
-                        details: p.details
+                        details: p.details,
+                        prices: p.prices,
+                        detail_pages: p.detail_pages,
+                        detail_urls: p.detail_urls
                     }));
 
                     // [내포] 효성해링턴플레이스 안방스페셜 임시 상품(힘펠 HV3) 복구
@@ -494,6 +699,18 @@
                 } else if (prodError) {
                     console.error('Supabase 상품 로드 실패:', prodError.message);
                 }
+
+                // 아파트 DB(세대수 포함) 로드
+                const { data: aptData, error: aptError } = await window.supabaseClient
+                    .from('apartment_specs')
+                    .select('id, apt_name, apt_type, total_units, sales_count')
+                    .order('apt_name');
+                if (aptData) {
+                    window.currentAptSpecs = aptData;
+                } else if (aptError) {
+                    console.warn('Supabase 아파트 DB 로드 실패:', aptError.message);
+                    window.currentAptSpecs = [];
+                }
             } catch(e) {
                 console.error('Supabase 상품 로드 오류:', e);
             }
@@ -508,6 +725,12 @@
                 window.currentConsultations = data.consultations || {};
                 window.currentCrmPending = data.crm_pending || {};
                 window.currentReservations = data.reservations || {};
+                window.smsCampaignsData = data.sms_campaigns ? Object.values(data.sms_campaigns) : [];
+                window.smsOptOutMap = data.sms_opt_out || {};
+                window.currentApartments = data.apartments || data.apt_master || {};
+                
+                const optOutBadge = document.getElementById('sms-optout-count-badge');
+                if (optOutBadge) optOutBadge.textContent = Object.keys(window.smsOptOutMap).length;
                 
                 document.getElementById('db-status').innerHTML = '🟢 실시간 연동 중';
                 
@@ -518,6 +741,8 @@
                     renderConsultations();
                 } else if(document.getElementById('tab-managers').classList.contains('active')) {
                     renderManagerList();
+                } else if(document.getElementById('tab-sms').classList.contains('active')) {
+                    renderSmsCampaignList();
                 }
             } else {
                 document.getElementById('db-status').innerHTML = '🔴 데이터가 없습니다.';
@@ -552,13 +777,22 @@
     // 서버 저장 함수
     window.syncToServer = function() {
         document.getElementById('db-status').innerHTML = '🟡 저장 중...';
-        set(ref(db, '/products'), window.currentProducts); // Now handled by individual save buttons for Supabase
+        // set(ref(db, '/products'), window.currentProducts); // Now handled by individual save buttons for Supabase (에러 원인)
         set(ref(db, '/events'), window.currentData);
         set(ref(db, '/managers'), window.currentManagers).then(() => {
             document.getElementById('db-status').innerHTML = '🟢 실시간 연동 중';
         }).catch((error) => {
             alert('저장에 실패했습니다: ' + error);
         });
+    }
+
+    // SMS 캠페인 저장 함수
+    window.syncSmsToServer = function() {
+        const updates = {};
+        window.smsCampaignsData.forEach(camp => {
+            updates[camp.id] = camp;
+        });
+        set(ref(db, '/sms_campaigns'), updates);
     }
 
 
@@ -574,6 +808,7 @@
             renderConsultations();
         }
         if(tabId === 'tab-managers') renderManagerList();
+        if(tabId === 'tab-sms') renderSmsCampaignList();
     }
 
     window.renderManagerList = function() {
@@ -636,8 +871,15 @@
             return;
         }
         tbody.innerHTML = '';
+        const STATUS_META = {
+            planning: { label: '기획', cls: 'planning', rowBg: 'background-color: #f5f3ff;' },
+            active: { label: '진행중', cls: 'active', rowBg: '' },
+            hold: { label: '보류', cls: 'hold', rowBg: 'background-color: #fffbeb;' },
+            ended: { label: '종료됨', cls: 'ended', rowBg: 'background-color: #f9fafb; color: #9ca3af;' }
+        };
         window.currentData.forEach((ev, idx) => {
-            const isEnded = ev.status === 'ended';
+            const st = ev.status || 'active';
+            const meta = STATUS_META[st] || STATUS_META.active;
             const mainNames = (ev.mainProducts || []).map(p => {
                 const m = window.currentProducts.find(x => x.id === p.id);
                 return m ? m.name : `(ID:${(p.id||'').substring(0,6)}..)`;
@@ -647,25 +889,51 @@
                 return m ? m.name : `(ID:${(p.id||'').substring(0,6)}..)`;
             }).join(', ');
             tbody.innerHTML += `
-                <tr style="${isEnded ? 'background-color: #f9fafb; color: #9ca3af;' : ''}">
-                    <td data-label="상태"><span class="badge ${isEnded ? 'ended' : 'active'}">${isEnded ? '종료됨' : '진행중'}</span></td>
+                <tr style="${meta.rowBg}">
+                    <td data-label="상태">
+                        <span class="badge ${meta.cls}">${meta.label}</span>
+                        <select onchange="changeEventStatus(${idx}, this.value)" style="margin-top:6px; padding:4px 6px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; font-weight:600;">
+                            <option value="planning" ${st === 'planning' ? 'selected' : ''}>기획</option>
+                            <option value="active" ${st === 'active' ? 'selected' : ''}>진행(개방)</option>
+                            <option value="hold" ${st === 'hold' ? 'selected' : ''}>보류</option>
+                            <option value="ended" ${st === 'ended' ? 'selected' : ''}>종료</option>
+                        </select>
+                    </td>
                     <td data-label="현장명"><strong>${ev.title}</strong></td>
                     <td data-label="이벤트 기간">${ev.periodText || '-'}</td>
                     <td data-label="메인 상품" style="font-size: 13px;">${mainNames || '-'}</td>
                     <td data-label="같이 바꾸면 좋은 상품" style="font-size: 13px; color: #6b7280;">${addonNames || '-'}</td>
                     <td data-label="관리">
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn-warning" style="flex:1; padding: 10px;" onclick="openEventModal(${idx})">수정</button>
-                            ${!isEnded ? `<button class="btn-danger" style="flex:1; padding: 10px;" onclick="endEvent(${idx})">종료</button>` : `<button class="btn-secondary" style="flex:1; padding: 10px;" onclick="activateEvent(${idx})">진행</button>`}
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button class="btn-warning" style="flex:1; padding: 8px 10px;" onclick="openEventModal(${idx})">수정</button>
+                            <button style="flex:1; padding: 8px 10px; background:#0ea5e9; color:#fff;" onclick="window.open('./index.html?e=${ev.id}', '_blank')">👁️ 보기</button>
                         </div>
                     </td>
                 </tr>
             `;
         });
+        if (!window._handledEditEventParam) {
+            const editEventId = new URLSearchParams(window.location.search).get('editEvent');
+            if (editEventId) {
+                const targetIdx = window.currentData.findIndex(e => e && e.id === editEventId);
+                if (targetIdx >= 0) {
+                    window._handledEditEventParam = true;
+                    if (typeof window.switchTab === 'function') window.switchTab('tab-events');
+                    setTimeout(() => {
+                        if (typeof window.openEventModal === 'function') window.openEventModal(targetIdx);
+                    }, 100);
+                }
+            }
+        }
     }
 
-    window.endEvent = function(index) { window.currentData[index].status = 'ended'; window.syncToServer(); }
-    window.activateEvent = function(index) { window.currentData[index].status = 'active'; window.syncToServer(); }
+    window.changeEventStatus = function(index, newStatus) {
+        if (!window.currentData[index]) return;
+        window.currentData[index].status = newStatus;
+        window.syncToServer();
+    }
+    window.endEvent = function(index) { window.changeEventStatus(index, 'ended'); }
+    window.activateEvent = function(index) { window.changeEventStatus(index, 'active'); }
 
     window.closeEventModal = function() {
         document.getElementById('event-modal').style.display = 'none';
@@ -673,8 +941,13 @@
 
     window.saveEvent = function() {
         const index = parseInt(document.getElementById('modal-index').value);
-        const title = document.getElementById('ev-title').value;
+        const title = document.getElementById('ev-title').value.trim();
         if(!title) { alert('현장명을 입력하세요'); return; }
+        if (!/^\[[^\]]+\]\s*.+/.test(title)) {
+            alert('이벤트 타이틀 앞에 지역 머리말을 반드시 넣어주세요!\n예: [내포] LH스타힐스, [아산] 모아엘가');
+            document.getElementById('ev-title').focus();
+            return;
+        }
 
         const managerId = document.getElementById('ev-manager').value || '';
         const priceText = document.getElementById('ev-price').value || '';
@@ -703,7 +976,7 @@
             managerId: managerId,
             mainProducts: window._editMainProds || [],
             addonProducts: window._editAddonProds || [],
-            status: index >= 0 ? window.currentData[index].status : 'active'
+            status: index >= 0 ? (window.currentData[index].status || 'active') : 'planning'
         };
 
         if (index >= 0) {
@@ -737,6 +1010,19 @@
         
         const titleInput = document.getElementById('ev-title');
         titleInput.value = ev.title;
+
+        // 기존 등록된 [지역] 머리말 빠른 선택 버튼 렌더링
+        const quickBox = document.getElementById('ev-region-quick-btns');
+        if (quickBox) {
+            const regionSet = new Set(['내포', '아산', '천안', '홍성', '예산', '서산']);
+            (window.currentData || []).forEach(item => {
+                const m = (item.title || '').match(/^\[([^\]]+)\]/);
+                if (m && m[1]) regionSet.add(m[1].trim());
+            });
+            quickBox.innerHTML = Array.from(regionSet).map(r =>
+                `<button type="button" class="btn-secondary btn-sm" style="font-size:11px; padding:2px 8px;" onclick="(function(){ const el=document.getElementById('ev-title'); const rest=el.value.replace(/^\\[[^\\]]+\\]\\s*/, ''); el.value='[${r}] ' + rest; el.focus(); })()">[${r}]</button>`
+            ).join('');
+        }
         
         const targetAptInput = document.getElementById('ev-targetApt');
         targetAptInput.value = targetAptVal;
@@ -789,15 +1075,7 @@
                     <div id="main-prod-search-results" style="display:none; position:absolute; top:34px; left:0; width:70%; background:white; border:1px solid #d1d5db; border-radius:4px; max-height:200px; overflow-y:auto; z-index:10; box-shadow:0 4px 6px rgba(0,0,0,0.1);"></div>
                 </div>
                 <div id="main-prod-list">
-                    ${selectedMain.map((p,i) => {
-                        const prod = window.currentProducts.find(x=>x.id===p.id);
-                        return `<div id="mainrow-${p.id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                            <span>${prod ? prod.name : p.id}</span>
-                            <input type="text" id="price-main-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
-                            <input type="text" id="link-main-${p.id}" placeholder="상세링크" value="${p.customLink||''}" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
-                            <button onclick="removeMainProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
-                        </div>`;
-                    }).join('')}
+                    ${selectedMain.map(p => window.renderProdRow('main', p.id, p.customText, p.customLink, window.currentProducts.find(x=>x.id===p.id))).join('')}
                 </div>
             `;
         }
@@ -811,15 +1089,7 @@
                     <div id="addon-prod-search-results" style="display:none; position:absolute; top:34px; left:0; width:70%; background:white; border:1px solid #d1d5db; border-radius:4px; max-height:200px; overflow-y:auto; z-index:10; box-shadow:0 4px 6px rgba(0,0,0,0.1);"></div>
                 </div>
                 <div id="addon-prod-list">
-                    ${selectedAddon.map((p,i) => {
-                        const prod = window.currentProducts.find(x=>x.id===p.id);
-                        return `<div id="addonrow-${p.id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                            <span>${prod ? prod.name : p.id}</span>
-                            <input type="text" id="price-addon-${p.id}" placeholder="단가" value="${p.customText||''}" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
-                            <input type="text" id="link-addon-${p.id}" placeholder="상세링크" value="${p.customLink||''}" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
-                            <button onclick="removeAddonProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
-                        </div>`;
-                    }).join('')}
+                    ${selectedAddon.map(p => window.renderProdRow('addon', p.id, p.customText, p.customLink, window.currentProducts.find(x=>x.id===p.id))).join('')}
                 </div>
             `;
         }
@@ -867,6 +1137,98 @@
         document.getElementById(type + '-prod-search-results').style.display = 'none';
     };
 
+    window.renderProdRow = function(type, pId, customText, customLink, prod) {
+        const isMain = type === 'main';
+        const rowId = isMain ? `mainrow-${pId}` : `addonrow-${pId}`;
+        const priceId = isMain ? `price-main-${pId}` : `price-addon-${pId}`;
+        const linkId = isMain ? `link-main-${pId}` : `link-addon-${pId}`;
+        const removeFunc = isMain ? `removeMainProduct('${pId}')` : `removeAddonProduct('${pId}')`;
+        const nameStr = prod ? prod.name : pId;
+        
+        let defaultPrice = customText || '';
+        let defaultLink = customLink || '';
+        
+        // 새로 추가하는 시점 (기존 값이 둘 다 빈 경우)에만 기본값 적용
+        if (prod && !customText && !customLink) {
+            if (prod.prices && prod.prices.sell_total) {
+                defaultPrice = prod.prices.sell_total;
+            }
+            if (prod.detail_pages && prod.detail_pages.length > 0) {
+                defaultLink = `./product.html?id=${pId}&version=${prod.detail_pages[0].id}`;
+            } else if (prod.detail_urls && prod.detail_urls.length > 0) {
+                defaultLink = prod.detail_urls[0];
+            }
+        }
+
+        let priceOptions = '<option value="">선택 (기존유지)</option>';
+        if (prod) {
+            if (prod.prices && prod.prices.sell_total) {
+                priceOptions += `<option value="${prod.prices.sell_total}">기본 판매가 (${prod.prices.sell_total.toLocaleString()}원)</option>`;
+            }
+            if (prod.details && prod.details.price_histories && prod.details.price_histories.length > 0) {
+                prod.details.price_histories.forEach(h => {
+                    const shortName = h.name ? h.name.split('_').slice(-1)[0] : '';
+                    priceOptions += `<option value="${h.price}">견적가: ${shortName || h.price.toLocaleString()} (${h.date})</option>`;
+                });
+            }
+        }
+        
+        let linkOptions = '<option value="">선택 (기존유지)</option>';
+        const seenUrls = new Set();
+        if (prod && prod.detail_pages && prod.detail_pages.length > 0) {
+            prod.detail_pages.forEach(dp => {
+                const url = `./product.html?id=${pId}&version=${dp.id}`;
+                if (!seenUrls.has(url)) {
+                    seenUrls.add(url);
+                    let displayTitle = dp.title;
+                    if (displayTitle.includes("Legacy")) {
+                        displayTitle = "구형 병합본";
+                    }
+                    let dateStr = dp.created_at ? new Date(dp.created_at).toLocaleDateString('ko-KR', {year:'2-digit', month:'2-digit', day:'2-digit'}).replace(/\.\s/g, '.').replace(/\.$/, '') : '';
+                    linkOptions += `<option value="${url}">📄 ${displayTitle} ${dateStr ? `(${dateStr})` : ''}</option>`;
+                }
+            });
+        }
+        if (prod && prod.detail_urls && prod.detail_urls.length > 0) {
+            prod.detail_urls.forEach((url, idx) => {
+                if (url && !seenUrls.has(url)) {
+                    seenUrls.add(url);
+                    const isImg = url.toLowerCase().match(/\.(jpeg|jpg|gif|png|webp)$/);
+                    const label = isImg ? `이미지 원본 ${idx+1}` : `외부 링크 ${idx+1}`;
+                    linkOptions += `<option value="${url}">🔗 ${label}</option>`;
+                }
+            });
+        }
+
+        return `<div id="${rowId}" style="display:flex; flex-direction:column; gap:4px; margin-bottom:12px; background:#f9fafb; padding:8px; border:1px solid #e5e7eb; border-radius:6px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span style="font-weight:bold; font-size:14px; color:#1f2937;">${nameStr}</span>
+                <button type="button" onclick="${removeFunc}" style="color:white; background:#ef4444; border:none; border-radius:4px; cursor:pointer; padding:3px 10px; font-size:12px;">삭제</button>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-top:4px;">
+                <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:200px;">
+                    <label style="font-size:12px; color:#4b5563; font-weight:600;">단가</label>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="${priceId}" placeholder="현장가" value="${defaultPrice}" style="flex:1; padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:13px;">
+                        <select onchange="if(this.value) document.getElementById('${priceId}').value = this.value" style="padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; min-width:140px;">
+                            ${priceOptions}
+                        </select>
+                    </div>
+                </div>
+                <div style="flex:1.5; display:flex; flex-direction:column; gap:4px; min-width:300px;">
+                    <label style="font-size:12px; color:#4b5563; font-weight:600;">상세링크</label>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="${linkId}" placeholder="상세링크" value="${defaultLink}" style="flex:1; padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:13px;">
+                        <select onchange="if(this.value) document.getElementById('${linkId}').value = this.value" style="padding:6px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; max-width:150px;">
+                            ${linkOptions}
+                        </select>
+                        <button type="button" onclick="const url=document.getElementById('${linkId}').value; if(url) window.open(url, '_blank'); else alert('링크가 없습니다.');" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px; white-space:nowrap;">미리보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    };
+
     window.addMainProduct = function() {
         const id = document.getElementById('main-prod-selected-id').value;
         const name = document.getElementById('main-prod-search').value;
@@ -874,12 +1236,8 @@
         if(window._editMainProds.find(p=>p.id===id)) { alert('이미 추가된 상품입니다.'); return; }
         window._editMainProds.push({id, customText:'', customLink:''});
         const list = document.getElementById('main-prod-list');
-        list.innerHTML += `<div id="mainrow-${id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <span>${name}</span>
-            <input type="text" id="price-main-${id}" placeholder="현장가" value="" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
-            <input type="text" id="link-main-${id}" placeholder="상세링크" value="" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
-            <button onclick="removeMainProduct('${id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
-        </div>`;
+        const prod = window.currentProducts.find(p=>p.id===id);
+        list.insertAdjacentHTML('beforeend', window.renderProdRow('main', id, '', '', prod));
         document.getElementById('main-prod-search').value = '';
         document.getElementById('main-prod-selected-id').value = '';
     }
@@ -887,7 +1245,7 @@
     window.removeMainProduct = function(id) {
         window._editMainProds = window._editMainProds.filter(p=>p.id!==id);
         const el = document.getElementById(`mainrow-${id}`);
-        if(el) el.remove(); else { const list = document.getElementById('main-prod-list'); list.innerHTML = window._editMainProds.map(p=>{ const prod=window.currentProducts.find(x=>x.id===p.id); return `<div id="mainrow-${p.id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>${prod?prod.name:p.id}</span><input type="text" id="price-main-${p.id}" value="${p.customText||''}"><button onclick="removeMainProduct('${p.id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button></div>`; }).join(''); }
+        if(el) el.remove(); else { document.getElementById('main-prod-list').innerHTML = window._editMainProds.map(p => window.renderProdRow('main', p.id, p.customText, p.customLink, window.currentProducts.find(x=>x.id===p.id))).join(''); }
     }
 
     window.addAddonProduct = function() {
@@ -897,12 +1255,8 @@
         if(window._editAddonProds.find(p=>p.id===id)) { alert('이미 추가된 상품입니다.'); return; }
         window._editAddonProds.push({id, customText:'', customLink:''});
         const list = document.getElementById('addon-prod-list');
-        list.innerHTML += `<div id="addonrow-${id}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <span>${name}</span>
-            <input type="text" id="price-addon-${id}" placeholder="현장가" value="" style="width:90px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
-            <input type="text" id="link-addon-${id}" placeholder="상세링크" value="" style="width:120px;padding:4px;border:1px solid #d1d5db;border-radius:4px;">
-            <button onclick="removeAddonProduct('${id}')" style="color:red;background:none;border:none;cursor:pointer;">✕</button>
-        </div>`;
+        const prod = window.currentProducts.find(p=>p.id===id);
+        list.insertAdjacentHTML('beforeend', window.renderProdRow('addon', id, '', '', prod));
         document.getElementById('addon-prod-search').value = '';
         document.getElementById('addon-prod-selected-id').value = '';
     }
@@ -1032,6 +1386,7 @@
                     id: key,
                     dateStr: dateStr,
                     type: val.type || '무료상담(AI/웹)',
+                    sourceType: val.sourceType || '',
                     timestamp: val.timestamp || 0,
                     customer: val.apartment || '',
                     phone: val.phone || '',
@@ -1079,6 +1434,22 @@
             let statusBadge = `<span style="display:inline-block; padding:3px 8px; border-radius:12px; background:#eee; font-size:12px; color:#555;">대기중</span>`;
             if (item.status === 'hold') statusBadge = `<span style="display:inline-block; padding:3px 8px; border-radius:12px; background:#fff3cd; font-size:12px; color:#856404;">보류됨</span>`;
             
+            // 출처 뱃지 표시 로직
+            let sourceBadgeHtml = '';
+            let inferredSource = item.sourceType;
+            if (!inferredSource) {
+                // 기존 데이터 추론
+                if (item.content.includes('[AI]')) inferredSource = 'ai';
+                else if (item.content.includes('웹') || item.content.includes('예약')) inferredSource = 'web';
+                else inferredSource = 'ai'; // 기본값
+            }
+
+            if (inferredSource === 'web') {
+                sourceBadgeHtml = `<div style="margin-bottom:6px;"><span style="display:inline-block; padding:4px 10px; border-radius:12px; background:#ef4444; color:#fff; font-size:12px; font-weight:bold;">🚨 [🌐 온라인 상담접수]</span></div>`;
+            } else {
+                sourceBadgeHtml = `<div style="margin-bottom:6px;"><span style="display:inline-block; padding:4px 10px; border-radius:12px; background:#4b5563; color:#fff; font-size:12px; font-weight:bold;">🤖 [AI 통화 상담보류건]</span></div>`;
+            }
+
             // 안전한 문자열 처리
             const safeId = (item.id || '').replace(/'/g, "\\'");
             const safeDateStr = (item.dateStr || '').replace(/'/g, "\\'");
@@ -1093,6 +1464,7 @@
                     <div style="font-size:12px; color:#666; margin-top:4px;">${item.customer}</div>
                 </td>
                 <td>
+                    ${sourceBadgeHtml}
                     <div style="font-size:14px; margin-bottom:4px;">${item.content}</div>
                 </td>
                 <td style="text-align:center;">
@@ -1438,7 +1810,8 @@
                 apartment: customer,
                 phone: phone,
                 status: 'consultation_pending',
-                adminMemo: memo
+                adminMemo: memo,
+                sourceType: 'ai'
             };
             
             window.firebaseSet(window.firebaseRef(window.firebaseDb, `consultations/${dateStr}/${cId}`), leadData)
@@ -1930,6 +2303,1152 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, 3000); // Firebase 초기화 대기
 });
+
+// ==========================================
+// 4. 고객디비 문자발송(이벤트) 로직
+// ==========================================
+
+const SMS_OPT_OUT_LINE = '🚫 본 이벤트 알림을 원하지 않으시면 간단히 "수신거부" 문자를 보내주세요.';
+
+window.ensureSmsOptOutOutro = function(text) {
+    const t = String(text || '').trim();
+    if (!t) return SMS_OPT_OUT_LINE;
+    if (t.includes('수신거부')) return t;
+    return `${t}\n${SMS_OPT_OUT_LINE}`;
+};
+
+window.extractRegionsFromEvents = function() {
+    const regionMap = {};
+    (window.currentData || []).forEach(ev => {
+        const m = (ev.title || '').match(/^\[([^\]]+)\]/);
+        if (m && m[1]) {
+            const reg = m[1].trim();
+            if (!regionMap[reg]) regionMap[reg] = [];
+            regionMap[reg].push(ev);
+        }
+    });
+    return regionMap;
+};
+
+window.parseHouseholdCount = function(val) {
+    if (!val) return 0;
+    const digits = String(val).replace(/[^0-9]/g, '');
+    return parseInt(digits, 10) || 0;
+};
+
+window.getSmsCampaignLink = function(camp) {
+    const baseUrl = 'https://www.haatz.shop';
+    const linkTarget = camp.linkTarget || camp.targetEventId || 'HOME';
+    if (linkTarget === 'HOME' || linkTarget === 'ALL_EVENTS' || String(linkTarget).startsWith('REGION:')) {
+        return baseUrl;
+    }
+    if (linkTarget === 'CATALOG') {
+        return `${baseUrl}/catalog.html`;
+    }
+    return `${baseUrl}?e=${linkTarget}`;
+};
+
+window.renderSmsCampaignList = function() {
+    const tbody = document.getElementById('sms-campaign-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const optOutBadge = document.getElementById('sms-optout-count-badge');
+    if (optOutBadge) optOutBadge.textContent = Object.keys(window.smsOptOutMap || {}).length;
+
+    // 탭 상단 전체 발송 이력 요약 바 렌더링
+    const summaryBar = document.getElementById('sms-tab-summary-bar');
+    const allCamps = window.smsCampaignsData || [];
+    if (summaryBar) {
+        const totalCamps = allCamps.length;
+        const doneCamps = allCamps.filter(c => c.status === 'done').length;
+        const totalSentPeople = allCamps.reduce((acc, c) => {
+            const sentInCamp = (c.groups || []).filter(g => g.sent).reduce((s, g) => s + (g.targets ? g.targets.length : 0), 0);
+            return acc + sentInCamp;
+        }, 0);
+        const totalAptUnits = (window.currentAptSpecs || []).reduce((acc, a) => acc + window.parseHouseholdCount(a.total_units), 0);
+        summaryBar.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                    📊 <strong>누적 발송 현황:</strong> 전체 캠페인 <strong>${totalCamps}건</strong> (완료 ${doneCamps}건) · 누적 발송 완료 <strong>${totalSentPeople}명</strong>
+                </div>
+                <div style="color:#475569;">
+                    🏢 아파트 DB 연동: <strong>${(window.currentAptSpecs || []).length}개 단지</strong> (총 <strong>${totalAptUnits.toLocaleString()}세대</strong>)
+                </div>
+            </div>
+        `;
+    }
+    
+    if (allCamps.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6b7280; padding: 20px;">생성된 캠페인이 없습니다.</td></tr>';
+        return;
+    }
+
+    // 최신순 정렬
+    const sorted = [...allCamps].sort((a, b) => b.createdAt - a.createdAt);
+
+    sorted.forEach((camp) => {
+        let statusHtml = '';
+        if (camp.status === 'draft') statusHtml = '<span class="badge" style="background: #9ca3af;">작성중</span>';
+        else if (camp.status === 'ready') statusHtml = '<span class="badge" style="background: #3b82f6;">발송대기</span>';
+        else if (camp.status === 'done') statusHtml = '<span class="badge" style="background: #10b981;">발송완료</span>';
+        
+        let sentGroups = 0;
+        let totalGroups = 0;
+        if (camp.groups) {
+            totalGroups = camp.groups.length;
+            sentGroups = camp.groups.filter(g => g.sent).length;
+        }
+
+        let manageHtml = '';
+        if (camp.status !== 'done') {
+            manageHtml = `
+                <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-primary btn-sm" onclick="openSmsCampaignModal('${camp.id}')">PC기획(수정)</button>
+                    <button class="btn btn-success btn-sm" onclick="openSmsDashboardModal('${camp.id}')">💻발송(PC)</button>
+                    <button class="btn-secondary btn-sm" onclick="duplicateSmsCampaign('${camp.id}')">📋복제</button>
+                    <button class="btn-danger btn-sm" onclick="deleteSmsCampaign('${camp.id}')">🗑️삭제</button>
+                </div>
+            `;
+        } else {
+            manageHtml = `
+                <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn-secondary btn-sm" onclick="openSmsDashboardModal('${camp.id}')">📊발송결과/통계</button>
+                    <button class="btn-secondary btn-sm" onclick="openSmsCampaignModal('${camp.id}')">내역보기</button>
+                    <button class="btn-secondary btn-sm" onclick="duplicateSmsCampaign('${camp.id}')">📋복제</button>
+                    <button class="btn-danger btn-sm" onclick="deleteSmsCampaign('${camp.id}')">🗑️삭제</button>
+                </div>
+            `;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="text-align: center;">${statusHtml}</td>
+            <td><strong>${camp.title || '제목 없음'}</strong></td>
+            <td style="text-align: center;">${camp.targetCount || 0}명<br><span style="font-size:11px;color:#888;">(그룹: ${sentGroups}/${totalGroups})</span></td>
+            <td style="text-align: center; color: #666; font-size: 13px;">${new Date(camp.createdAt).toLocaleString()}</td>
+            <td style="text-align: center;">${manageHtml}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+};
+
+window.populateSmsTargetAndLinkSelects = function() {
+    const eventSelect = document.getElementById('sms-target-event');
+    const linkSelect = document.getElementById('sms-link-target');
+    if (!eventSelect || !linkSelect) return;
+
+    const regionMap = window.extractRegionsFromEvents();
+    const regions = Object.keys(regionMap);
+
+    // 1. 타겟 범위 드롭다운 (전체 / 지역 / 개별 현장)
+    eventSelect.innerHTML = '';
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = '';
+    defaultOpt.textContent = '-- 타겟 범위를 선택하세요 --';
+    eventSelect.appendChild(defaultOpt);
+
+    const allOpt = document.createElement('option');
+    allOpt.value = 'ALL_EVENTS';
+    allOpt.textContent = '🌐 전체 현장 지정 (전체 고객 DB 대상)';
+    eventSelect.appendChild(allOpt);
+
+    if (regions.length > 0) {
+        const regGroup = document.createElement('optgroup');
+        regGroup.label = '📍 지역 지정 (이벤트 진행 지역)';
+        regions.forEach(reg => {
+            const o = document.createElement('option');
+            o.value = `REGION:${reg}`;
+            o.textContent = `📍 [${reg}] 지역 전체 (${regionMap[reg].length}개 현장)`;
+            regGroup.appendChild(o);
+        });
+        eventSelect.appendChild(regGroup);
+    }
+
+    if (window.currentData && window.currentData.length > 0) {
+        const evGroup = document.createElement('optgroup');
+        evGroup.label = '🏢 개별 현장 지정';
+        window.currentData.forEach(ev => {
+            const o = document.createElement('option');
+            o.value = ev.id;
+            o.textContent = ev.title;
+            evGroup.appendChild(o);
+        });
+        eventSelect.appendChild(evGroup);
+    }
+
+    // 2. 연결 랜딩페이지 드롭다운
+    linkSelect.innerHTML = '';
+    const homeOpt = document.createElement('option');
+    homeOpt.value = 'HOME';
+    homeOpt.textContent = '🏠 공식 랜딩페이지 홈 (www.haatz.shop)';
+    linkSelect.appendChild(homeOpt);
+
+    const catOpt = document.createElement('option');
+    catOpt.value = 'CATALOG';
+    catOpt.textContent = '🛍️ 상시 상품 안내 페이지 (catalog.html)';
+    linkSelect.appendChild(catOpt);
+
+    if (window.currentData && window.currentData.length > 0) {
+        const linkEvGroup = document.createElement('optgroup');
+        linkEvGroup.label = '🎯 특정 이벤트 카드 바로가기';
+        window.currentData.forEach(ev => {
+            const o = document.createElement('option');
+            o.value = ev.id;
+            o.textContent = `${ev.title} (?e=${ev.id})`;
+            linkEvGroup.appendChild(o);
+        });
+        linkSelect.appendChild(linkEvGroup);
+    }
+};
+
+window.openSmsCampaignModal = function(campId) {
+    document.getElementById('sms-campaign-modal').style.display = 'flex';
+    document.getElementById('sms-modal-index').value = campId;
+    window.populateSmsTargetAndLinkSelects();
+
+    const eventSelect = document.getElementById('sms-target-event');
+    const linkSelect = document.getElementById('sms-link-target');
+
+    if (campId === -1 || campId === '-1') {
+        document.getElementById('sms-modal-title').textContent = '새 문자발송 캠페인 (PC)';
+        eventSelect.value = '';
+        linkSelect.value = 'HOME';
+        document.getElementById('sms-purpose-summary').value = '';
+        document.getElementById('sms-ai-audience').value = '전체 고객';
+        document.getElementById('sms-intro-text').value = '[하츠 충남대리점] 안녕하세요? 고객님 댁 주방에 꼭 맞는 특별 공동구매 이벤트 소식을 전해드립니다.';
+        document.getElementById('sms-link-title').value = '';
+        document.getElementById('sms-outro-text').value = SMS_OPT_OUT_LINE;
+        document.getElementById('sms-extracted-tbody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6b7280; padding: 20px;">타겟 범위를 선택하고 [🔍 DB 스캔 및 타겟 추출] 버튼을 눌러주세요.</td></tr>';
+        document.getElementById('sms-extracted-count').textContent = '0';
+        document.getElementById('sms-selected-count').textContent = '0';
+        const sumEl = document.getElementById('sms-category-summary');
+        if (sumEl) sumEl.textContent = '시공고객 0명 · 상담고객 0명';
+        window._tempExtractedCustomers = [];
+        
+        document.getElementById('btn-sms-test-extract').disabled = false;
+        document.getElementById('btn-sms-real-extract').disabled = false;
+        document.getElementById('sms-extract-lock-msg').style.display = 'none';
+    } else {
+        const camp = window.smsCampaignsData.find(c => c.id === campId);
+        if (camp) {
+            let isPartiallySent = false;
+            if (camp.groups) {
+                isPartiallySent = camp.groups.some(g => g.sent === true);
+            }
+
+            document.getElementById('sms-modal-title').textContent = '캠페인 수정/리뷰 (PC)';
+            eventSelect.value = camp.targetEventId || '';
+            linkSelect.value = camp.linkTarget || camp.targetEventId || 'HOME';
+            document.getElementById('sms-purpose-summary').value = camp.purposeSummary || '';
+            document.getElementById('sms-intro-text').value = camp.introText || '';
+            document.getElementById('sms-link-title').value = camp.linkTitle || '';
+            document.getElementById('sms-outro-text').value = window.ensureSmsOptOutOutro(camp.outroText);
+            window._tempExtractedCustomers = camp.extractedCustomers || [];
+            renderExtractedCustomers();
+
+            if (isPartiallySent) {
+                document.getElementById('btn-sms-test-extract').disabled = true;
+                document.getElementById('btn-sms-real-extract').disabled = true;
+                document.getElementById('sms-extract-lock-msg').style.display = 'block';
+            } else {
+                document.getElementById('btn-sms-test-extract').disabled = false;
+                document.getElementById('btn-sms-real-extract').disabled = false;
+                document.getElementById('sms-extract-lock-msg').style.display = 'none';
+            }
+        }
+    }
+};
+
+// 타겟 범위 선택 시 연결 링크 & 링크 문구 자동 세팅
+document.addEventListener('DOMContentLoaded', () => {
+    const eventSelect = document.getElementById('sms-target-event');
+    if (eventSelect) {
+        eventSelect.addEventListener('change', function() {
+            const val = this.value;
+            const linkSelect = document.getElementById('sms-link-target');
+            if (!val) {
+                document.getElementById('sms-link-title').value = '';
+                return;
+            }
+            if (val === 'ALL_EVENTS') {
+                if (linkSelect) linkSelect.value = 'HOME';
+                document.getElementById('sms-link-title').value = '▼ 하츠 충남대리점 공동구매 이벤트 👉 바로가기';
+                return;
+            }
+            if (val.startsWith('REGION:')) {
+                const reg = val.replace('REGION:', '');
+                const regionMap = window.extractRegionsFromEvents();
+                const regEvents = regionMap[reg] || [];
+                if (linkSelect && regEvents.length > 0) {
+                    linkSelect.value = regEvents[0].id;
+                }
+                document.getElementById('sms-link-title').value = `▼ [${reg}] 지역 특별 공동구매 안내 👉 바로가기`;
+                return;
+            }
+            const ev = (window.currentData || []).find(e => e.id === val);
+            if (ev) {
+                if (linkSelect) linkSelect.value = ev.id;
+                let mainProductName = '';
+                if (ev.mainProducts && ev.mainProducts.length > 0) {
+                    const prod = (window.currentProducts || []).find(p => p.id === ev.mainProducts[0].id);
+                    if (prod) {
+                        mainProductName = prod.name;
+                        const words = mainProductName.split(' ');
+                        if (words.length > 3) mainProductName = words.slice(-2).join(' ');
+                        mainProductName = mainProductName.replace(/\(.*\)/, '').trim();
+                    }
+                }
+                document.getElementById('sms-link-title').value = `▼ ${ev.title} 🎁 ${mainProductName ? mainProductName + ' ' : ''}👉 바로가기`;
+            }
+        });
+    }
+});
+
+window.generateSmsAiDraft = async function() {
+    const targetVal = document.getElementById('sms-target-event').value;
+    const purpose = document.getElementById('sms-purpose-summary').value.trim();
+    const audience = document.getElementById('sms-ai-audience').value;
+
+    if (!purpose) {
+        alert('먼저 "발송 목적 개요"를 한 줄로 입력해주세요.\n예: 내포 지역 사각씽크볼 공동구매 마감 임박, 상담고객 안내');
+        document.getElementById('sms-purpose-summary').focus();
+        return;
+    }
+
+    let scopeLabel = '전체 현장';
+    let regionName = '충남/내포';
+    let eventTitle = '하츠 충남대리점 공동구매';
+
+    if (targetVal === 'ALL_EVENTS') {
+        scopeLabel = '전체 현장';
+        regionName = '충남 전체';
+    } else if (targetVal && targetVal.startsWith('REGION:')) {
+        const reg = targetVal.replace('REGION:', '');
+        scopeLabel = `[${reg}] 지역 전체`;
+        regionName = reg;
+        eventTitle = `[${reg}] 지역 특별 공동구매`;
+    } else if (targetVal) {
+        const ev = (window.currentData || []).find(e => e.id === targetVal);
+        if (ev) {
+            scopeLabel = '개별 현장';
+            eventTitle = ev.title;
+            const m = (ev.title || '').match(/^\[([^\]]+)\]/);
+            regionName = m ? m[1] : (ev.targetApt || '충남');
+        }
+    }
+
+    const btn = document.getElementById('btn-sms-ai-draft');
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ AI 초안 작성중...';
+
+    try {
+        const res = await window.callGenerateSmsDraft({
+            scopeLabel,
+            regionName,
+            targetAudience: audience,
+            purposeSummary: purpose,
+            eventTitle
+        });
+        const draft = res.data || {};
+        if (draft.introText) document.getElementById('sms-intro-text').value = draft.introText;
+        if (draft.linkTitle) document.getElementById('sms-link-title').value = draft.linkTitle;
+        document.getElementById('sms-outro-text').value = window.ensureSmsOptOutOutro(draft.outroText);
+    } catch (err) {
+        console.error('AI 초안 생성 실패:', err);
+        alert('AI 문구 생성에 실패했습니다: ' + (err.message || err));
+    } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+    }
+};
+
+window.closeSmsCampaignModal = function() {
+    document.getElementById('sms-campaign-modal').style.display = 'none';
+};
+
+window.normalizeSmsPhone = function(phone) {
+    return String(phone || '').replace(/[^0-9]/g, '');
+};
+
+window.getSmsReservationProducts = function(res) {
+    if (!res) return '';
+    if (res.cart && res.cart.length > 0) {
+        return res.cart.map(p => p.name || p).join(', ');
+    }
+    if (res.report && res.report.usedProducts && res.report.usedProducts.length > 0) {
+        return res.report.usedProducts.map(p => p.name || p).join(', ');
+    }
+    if (res.customerInfo && res.customerInfo.products) {
+        return String(res.customerInfo.products);
+    }
+    return String(res.productName || res.products || '');
+};
+
+window.getSmsCustomerType = function(c) {
+    if (c && c.customerType) return c.customerType;
+    if (c && (c.source === '시공완료' || c.source === '상담 후 시공함')) return 'installed';
+    return 'consulting';
+};
+
+window.inferSmsRegion = function(text) {
+    const t = String(text || '');
+    const regionMap = window.extractRegionsFromEvents();
+    const knownRegions = Array.from(new Set([...Object.keys(regionMap), '내포', '아산', '천안', '홍성', '예산', '서산', '당진', '공주', '세종']));
+    for (const reg of knownRegions) {
+        if (t.includes(reg)) return reg;
+    }
+    return '기타';
+};
+
+window.extractCustomersForSms = function() {
+    const targetVal = document.getElementById('sms-target-event').value;
+    if (!targetVal) {
+        alert('타겟 범위(전체 / 지역 / 개별 현장)를 먼저 선택해주세요.');
+        return;
+    }
+
+    let suggestedKeyword = '';
+    if (targetVal === 'ALL_EVENTS') {
+        suggestedKeyword = '';
+    } else if (targetVal.startsWith('REGION:')) {
+        const reg = targetVal.replace('REGION:', '');
+        const regionMap = window.extractRegionsFromEvents();
+        const regEvents = regionMap[reg] || [];
+        const aptKeywords = regEvents.map(ev => {
+            const clean = (ev.title || '').replace(/^\[[^\]]+\]\s*/, '').replace(/(아파트|주방후드|환풍기|전동댐퍼|특가|이벤트|공동구매|교체|설치|행사|할인|초특가|세일|추석|사각씽크볼|8502).*$/i, '').trim();
+            return clean;
+        }).filter(Boolean);
+        suggestedKeyword = Array.from(new Set([reg, ...aptKeywords])).join(', ');
+    } else {
+        const ev = (window.currentData || []).find(e => e.id === targetVal);
+        if (ev) {
+            suggestedKeyword = ev.targetApt || ev.aptName || '';
+            if (!suggestedKeyword) {
+                suggestedKeyword = ev.title.replace(/^\[[^\]]+\]\s*/, '').replace(/(아파트|주방후드|환풍기|전동댐퍼|특가|이벤트|공동구매|교체|설치|행사|할인|초특가|세일|추석).*$/i, '').trim();
+            }
+        }
+    }
+
+    const promptMsg = targetVal === 'ALL_EVENTS'
+        ? '전체 DB에서 추출할 키워드를 입력하세요. (쉼표로 복수 입력, 예: 씽크볼, 싱크볼, 사각볼, 8502 / "전체" 입력 시 모든 고객 추출):'
+        : '추출할 현장/지역/제품 키워드를 확인하거나 수정하세요. (예: 씽크볼, 8502, 내포):';
+    const rawKeyword = prompt(promptMsg, suggestedKeyword || (targetVal === 'ALL_EVENTS' ? '전체' : ''));
+    if (rawKeyword === null) return;
+
+    const trimmedRaw = rawKeyword.trim();
+    const isAllMode = (trimmedRaw === '' || trimmedRaw === '전체' || trimmedRaw === '*');
+
+    const keywords = isAllMode ? [] : trimmedRaw.replace(/["']/g, '')
+                               .split(/또는|,|\s+/)
+                               .map(k => k.trim())
+                               .filter(k => k.length > 0);
+
+    if (!isAllMode && keywords.length === 0) {
+        alert('유효한 키워드가 입력되지 않았습니다.');
+        return;
+    }
+
+    const isMatch = (text) => {
+        if (isAllMode) return true;
+        return text && keywords.some(k => String(text).includes(k));
+    };
+
+    const optOutMap = window.smsOptOutMap || {};
+    let optOutSkippedCount = 0;
+
+    // 0. 전체 시공완료(reservations) 전화번호 인덱스 구축
+    const allReservationMap = {};
+    for (const [dateStr, resObj] of Object.entries(window.currentReservations || {})) {
+        for (const [id, res] of Object.entries(resObj || {})) {
+            const rawPhone = res.phone || res.contact_info || (res.customerInfo && res.customerInfo.phone) || '';
+            const normPhone = window.normalizeSmsPhone(rawPhone);
+            if (!normPhone || normPhone.length < 9) continue;
+
+            const address = res.address || (res.customerInfo && res.customerInfo.apt) || res.title || '';
+            const memo = res.memo || (res.customerInfo && res.customerInfo.memo) || res.notes || '';
+            const name = res.name || (res.customerInfo && res.customerInfo.name) || (res.customerInfo && res.customerInfo.apt) || '이름없음';
+            const productsStr = window.getSmsReservationProducts(res);
+
+            if (!allReservationMap[normPhone] || dateStr >= allReservationMap[normPhone].dateStr) {
+                allReservationMap[normPhone] = { dateStr, id, name, rawPhone, address, memo, productsStr };
+            }
+        }
+    }
+
+    const customerMap = {};
+
+    // 1. 시공완료(reservations) 스캔 (주소 + 메모 + 시공/예약 제품명)
+    for (const [dateStr, resObj] of Object.entries(window.currentReservations || {})) {
+        for (const [id, res] of Object.entries(resObj || {})) {
+            const address = res.address || (res.customerInfo && res.customerInfo.apt) || res.title || '';
+            const memo = res.memo || (res.customerInfo && res.customerInfo.memo) || res.notes || '';
+            const productsStr = window.getSmsReservationProducts(res);
+            
+            if (isMatch(address) || isMatch(memo) || isMatch(productsStr)) {
+                const rawPhone = res.phone || res.contact_info || (res.customerInfo && res.customerInfo.phone) || '';
+                const normPhone = window.normalizeSmsPhone(rawPhone);
+                if (!normPhone || normPhone.length < 9) continue;
+                if (optOutMap[normPhone]) { optOutSkippedCount++; continue; }
+
+                const name = res.name || (res.customerInfo && res.customerInfo.name) || (res.customerInfo && res.customerInfo.apt) || '이름없음';
+                if (!customerMap[normPhone]) {
+                    customerMap[normPhone] = {
+                        id: 'r_' + dateStr + '_' + id,
+                        name: name,
+                        phone: rawPhone,
+                        normPhone: normPhone,
+                        region: window.inferSmsRegion(address + ' ' + name),
+                        customerType: 'installed',
+                        source: '시공완료',
+                        sourceRef: { type: 'reservation', date: dateStr, id: id },
+                        detailDate: dateStr,
+                        detailProducts: productsStr || address,
+                        detailMemo: memo,
+                        selected: true
+                    };
+                } else if (productsStr && !customerMap[normPhone].detailProducts.includes(productsStr)) {
+                    customerMap[normPhone].detailProducts += (customerMap[normPhone].detailProducts ? ' / ' : '') + productsStr;
+                }
+            }
+        }
+    }
+
+    const upsertConsultationLead = (rawPhone, name, dateStr, leadSource, sourceRef, summaryText, memoText, addressText) => {
+        const normPhone = window.normalizeSmsPhone(rawPhone);
+        if (!normPhone || normPhone.length < 9) return;
+        if (optOutMap[normPhone]) { optOutSkippedCount++; return; }
+
+        const existingRes = allReservationMap[normPhone];
+        const combinedConsult = [dateStr, summaryText, memoText].filter(Boolean).join(' · ');
+
+        if (customerMap[normPhone]) {
+            if (combinedConsult && !String(customerMap[normPhone].detailMemo || '').includes(summaryText || memoText)) {
+                customerMap[normPhone].detailMemo = (customerMap[normPhone].detailMemo ? customerMap[normPhone].detailMemo + ' | ' : '') + `[통화/상담] ${combinedConsult}`;
+            }
+            return;
+        }
+
+        if (existingRes) {
+            customerMap[normPhone] = {
+                id: 'r_' + existingRes.dateStr + '_' + existingRes.id,
+                name: existingRes.name || name,
+                phone: existingRes.rawPhone || rawPhone,
+                normPhone: normPhone,
+                region: window.inferSmsRegion(existingRes.address + ' ' + addressText + ' ' + name),
+                customerType: 'installed',
+                source: '상담 후 시공함',
+                sourceRef: { type: 'reservation', date: existingRes.dateStr, id: existingRes.id },
+                detailDate: existingRes.dateStr,
+                detailProducts: existingRes.productsStr || existingRes.address || '시공내역 확인',
+                detailMemo: `[상담이력: ${combinedConsult}]` + (existingRes.memo ? ` / 시공메모: ${existingRes.memo}` : ''),
+                selected: true
+            };
+        } else {
+            customerMap[normPhone] = {
+                id: sourceRef.type === 'consultation' ? ('c_' + dateStr + '_' + sourceRef.id) : ('p_' + sourceRef.id),
+                name: name,
+                phone: rawPhone,
+                normPhone: normPhone,
+                region: window.inferSmsRegion(addressText + ' ' + name + ' ' + memoText),
+                customerType: 'consulting',
+                source: leadSource,
+                sourceRef: sourceRef,
+                detailDate: dateStr,
+                detailProducts: summaryText || '상담 요약 없음',
+                detailMemo: memoText || '',
+                selected: true
+            };
+        }
+    };
+
+    // 2. 상담접수내역(consultations) 스캔
+    for (const [dateStr, conObj] of Object.entries(window.currentConsultations || {})) {
+        for (const [id, con] of Object.entries(conObj || {})) {
+            const address = con.apartment || con.address || (con.customerInfo && con.customerInfo.apt) || con.title || '';
+            const memo = con.adminMemo || con.memo || (con.customerInfo && con.customerInfo.memo) || con.notes || '';
+            const summary = con.eventName || (con.ai_summary && con.ai_summary.content) || '';
+            
+            if (isMatch(address) || isMatch(memo) || isMatch(summary)) {
+                const phone = con.phone || con.contact_info || (con.customerInfo && con.customerInfo.phone) || '';
+                const name = con.name || (con.customerInfo && con.customerInfo.name) || (con.customerInfo && con.customerInfo.apt) || '고객';
+                upsertConsultationLead(
+                    phone, name, dateStr, '상담/보류',
+                    { type: 'consultation', date: dateStr, id: id },
+                    con.eventName || summary, memo, address
+                );
+            }
+        }
+    }
+
+    // 3. 상담리드(crm_pending) 스캔
+    for (const [id, con] of Object.entries(window.currentCrmPending || {})) {
+        const address = con.site_info || con.address || '';
+        const memo = con.summary || con.memo || '';
+        const summary = con.purchase_info || con.promises || '';
+        
+        if (isMatch(address) || isMatch(memo) || isMatch(summary)) {
+            const phone = con.contact_info || con.phone || '';
+            const name = con.site_info || '상담고객';
+            let dateStr = new Date().toISOString().split('T')[0];
+            if (con.created_at) {
+                dateStr = con.created_at.substring(0, 10);
+            }
+            upsertConsultationLead(
+                phone, name, dateStr, '상담 리드',
+                { type: 'crm_pending', date: dateStr, id: id },
+                summary, memo, address
+            );
+        }
+    }
+
+    const extracted = Object.values(customerMap).sort((a, b) => {
+        if (a.customerType !== b.customerType) {
+            return a.customerType === 'consulting' ? -1 : 1;
+        }
+        return (b.detailDate || '').localeCompare(a.detailDate || '');
+    });
+
+    const installedCnt = extracted.filter(c => c.customerType === 'installed').length;
+    const consultingCnt = extracted.filter(c => c.customerType === 'consulting').length;
+
+    window._tempExtractedCustomers = extracted;
+    renderExtractedCustomers();
+    alert(`"${isAllMode ? '전체' : trimmedRaw}" 추출 완료: 총 ${extracted.length}명\n(🟠 상담고객: ${consultingCnt}명 / 🔵 시공고객: ${installedCnt}명${optOutSkippedCount > 0 ? ` / 🚫 수신거부 제외: ${optOutSkippedCount}건` : ''})`);
+};
+
+window.extractTestCustomersForSms = function() {
+    const testCustomers = [
+        {
+            id: 'test_1',
+            name: '대표님 (테스트)',
+            phone: '010-2886-5086',
+            normPhone: '01028865086',
+            region: '내포',
+            customerType: 'consulting',
+            source: '테스트',
+            sourceRef: { type: 'test' },
+            detailDate: '오늘',
+            detailProducts: '문자발송 테스트 진행 중',
+            detailMemo: '실제 발송 테스트용 명단입니다.',
+            selected: true
+        },
+        {
+            id: 'test_2',
+            name: '지인 (테스트)',
+            phone: '010-8794-4843',
+            normPhone: '01087944843',
+            region: '내포',
+            customerType: 'installed',
+            source: '테스트',
+            sourceRef: { type: 'test' },
+            detailDate: '오늘',
+            detailProducts: '문자발송 테스트 진행 중',
+            detailMemo: '링크가 잘 열리는지 확인 부탁드립니다.',
+            selected: true
+        }
+    ];
+
+    window._tempExtractedCustomers = testCustomers;
+    renderExtractedCustomers();
+    alert('테스트용 2인의 명단이 생성되었습니다. 저장 후 PC 발송 대시보드에서 테스트해보세요.');
+};
+
+window.selectSmsCategory = function(mode) {
+    const list = window._tempExtractedCustomers || [];
+    list.forEach(c => {
+        const cType = window.getSmsCustomerType(c);
+        if (mode === 'all') c.selected = true;
+        else if (mode === 'none') c.selected = false;
+        else if (mode === 'installed') c.selected = (cType === 'installed');
+        else if (mode === 'consulting') c.selected = (cType === 'consulting');
+    });
+    renderExtractedCustomers();
+};
+
+window.renderExtractedCustomers = function() {
+    const tbody = document.getElementById('sms-extracted-tbody');
+    tbody.innerHTML = '';
+    const extracted = window._tempExtractedCustomers || [];
+    const summaryEl = document.getElementById('sms-category-summary');
+    
+    if (extracted.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6b7280; padding: 20px;">추출된 고객이 없습니다.</td></tr>';
+        document.getElementById('sms-extracted-count').textContent = '0';
+        document.getElementById('sms-selected-count').textContent = '0';
+        if (summaryEl) summaryEl.textContent = '시공고객 0명 · 상담고객 0명';
+        return;
+    }
+
+    let selectedCount = 0;
+    let installedCount = 0;
+    let consultingCount = 0;
+
+    extracted.forEach((c, idx) => {
+        if (c.selected) selectedCount++;
+        const cType = window.getSmsCustomerType(c);
+        if (cType === 'installed') installedCount++;
+        else consultingCount++;
+        
+        let detailText = '';
+        if (cType === 'installed') {
+            detailText = `<div style="font-weight:bold; color:#2563eb;">${c.detailDate} 시공 (${c.source})</div>
+                          <div style="font-size:12px;">제품: ${c.detailProducts || '미기재'}</div>
+                          <div style="font-size:12px; color:#6b7280;">특기사항: ${c.detailMemo || '없음'}</div>`;
+        } else {
+            detailText = `<div style="font-weight:bold; color:#d97706;">${c.detailDate || ''} 상담 (${c.source})</div>
+                          <div style="font-size:12px;">${c.detailProducts || '요약 없음'}</div>
+                          <div style="font-size:12px; color:#6b7280;">메모: ${c.detailMemo || '없음'}</div>`;
+        }
+
+        let detailBtn = '';
+        if (c.sourceRef && c.sourceRef.type === 'reservation') {
+            detailBtn = `<button class="btn-secondary btn-sm" onclick="window.openUnifiedModal('${c.sourceRef.date}', '${c.sourceRef.id}')">🔍상세</button>`;
+        } else if (c.sourceRef && c.sourceRef.type === 'consultation') {
+            detailBtn = `<button class="btn-secondary btn-sm" onclick="window.openDetailCard('${c.sourceRef.date}', '${c.sourceRef.id}')">🔍상세</button>`;
+        } else if (c.source === '테스트') {
+            detailBtn = `<span style="font-size:12px; color:#aaa;">테스트</span>`;
+        } else {
+            detailBtn = `<span style="font-size:11px; color:#6b7280;">통화요약</span>`;
+        }
+
+        const badgeStyle = cType === 'installed'
+            ? 'background:#dbeafe; color:#1e40af;'
+            : 'background:#fef3c7; color:#b45309;';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="text-align: center;"><input type="checkbox" class="sms-row-check" data-idx="${idx}" ${c.selected ? 'checked' : ''} onchange="updateSmsSelection()"></td>
+            <td><strong>${c.name}</strong><br><span style="font-size:12px;color:#555;">${c.phone}</span></td>
+            <td><span class="badge" style="${badgeStyle}">${c.source}</span></td>
+            <td>${detailText}</td>
+            <td style="text-align: center;">${detailBtn}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById('sms-extracted-count').textContent = extracted.length;
+    document.getElementById('sms-selected-count').textContent = selectedCount;
+    if (summaryEl) {
+        summaryEl.textContent = `🔵 시공고객 ${installedCount}명 · 🟠 상담고객 ${consultingCount}명`;
+    }
+    const checkAllEl = document.getElementById('sms-check-all');
+    if (checkAllEl) {
+        checkAllEl.checked = (selectedCount === extracted.length && extracted.length > 0);
+    }
+};
+
+window.toggleAllSmsCheckboxes = function(el) {
+    const isChecked = el.checked;
+    if (window._tempExtractedCustomers) {
+        window._tempExtractedCustomers.forEach(c => c.selected = isChecked);
+    }
+    renderExtractedCustomers();
+};
+
+window.updateSmsSelection = function() {
+    const checkboxes = document.querySelectorAll('.sms-row-check');
+    let selectedCount = 0;
+    checkboxes.forEach(cb => {
+        const idx = cb.getAttribute('data-idx');
+        if (window._tempExtractedCustomers[idx]) {
+            window._tempExtractedCustomers[idx].selected = cb.checked;
+            if (cb.checked) selectedCount++;
+        }
+    });
+    document.getElementById('sms-selected-count').textContent = selectedCount;
+};
+
+window.saveSmsCampaign = function() {
+    const campId = document.getElementById('sms-modal-index').value;
+    const targetVal = document.getElementById('sms-target-event').value;
+    const linkTarget = document.getElementById('sms-link-target').value || 'HOME';
+    const purposeSummary = document.getElementById('sms-purpose-summary').value.trim();
+    const introText = document.getElementById('sms-intro-text').value;
+    const linkTitle = document.getElementById('sms-link-title').value;
+    const outroText = window.ensureSmsOptOutOutro(document.getElementById('sms-outro-text').value);
+    const extracted = window._tempExtractedCustomers || [];
+    
+    if (!targetVal) {
+        alert('타겟 범위(전체 / 지역 / 개별 현장)를 선택해주세요.');
+        return;
+    }
+    const selectedList = extracted.filter(c => c.selected);
+    if (selectedList.length === 0) {
+        alert('발송 대상 고객이 1명 이상이어야 합니다.');
+        return;
+    }
+
+    let scopeTitle = '전체 현장';
+    let targetRegion = '전체';
+    if (targetVal === 'ALL_EVENTS') {
+        scopeTitle = '전체 현장 대상';
+        targetRegion = '전체';
+    } else if (targetVal.startsWith('REGION:')) {
+        targetRegion = targetVal.replace('REGION:', '');
+        scopeTitle = `[${targetRegion}] 지역 전체`;
+    } else {
+        const ev = (window.currentData || []).find(e => e.id === targetVal);
+        scopeTitle = ev ? ev.title : targetVal;
+        const m = scopeTitle.match(/^\[([^\]]+)\]/);
+        targetRegion = m ? m[1] : '기타';
+    }
+
+    const title = `[문자발송] ${scopeTitle}`;
+    const finalTargets = selectedList.map(c => ({
+        name: c.name,
+        phone: c.phone,
+        region: c.region || targetRegion,
+        customerType: window.getSmsCustomerType(c)
+    }));
+
+    const groups = [];
+    for (let i = 0; i < finalTargets.length; i += 10) {
+        groups.push({
+            id: 'g_' + i,
+            targets: finalTargets.slice(i, i + 10),
+            sent: false
+        });
+    }
+
+    const campaignObj = {
+        title: title,
+        targetEventId: targetVal,
+        targetRegion: targetRegion,
+        linkTarget: linkTarget,
+        eventTitle: scopeTitle,
+        purposeSummary: purposeSummary,
+        linkTitle: linkTitle,
+        introText: introText,
+        outroText: outroText,
+        extractedCustomers: extracted,
+        targetCount: finalTargets.length,
+        groups: groups,
+        status: 'ready'
+    };
+
+    if (campId === -1 || campId === '-1') {
+        campaignObj.id = 'sms_' + Date.now();
+        campaignObj.createdAt = Date.now();
+        window.smsCampaignsData.push(campaignObj);
+    } else {
+        const idx = window.smsCampaignsData.findIndex(c => c.id === campId);
+        if (idx >= 0) {
+            campaignObj.id = campId;
+            campaignObj.createdAt = window.smsCampaignsData[idx].createdAt;
+            if (window.smsCampaignsData[idx].groups && window.smsCampaignsData[idx].groups.length === groups.length) {
+                for (let i = 0; i < groups.length; i++) {
+                    groups[i].sent = window.smsCampaignsData[idx].groups[i].sent;
+                }
+            }
+            window.smsCampaignsData[idx] = campaignObj;
+        }
+    }
+
+    window.syncSmsToServer();
+    closeSmsCampaignModal();
+};
+
+window.duplicateSmsCampaign = function(campId) {
+    if (confirm("이 캠페인의 문구와 추출 명단을 그대로 복사하여 새 캠페인을 만드시겠습니까?\n(발송 기록은 0으로 초기화되므로 재발송에 안전합니다)")) {
+        const camp = window.smsCampaignsData.find(c => c.id === campId);
+        if (!camp) return;
+
+        const newGroups = (camp.groups || []).map(g => ({ ...g, sent: false }));
+
+        const newCampId = 'sms_' + Date.now();
+        window.smsCampaignsData.push({
+            ...camp,
+            id: newCampId,
+            title: camp.title + " (복제됨)",
+            groups: newGroups,
+            status: 'ready',
+            createdAt: Date.now()
+        });
+        window.syncSmsToServer();
+        renderSmsCampaignList();
+    }
+};
+
+window.deleteSmsCampaign = function(campId) {
+    if (confirm("정말 이 캠페인을 삭제하시겠습니까?\n발송 이력도 완전히 사라지며 복구할 수 없습니다.\n(원본 예약/상담 DB는 안전합니다)")) {
+        const idx = window.smsCampaignsData.findIndex(c => c.id === campId);
+        if (idx > -1) {
+            window.smsCampaignsData.splice(idx, 1);
+            window.syncSmsToServer();
+            renderSmsCampaignList();
+        }
+    }
+};
+
+// ==========================================
+// PC 발송 대시보드 + 통계(아파트 세대수 대비) + 이전 이력
+// ==========================================
+window.openSmsDashboardModal = function(campId) {
+    const camp = window.smsCampaignsData.find(c => c.id === campId);
+    if (!camp) return;
+
+    document.getElementById('sms-dash-index').value = campId;
+    document.getElementById('sms-send-campaign-title').textContent = camp.title;
+    document.getElementById('sms-send-dashboard-modal').style.display = 'flex';
+    
+    renderSmsDashboardStatsAndHistory(camp);
+    renderSmsPcGroups(camp);
+};
+
+window.closeSmsDashboardModal = function() {
+    document.getElementById('sms-send-dashboard-modal').style.display = 'none';
+};
+
+window.renderSmsDashboardStatsAndHistory = function(camp) {
+    const statsEl = document.getElementById('sms-dash-stats');
+    const historyEl = document.getElementById('sms-dash-history');
+    if (!statsEl || !historyEl) return;
+
+    const allTargets = (camp.groups || []).flatMap(g => g.targets || []);
+    const totalCount = allTargets.length;
+    const installedCount = allTargets.filter(t => (t.customerType || 'consulting') === 'installed').length;
+    const consultingCount = totalCount - installedCount;
+    const sentGroups = (camp.groups || []).filter(g => g.sent).length;
+    const totalGroups = (camp.groups || []).length;
+
+    // 지역별 분포 집계
+    const regionCounts = {};
+    allTargets.forEach(t => {
+        const reg = t.region || camp.targetRegion || '기타';
+        regionCounts[reg] = (regionCounts[reg] || 0) + 1;
+    });
+    const regionText = Object.entries(regionCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([reg, cnt]) => `${reg} ${cnt}명`)
+        .join(' · ') || '데이터 없음';
+
+    // 아파트 DB 연계 총 세대수 대비 분석
+    const aptSpecs = window.currentAptSpecs || [];
+    let matchedApts = [];
+    if (camp.targetEventId === 'ALL_EVENTS') {
+        matchedApts = aptSpecs;
+    } else if (camp.targetEventId && String(camp.targetEventId).startsWith('REGION:')) {
+        const reg = camp.targetEventId.replace('REGION:', '');
+        matchedApts = aptSpecs.filter(a => (a.apt_name || '').includes(reg));
+    } else {
+        const cleanTitle = (camp.eventTitle || '').replace(/^\[[^\]]+\]\s*/, '').replace(/(아파트|주방후드|환풍기|전동댐퍼|특가|이벤트|공동구매|교체|설치|행사|할인|초특가|세일|추석|사각씽크볼|8502).*$/i, '').trim();
+        matchedApts = aptSpecs.filter(a => {
+            const name = a.apt_name || '';
+            return (cleanTitle && name.includes(cleanTitle)) || (camp.targetRegion && camp.targetRegion !== '기타' && name.includes(camp.targetRegion));
+        });
+    }
+
+    const totalHouseholds = matchedApts.reduce((sum, a) => sum + window.parseHouseholdCount(a.total_units), 0);
+    const totalPrevSales = matchedApts.reduce((sum, a) => sum + window.parseHouseholdCount(a.sales_count), 0);
+    const reachRate = totalHouseholds > 0 ? ((totalCount / totalHouseholds) * 100).toFixed(2) : null;
+    const aptSummaryHtml = totalHouseholds > 0
+        ? `연계 단지 <strong>${matchedApts.length}곳</strong> 총 <strong>${totalHouseholds.toLocaleString()}세대</strong> 대비 발송대상 <strong style="color:#2563eb;">${reachRate}%</strong> (기존 시공 ${totalPrevSales.toLocaleString()}세대)`
+        : `연계된 아파트 세대수 정보 없음 (<a href="./apt_db.html" target="_blank" style="color:#2563eb;">아파트 DB</a>에서 세대수 등록 시 자동 분석)`;
+
+    statsEl.innerHTML = `
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-bottom:10px;">
+            <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+                <div style="font-size:11px; color:#64748b;">총 문자발송 대상</div>
+                <div style="font-size:18px; font-weight:bold; color:#1e293b;">${totalCount}명</div>
+            </div>
+            <div style="background:#eff6ff; padding:10px; border-radius:6px; border:1px solid #bfdbfe;">
+                <div style="font-size:11px; color:#1e40af;">시공 / 상담 비율</div>
+                <div style="font-size:14px; font-weight:bold; color:#1e40af; margin-top:2px;">🔵 시공 ${installedCount} · 🟠 상담 ${consultingCount}</div>
+            </div>
+            <div style="background:#f0fdf4; padding:10px; border-radius:6px; border:1px solid #bbf7d0;">
+                <div style="font-size:11px; color:#166534;">발송 진행률</div>
+                <div style="font-size:18px; font-weight:bold; color:#166534;">${sentGroups} / ${totalGroups} 그룹</div>
+            </div>
+        </div>
+        <div style="font-size:12px; color:#334155; line-height:1.6;">
+            <div>📍 <strong>지역별 분포:</strong> ${regionText}</div>
+            <div>🏢 <strong>총 세대수 대비 분석:</strong> ${aptSummaryHtml}</div>
+        </div>
+    `;
+
+    // 이전 발송 이력 요약
+    const allCamps = [...(window.smsCampaignsData || [])].sort((a, b) => b.createdAt - a.createdAt);
+    const recentRows = allCamps.slice(0, 6).map(c => {
+        const cSent = (c.groups || []).filter(g => g.sent).reduce((s, g) => s + (g.targets ? g.targets.length : 0), 0);
+        const statusBadge = c.status === 'done' ? '✅ 완료' : (cSent > 0 ? '⏳ 진행중' : '🕒 대기');
+        const dateLabel = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '-';
+        return `<tr>
+            <td style="padding:4px 6px; border-bottom:1px solid #e5e7eb;">${dateLabel}</td>
+            <td style="padding:4px 6px; border-bottom:1px solid #e5e7eb;">${c.title || '-'}</td>
+            <td style="padding:4px 6px; border-bottom:1px solid #e5e7eb; text-align:center;">${c.targetRegion || '-'}</td>
+            <td style="padding:4px 6px; border-bottom:1px solid #e5e7eb; text-align:right;">${cSent}/${c.targetCount || 0}명</td>
+            <td style="padding:4px 6px; border-bottom:1px solid #e5e7eb; text-align:center;">${statusBadge}</td>
+        </tr>`;
+    }).join('');
+
+    historyEl.innerHTML = `
+        <table style="width:100%; border-collapse:collapse; margin-top:4px;">
+            <thead>
+                <tr style="background:#f9fafb; color:#4b5563;">
+                    <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #d1d5db;">일자</th>
+                    <th style="padding:5px 6px; text-align:left; border-bottom:1px solid #d1d5db;">캠페인</th>
+                    <th style="padding:5px 6px; text-align:center; border-bottom:1px solid #d1d5db;">지역</th>
+                    <th style="padding:5px 6px; text-align:right; border-bottom:1px solid #d1d5db;">발송/대상</th>
+                    <th style="padding:5px 6px; text-align:center; border-bottom:1px solid #d1d5db;">상태</th>
+                </tr>
+            </thead>
+            <tbody>${recentRows || '<tr><td colspan="5" style="padding:8px; text-align:center;">이력이 없습니다.</td></tr>'}</tbody>
+        </table>
+    `;
+};
+
+window.buildSmsBodyText = function(camp) {
+    const link = window.getSmsCampaignLink(camp);
+    let bodyText = camp.introText ? camp.introText.trim() + '\n\n' : '';
+    const linkTitle = camp.linkTitle || `▼ ${camp.eventTitle || '하츠 충남대리점'} 바로가기`;
+    bodyText += `${linkTitle}\n${link}`;
+    const outro = window.ensureSmsOptOutOutro(camp.outroText);
+    if (outro) {
+        bodyText += `\n\n${outro}`;
+    }
+    return bodyText;
+};
+
+window.renderSmsPcGroups = function(camp) {
+    const container = document.getElementById('sms-groups-container');
+    container.innerHTML = '';
+    
+    if (!camp.groups || camp.groups.length === 0) {
+        container.innerHTML = '<p>발송 대상이 없습니다.</p>';
+        return;
+    }
+
+    camp.groups.forEach((g, idx) => {
+        const startNum = idx * 10 + 1;
+        const endNum = startNum + g.targets.length - 1;
+        const isSent = g.sent;
+        
+        const targetListHtml = g.targets.map(t =>
+            `<span style="display:inline-block; margin:2px 6px 2px 0; padding:2px 6px; background:#f3f4f6; border-radius:4px; font-size:12px; color:#374151;">${t.name} (${t.phone})</span>`
+        ).join('');
+
+        const div = document.createElement('div');
+        div.style.cssText = `background: ${isSent ? '#f9fafb' : 'white'}; border: 1px solid ${isSent ? '#86efac' : '#d1d5db'}; border-radius: 8px; padding: 14px; margin-bottom: 10px;`;
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                <strong>그룹 ${idx + 1} (${startNum}~${endNum}번 · ${g.targets.length}명)</strong>
+                <span style="font-size:12px; font-weight:bold; color:${isSent ? '#16a34a' : '#2563eb'};">${isSent ? '✅ 발송완료' : '🕒 발송대기'}</span>
+            </div>
+            <div style="margin-bottom: 10px;">${targetListHtml}</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm" style="flex:1; min-width:130px; padding:10px; font-weight:bold;" onclick="copySmsGroupPhones('${camp.id}', ${idx})">📋 번호 복사 (${g.targets.length}명)</button>
+                <button class="btn-secondary btn-sm" style="flex:1; min-width:130px; padding:10px; font-weight:bold;" onclick="copySmsGroupBody('${camp.id}')">📋 문자 본문 복사</button>
+                <button class="btn btn-sm" style="flex:1; min-width:130px; padding:10px; font-weight:bold; border:none; border-radius:6px; background:${isSent ? '#9ca3af' : '#16a34a'}; color:white;" onclick="markSmsGroupSent('${camp.id}', ${idx})">${isSent ? '↩️ 완료 취소' : '✅ 발송완료 체크'}</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+};
+
+window.copySmsGroupPhones = async function(campId, groupIdx) {
+    const camp = window.smsCampaignsData.find(c => c.id === campId);
+    if (!camp || !camp.groups[groupIdx]) return;
+    const phones = camp.groups[groupIdx].targets.map(t => window.normalizeSmsPhone(t.phone)).filter(p => p.length >= 9);
+    const phoneStr = phones.join(', ');
+    try {
+        await navigator.clipboard.writeText(phoneStr);
+        alert(`그룹 ${groupIdx + 1} 수신번호 ${phones.length}건이 복사되었습니다!\nPC 문자 프로그램의 받는사람 칸에 붙여넣기(Ctrl+V) 하세요.`);
+    } catch (e) {
+        prompt('아래 번호를 복사(Ctrl+C)하세요:', phoneStr);
+    }
+};
+
+window.copySmsGroupBody = async function(campId) {
+    const camp = window.smsCampaignsData.find(c => c.id === campId);
+    if (!camp) return;
+    const bodyText = window.buildSmsBodyText(camp);
+    try {
+        await navigator.clipboard.writeText(bodyText);
+        alert('문자 본문(링크 및 수신거부 안내 포함)이 복사되었습니다!\n메시지 입력창에 붙여넣기(Ctrl+V) 하세요.');
+    } catch (e) {
+        prompt('아래 문자 본문을 복사(Ctrl+C)하세요:', bodyText);
+    }
+};
+
+window.markSmsGroupSent = function(campId, groupIdx) {
+    const camp = window.smsCampaignsData.find(c => c.id === campId);
+    if (!camp || !camp.groups[groupIdx]) return;
+    camp.groups[groupIdx].sent = !camp.groups[groupIdx].sent;
+    const allSent = camp.groups.every(g => g.sent);
+    camp.status = allSent ? 'done' : 'ready';
+    window.syncSmsToServer();
+    renderSmsDashboardStatsAndHistory(camp);
+    renderSmsPcGroups(camp);
+    renderSmsCampaignList();
+};
+
+// ==========================================
+// 수신거부 번호 관리 (피드백 루프)
+// ==========================================
+window.syncSmsOptOutToServer = function() {
+    window.firebaseSet(window.firebaseRef(window.firebaseDb, '/sms_opt_out'), window.smsOptOutMap || {});
+};
+
+window.openSmsOptOutModal = function() {
+    document.getElementById('sms-optout-modal').style.display = 'flex';
+    window.renderSmsOptOutList();
+};
+
+window.closeSmsOptOutModal = function() {
+    document.getElementById('sms-optout-modal').style.display = 'none';
+};
+
+window.renderSmsOptOutList = function() {
+    const listEl = document.getElementById('sms-optout-list');
+    if (!listEl) return;
+    const entries = Object.entries(window.smsOptOutMap || {});
+    if (entries.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center; color:#6b7280; padding:16px; font-size:12px;">등록된 수신거부 번호가 없습니다.</div>';
+        return;
+    }
+    listEl.innerHTML = entries.map(([phone, info]) => {
+        const addedAt = info && info.addedAt ? new Date(info.addedAt).toLocaleDateString() : '';
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 8px; border-bottom:1px solid #e5e7eb; font-size:13px;">
+                <div><strong>${phone}</strong> <span style="font-size:11px; color:#6b7280;">(${addedAt})</span></div>
+                <button class="btn-secondary btn-sm" style="font-size:11px; padding:2px 8px;" onclick="removeSmsOptOutNumber('${phone}')">해제</button>
+            </div>
+        `;
+    }).join('');
+};
+
+window.addSmsOptOutNumbers = function() {
+    const inputEl = document.getElementById('sms-optout-input');
+    const raw = (inputEl.value || '').trim();
+    if (!raw) return;
+
+    const parts = raw.split(/[\s,;]+/).map(p => window.normalizeSmsPhone(p)).filter(p => p.length >= 9);
+    if (parts.length === 0) {
+        alert('유효한 전화번호를 입력해주세요.');
+        return;
+    }
+
+    if (!window.smsOptOutMap) window.smsOptOutMap = {};
+    parts.forEach(p => {
+        window.smsOptOutMap[p] = { addedAt: Date.now(), reason: '수신거부' };
+    });
+    inputEl.value = '';
+    window.syncSmsOptOutToServer();
+    window.renderSmsOptOutList();
+    renderSmsCampaignList();
+    alert(`${parts.length}건의 수신거부 번호가 등록되었습니다. 다음 DB 추출 시 자동 제외됩니다.`);
+};
+
+window.removeSmsOptOutNumber = function(normPhone) {
+    if (!window.smsOptOutMap) return;
+    delete window.smsOptOutMap[normPhone];
+    window.syncSmsOptOutToServer();
+    window.renderSmsOptOutList();
+    renderSmsCampaignList();
+};
+
 </script>
 </body>
 </html>

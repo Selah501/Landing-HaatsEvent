@@ -1131,7 +1131,8 @@ function applyToMaster(id) {
   if (!record) return;
   
   const st = record.state;
-  const url = `product_master.html?apply_product_id=${selectedProduct.id}&cost=${st.cost}&install=${st.installFee}&options=${st.optTotal}&other=${st.adjust}&total=${st.finalPrice}`;
+  const calculatedAdjust = st.finalPrice - (st.cost + st.installFee + st.optTotal);
+  const url = `product_master.html?apply_product_id=${selectedProduct.id}&cost=${st.cost}&install=${st.installFee}&options=${st.optTotal}&other=${calculatedAdjust}&total=${st.finalPrice}`;
   window.open(url, '_blank');
 }
 

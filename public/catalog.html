@@ -349,6 +349,7 @@
                 <button type="button" class="pill-btn lime" onclick="openInstallmentModal()">💳 카드 무이자 할부 안내</button>
                 <a href="./index.html" class="pill-btn">📢 진행 중 아파트 이벤트 보기</a>
                 <a href="./reservation_v2.html" class="pill-btn primary">📅 바로 설치 예약하기</a>
+                <a id="btn-catalog-admin" href="./admin.html" class="pill-btn" style="display:none; border-color:#6366f1; color:#c7d2fe;">⚙️ 관리자메인</a>
             </div>
         </header>
 
@@ -412,7 +413,7 @@
             <h3 style="margin:0 0 6px; font-size:18px; color:var(--lime);">💬 무료 상담 · 맞춤 견적 신청</h3>
             <p id="consultProductLabel" style="margin:0 0 14px; font-size:13px; color:#d1d5db;"></p>
             <input type="text" id="consultApt" class="form-field" placeholder="아파트명 및 동·호수 (예: 내포LH스타힐스 101동 102호)">
-            <input type="tel" id="consultPhone" class="form-field" placeholder="연락처 (예: 010-1234-5678)">
+            <input type="tel" id="consultPhone" class="form-field" value="010-" placeholder="연락처 (예: 010-1234-5678)">
             <select id="consultTime" class="form-field">
                 <option value="언제든 가능">통화 가능 시간: 언제든 가능</option>
                 <option value="오전 (09:00~12:00)">오전 (09:00~12:00)</option>
@@ -499,6 +500,11 @@
         function openInstallmentModal() { document.getElementById('installmentModal').style.display = 'flex'; }
         function closeInstallmentModal() { document.getElementById('installmentModal').style.display = 'none'; }
 
+        if (sessionStorage.getItem('adminAuth') === 'true' || new URLSearchParams(window.location.search).get('admin') === '1') {
+            const adminBtn = document.getElementById('btn-catalog-admin');
+            if (adminBtn) adminBtn.style.display = 'inline-flex';
+        }
+
         function openConsultModal(prodName) {
             selectedConsultProduct = prodName;
             document.getElementById('consultProductLabel').textContent = `선택 제품: ${prodName}`;
@@ -508,7 +514,7 @@
 
         async function submitAlwaysOnConsult() {
             const apt = document.getElementById('consultApt').value.trim();
-            const phone = document.getElementById('consultPhone').value.trim();
+            let phone = document.getElementById('consultPhone').value.trim();
             const consultTime = document.getElementById('consultTime').value;
 
             if (!apt || apt.length < 3 || !/\d/.test(apt)) {
@@ -516,10 +522,16 @@
                 document.getElementById('consultApt').focus();
                 return;
             }
-            if (!phone || phone.replace(/[^0-9]/g, '').length < 9) {
-                alert('⚠️ 연락처를 정확히 입력해주세요.');
+            const rawDigits = phone.replace(/[^0-9]/g, '');
+            if (rawDigits.length < 10) {
+                alert('⚠️ 정확한 휴대폰 번호를 입력해주세요 (예: 010-1234-5678).');
                 document.getElementById('consultPhone').focus();
                 return;
+            }
+            if (rawDigits.length === 11) {
+                phone = rawDigits.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+            } else if (rawDigits.length === 10) {
+                phone = rawDigits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
             }
 
             const btn = document.getElementById('btnSubmitConsult');
@@ -539,7 +551,8 @@
 
             try {
                 if (window.firebaseDB) {
-                    const todayStr = new Date().toISOString().split('T')[0];
+                    const d = new Date();
+                    const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                     const newRef = window.firebasePush(window.firebaseRef(window.firebaseDB, `consultations/${todayStr}`));
                     await window.firebaseSet(newRef, payload);
                 }
@@ -553,7 +566,7 @@
                 alert('✅ 상담 신청이 접수되었습니다! 확인 후 빠르게 연락드리겠습니다.');
                 closeConsultModal();
                 document.getElementById('consultApt').value = '';
-                document.getElementById('consultPhone').value = '';
+                document.getElementById('consultPhone').value = '010-';
             } catch (err) {
                 alert('일시적 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
                 console.error(err);

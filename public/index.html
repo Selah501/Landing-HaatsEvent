@@ -29,20 +29,145 @@
             margin-right: 12px;
             cursor: pointer;
         }
+        /* [임시 팝업] 오픈 예정 안내 모달 */
+        .temp-notice-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .temp-notice-modal {
+            width: 100%;
+            max-width: 380px;
+            background: #141518;
+            border: 1.5px solid var(--color-interactive-lime);
+            border-radius: 16px;
+            padding: 28px 22px 22px;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+            position: relative;
+        }
+        .temp-notice-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: transparent;
+            border: none;
+            color: #9ea0a9;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .temp-notice-badge {
+            display: inline-block;
+            background: var(--color-interactive-lime);
+            color: #000;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+        }
+        .temp-notice-title {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.6;
+            color: #ffffff;
+            margin-bottom: 10px;
+            word-break: keep-all;
+        }
+        .temp-notice-desc {
+            font-size: 13px;
+            color: #9ea0a9;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            word-break: keep-all;
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="mobile-container">
-        <nav class="sticky-nav">
-            <div class="nav-logo"><span>[공식]</span>하츠 충남대리점</div>
-        </nav>
+    <!-- [임시 팝업] 내포 LH스타힐스 & 모아 엘가 오픈 안내 (제거 시 이 블록 삭제) -->
+    <div id="temp-notice-popup" class="temp-notice-overlay" role="dialog" aria-modal="true" aria-labelledby="temp-notice-title" onclick="if (event.target === this) closeTempNoticePopup();">
+        <div class="temp-notice-modal">
+            <button type="button" class="temp-notice-close" onclick="closeTempNoticePopup()" aria-label="팝업 닫기">✕</button>
+            <div class="temp-notice-badge">📢 오픈 안내</div>
+            <p id="temp-notice-title" class="temp-notice-title">
+                내포 LH스타힐스와 모아 엘가 아파트<br>
+                이벤트 페이지는 <strong style="color: var(--color-interactive-lime);">내일 (11/25) 오픈 예정</strong>입니다.
+            </p>
+            <p class="temp-notice-desc">
+                확인 버튼을 누르시면 현재 진행 중인 다른 이벤트도 둘러보실 수 있습니다.
+            </p>
+            <button type="button" class="btn btn-secondary" style="width: 100%; padding: 13px; font-size: 15px;" onclick="closeTempNoticePopup()">확인</button>
+        </div>
+    </div>
+    <script>
+        function closeTempNoticePopup() {
+            const popup = document.getElementById('temp-notice-popup');
+            if (popup) popup.style.display = 'none';
+        }
+        function openCardInstallmentPopup() {
+            const popup = document.getElementById('card-installment-popup');
+            if (popup) popup.style.display = 'flex';
+        }
+        function closeCardInstallmentPopup() {
+            const popup = document.getElementById('card-installment-popup');
+            if (popup) popup.style.display = 'none';
+        }
+    </script>
 
+    <!-- [카드 무이자 할부 안내 팝업] -->
+    <div id="card-installment-popup" class="temp-notice-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="card-installment-title" onclick="if (event.target === this) closeCardInstallmentPopup();">
+        <div class="temp-notice-modal" style="text-align:left; max-width:400px;">
+            <button type="button" class="temp-notice-close" onclick="closeCardInstallmentPopup()" aria-label="팝업 닫기">✕</button>
+            <div style="text-align:center;">
+                <div class="temp-notice-badge">💳 무이자 할부 안내</div>
+                <h3 id="card-installment-title" style="font-size:17px; font-weight:700; color:#fff; margin:0 0 6px 0;">신용카드 무이자 할부 혜택</h3>
+                <p style="font-size:12px; color:#9ea0a9; margin:0 0 14px 0;">2026.11~12월 기준 · 5만원 이상 개인 신용카드 결제 시</p>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:13px; color:#e5e7eb; margin-bottom:14px;">
+                <tr>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33;">NH농협카드</td>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33; text-align:right; color:var(--color-interactive-lime); font-weight:700;">2 ~ 6개월 무이자</td>
+                </tr>
+                <tr>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33;">하나 / BC / 우리카드</td>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33; text-align:right; color:#fff; font-weight:600;">2 ~ 5개월 무이자</td>
+                </tr>
+                <tr>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33;">신한 / KB국민 / 현대 / 삼성 / 롯데</td>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33; text-align:right; color:#fff; font-weight:600;">2 ~ 3개월 무이자</td>
+                </tr>
+            </table>
+            <p style="font-size:11px; color:#8e8e93; line-height:1.5; margin:0 0 16px 0;">
+                ※ 법인·체크·선불·기프트카드는 제외되며, 현장 무선단말기 및 카드사 정책에 따라 실제 적용 개월 수는 변동될 수 있습니다.
+            </p>
+            <button type="button" class="btn btn-secondary" style="width: 100%; padding: 12px; font-size: 14px;" onclick="closeCardInstallmentPopup()">확인</button>
+        </div>
+    </div>
+
+    <div class="mobile-container">
         <header class="hero-section" id="global-hero" style="transition: all 0.3s ease;">
             <h1 class="hero-title" style="font-size: 22px; color: var(--color-interactive-lime); margin-bottom: 8px;">하츠 충남(홍성/내포) 대리점</h1>
             <h2 class="hero-title hero-subtitle" style="font-size: 18px; line-height: 1.4; color: #fff;">진행 중인 공동구매 / 특가 이벤트</h2>
-            <div class="hero-subtitle" style="font-size: 13px; color: #aaa; margin-top: 12px;">👇 아래에서 고객님의 해당 현장을 클릭하세요</div>
+            <div style="display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:12px; font-size:12px; color:#d1d5db;">
+                <span style="background:#1c1d22; border:1px solid #333; padding:4px 10px; border-radius:999px;">① 내 아파트 선택</span>
+                <span style="color:#6b7280; align-self:center;">→</span>
+                <span style="background:#1c1d22; border:1px solid #333; padding:4px 10px; border-radius:999px;">② 상세스펙 확인</span>
+                <span style="color:#6b7280; align-self:center;">→</span>
+                <span style="background:#1c1d22; border:1px solid #333; padding:4px 10px; border-radius:999px;">③ 상담·예약</span>
+            </div>
+            <div style="margin-top: 14px;">
+                <button type="button" onclick="openCardInstallmentPopup()" style="background: rgba(220,255,0,0.1); border: 1px solid rgba(220,255,0,0.45); color: var(--color-interactive-lime); font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 999px; cursor: pointer;">💳 카드 무이자 할부 안내 보기</button>
+            </div>
         </header>
 
         <main class="campaign-container" id="events-container">
@@ -55,8 +180,9 @@
                 <a href="./guide/work-and-payment.html">교체공정 및 결제안내</a>
             </div>
             <div class="brand-footer">캠페인 주관사: TBJ 홈케어 사업부</div>
-            <div style="text-align: center; margin-top: 20px; padding-bottom: 20px;">
+            <div style="text-align: center; margin-top: 20px; padding-bottom: 20px; display:flex; justify-content:center; gap:12px; align-items:center;">
                 <button onclick="window.location.href='./admin.html'" style="background:none; border:none; color:#6b7280; font-size:12px; cursor:pointer; text-decoration:underline; padding: 5px;">관리자 모드 접속</button>
+                <button id="btn-admin-preview" onclick="toggleAdminPreview()" style="background:transparent; border:1px solid #444; color:#888; font-size:11px; padding:4px 8px; border-radius:4px; cursor:pointer;">🔧 관리자 미리보기</button>
             </div>
         </footer>
     </div>
@@ -107,13 +233,78 @@
                 window.globalManagers = data.managers || [];
                 if (typeof window.renderEvents === 'function') {
                     window.renderEvents();
+                    
+                    if (window._targetEventIdToExpand) {
+                        setTimeout(() => {
+                            const ev = window.eventsData.find(e => e.id === window._targetEventIdToExpand);
+                            const canView = ev && (ev.status === 'active' || (typeof window.isAdminPreview === 'function' && window.isAdminPreview()));
+                            if (canView) {
+                                const targetEl = document.getElementById(`card-${ev.id}`);
+                                if (targetEl) {
+                                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    const contentEl = document.getElementById(`content-${ev.id}`);
+                                    if (contentEl && contentEl.style.display !== 'block') {
+                                        toggleCampaign(ev.id, ev.title);
+                                    }
+                                }
+                            }
+                            window._targetEventIdToExpand = null;
+                        }, 300);
+                    }
                 }
             } else {
                 console.error("데이터베이스가 비어있습니다.");
             }
         });
     </script>
+    <script src="./auth.js?v=2"></script>
     <script>
+        window.isAdminPreview = function() {
+            return sessionStorage.getItem('adminAuth') === 'true';
+        };
+        function updateAdminPreviewBtn() {
+            const btn = document.getElementById('btn-admin-preview');
+            if (!btn) return;
+            if (window.isAdminPreview()) {
+                btn.textContent = '🔓 관리자 모드 ON';
+                btn.style.borderColor = '#10b981';
+                btn.style.color = '#10b981';
+            } else {
+                btn.textContent = '🔧 관리자';
+                btn.style.borderColor = '#444';
+                btn.style.color = '#888';
+            }
+        }
+        window.toggleAdminPreview = function() {
+            if (window.isAdminPreview()) {
+                sessionStorage.removeItem('adminAuth');
+                updateAdminPreviewBtn();
+                if (typeof window.renderEvents === 'function') window.renderEvents();
+            } else if (typeof initAdminAuth === 'function') {
+                initAdminAuth(() => {
+                    updateAdminPreviewBtn();
+                    if (typeof window.renderEvents === 'function') window.renderEvents();
+                });
+            }
+        };
+        window.copyEventShareLink = function(eventId) {
+            const url = `${window.location.origin}/?event=${encodeURIComponent(eventId)}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert(`고객 공유 링크가 복사되었습니다!\n${url}`);
+                }).catch(() => prompt('아래 링크를 복사하세요:', url));
+            } else {
+                prompt('아래 링크를 복사하세요:', url);
+            }
+        };
+        document.addEventListener('DOMContentLoaded', updateAdminPreviewBtn);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetEventId = urlParams.get('e') || urlParams.get('event');
+        if (targetEventId) {
+            window._targetEventIdToExpand = targetEventId;
+        }
+
         let currentEventName = "";
         const container = document.getElementById('events-container');
 
@@ -121,17 +312,38 @@
         function getProductText(prodObj) {
             const masterProd = typeof globalProducts !== 'undefined' ? globalProducts.find(p => p.id === prodObj.id) : null;
             const prodName = masterProd ? masterProd.name : "알 수 없는 상품";
-            const priceText = prodObj.customText ? prodObj.customText : (masterProd ? masterProd.defaultPriceText : "");
-            return priceText ? `${prodName} (${priceText})` : prodName;
+            const custom = (prodObj.customText || "").trim();
+            if (custom) {
+                if (masterProd && custom.includes(masterProd.name.split(' ')[0])) {
+                    return custom;
+                }
+                return `${prodName} (${custom})`;
+            }
+            const defaultPrice = masterProd ? masterProd.defaultPriceText : "";
+            return defaultPrice ? `${prodName} (${defaultPrice})` : prodName;
         }
 
         // 이벤트 렌더링 로직
         window.renderEvents = function() {
             if (!window.eventsData || !window.globalProducts) return;
+            const adminMode = window.isAdminPreview();
             let html = '';
-            // 진행중 이벤트 렌더링
+            if (adminMode) {
+                html += `<div style="background: rgba(16,185,129,0.14); border: 1px solid #10b981; color: #a7f3d0; padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 12px; text-align: center;">
+                    🔓 <b>관리자 미리보기 모드</b> — 기획/보류/종료 이벤트도 클릭하여 참고·검토할 수 있습니다.
+                </div>`;
+            }
+            const statusMeta = {
+                planning: { label: '기획중(비공개)', color: '#8b5cf6' },
+                active: { label: '진행중', color: '#10b981' },
+                hold: { label: '보류(비공개)', color: '#f59e0b' },
+                ended: { label: '종료(참고용)', color: '#6b7280' }
+            };
+            // 진행중 (또는 관리자 모드일 때 전체 상태) 이벤트 렌더링
             eventsData.forEach(ev => {
-                if (ev.status === 'active') {
+                const st = ev.status || 'active';
+                if (st === 'active' || adminMode) {
+                    const meta = statusMeta[st] || statusMeta.active;
                     
                     let managerPhone = '010-2886-5086'; // 기본값
                     if (ev.managerId && window.globalManagers) {
@@ -143,28 +355,36 @@
                     let mainProductsHtml = '';
                     if (ev.mainProducts && ev.mainProducts.length > 0) {
                         mainProductsHtml += '<div style="margin-bottom: 24px;">';
-                        mainProductsHtml += '<div style="font-size: 14px; color: var(--color-interactive-lime); font-weight: bold; margin-bottom: 12px;">이벤트 메인 상품</div>';
+                        mainProductsHtml += '<div style="font-size: 14px; color: var(--color-interactive-lime); font-weight: bold; margin-bottom: 12px;">📌 메인 공동구매 상품</div>';
                         ev.mainProducts.forEach(prod => {
                             const mProd = globalProducts.find(p => p.id === prod.id);
                             if(!mProd) return;
                             const text = getProductText(prod);
                             
-                            let linkHtml = '';
                             const defaultLink = `./product.html?id=${prod.id}`;
                             const effectiveLink = prod.customLink || mProd.detailLink || defaultLink;
-                            if (effectiveLink) {
-                                const sep = effectiveLink.includes('?') ? '&' : '?';
-                                const dynamicLink = `${effectiveLink}${sep}phone=${managerPhone}`;
-                                linkHtml = `<a href="${dynamicLink}" style="display: inline-block; color: var(--color-interactive-lime); text-decoration: none; font-size: 13px; font-weight: bold;">👉 자세히 보기</a>`;
+                            const sep = effectiveLink.includes('?') ? '&' : '?';
+                            const dynamicLink = effectiveLink ? `${effectiveLink}${sep}phone=${managerPhone}&event=${encodeURIComponent(ev.id)}` : '';
+
+                            if (dynamicLink) {
+                                mainProductsHtml += `
+                                    <a href="${dynamicLink}" style="display: block; background-color: #1a1a1a; border: 1px solid rgba(220,255,0,0.4); border-radius: 10px; padding: 16px; margin-bottom: 10px; text-decoration: none;">
+                                        <div style="color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 6px; line-height: 1.4;">${text}</div>
+                                        <div style="color: #aaa; font-size: 13px; margin-bottom: 12px; line-height: 1.4;">${mProd.features || ''}</div>
+                                        <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #2b2b2e; padding-top: 10px;">
+                                            <span style="color: var(--color-interactive-lime); font-size: 13px; font-weight: bold;">👉 제품 상세페이지 & 시공안내 보기</span>
+                                            <span style="color: var(--color-interactive-lime); font-size: 16px; font-weight: bold;">➔</span>
+                                        </div>
+                                    </a>
+                                `;
+                            } else {
+                                mainProductsHtml += `
+                                    <div style="background-color: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 16px; margin-bottom: 10px;">
+                                        <div style="color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 4px;">${text}</div>
+                                        <div style="color: #aaa; font-size: 13px;">${mProd.features || ''}</div>
+                                    </div>
+                                `;
                             }
-                            
-                            mainProductsHtml += `
-                                <div style="background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 8px;">
-                                    <div style="color: #fff; font-size: 16px; font-weight: bold; margin-bottom: 4px;">${text}</div>
-                                    <div style="color: #aaa; font-size: 13px; margin-bottom: 12px;">${mProd.features || ''}</div>
-                                    ${linkHtml}
-                                </div>
-                            `;
                         });
                         mainProductsHtml += '</div>';
                     }
@@ -189,14 +409,15 @@
                             const effectiveAddonLink = prod.customLink || mProd.detailLink || defaultAddonLink;
                             if(effectiveAddonLink) {
                                 const sep = effectiveAddonLink.includes('?') ? '&' : '?';
-                                const dynamicLink = `${effectiveAddonLink}${sep}phone=${managerPhone}`;
+                                const dynamicLink = `${effectiveAddonLink}${sep}phone=${managerPhone}&event=${encodeURIComponent(ev.id)}`;
                                 addonProductsHtml += `
-                                    <a href="${dynamicLink}" style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-graphite-base); padding: 14px; border-radius: 8px; text-decoration: none; border: 1px solid #555;">
+                                    <a href="${dynamicLink}" style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-graphite-base); padding: 14px; border-radius: 8px; text-decoration: none; border: 1px solid #555; gap: 10px;">
                                         <div>
                                             <div style="color: var(--color-silver-mist); font-size: 12px; margin-bottom: 4px;">${mProd.features || '프리미엄 상품'}</div>
-                                            <div style="color: #fff; font-size: 15px; font-weight: bold;">${text}</div>
+                                            <div style="color: #fff; font-size: 15px; font-weight: bold; line-height: 1.35;">${text}</div>
+                                            <div style="color: var(--color-interactive-lime); font-size: 12px; margin-top: 4px;">상세보기 ↗</div>
                                         </div>
-                                        <div style="color: var(--color-interactive-lime); font-size: 18px; font-weight: bold;">➔</div>
+                                        <div style="color: var(--color-interactive-lime); font-size: 18px; font-weight: bold; flex-shrink:0;">➔</div>
                                     </a>
                                 `;
                             } else {
@@ -276,7 +497,7 @@
                     html += `
                     <div id="card-${ev.id}" class="campaign-card active-card" onclick="toggleCampaign('${ev.id}', '${ev.title}')">
                         <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                            <span class="badge-status" style="margin-bottom: 0; margin-right: 8px; background-color: #10b981; color: white;">진행중</span>
+                            <span class="badge-status" style="margin-bottom: 0; margin-right: 8px; background-color: ${meta.color}; color: white;">${meta.label}</span>
                             <div id="card-title-${ev.id}" class="card-title" style="margin-bottom: 0; transition: all 0.3s ease;">${ev.title}</div>
                         </div>
                         <div class="card-price">${ev.priceText || ''}</div>
@@ -285,7 +506,16 @@
                     </div>
 
                     <div id="content-${ev.id}" class="expanded-content">
-                        
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #26272b; flex-wrap:wrap;">
+                            <button type="button" onclick="toggleCampaign('${ev.id}', '')" style="background:#1c1d22; border:1px solid #3a3b42; color:#d1d5db; font-size:12px; padding:6px 10px; border-radius:6px; cursor:pointer;">← 전체 현장 목록</button>
+                            <button type="button" onclick="openCardInstallmentPopup()" style="background:rgba(220,255,0,0.1); border:1px solid rgba(220,255,0,0.35); color:var(--color-interactive-lime); font-size:12px; font-weight:600; padding:6px 10px; border-radius:6px; cursor:pointer;">💳 카드 무이자 안내</button>
+                        </div>
+                        ${adminMode ? `
+                        <div style="display:flex; gap:8px; margin-bottom:14px; padding:8px 10px; background:rgba(16,185,129,0.1); border:1px dashed #10b981; border-radius:8px; flex-wrap:wrap;">
+                            <a href="./admin.html?editEvent=${encodeURIComponent(ev.id)}" style="flex:1; min-width:120px; text-align:center; background:#10b981; color:#052e16; font-size:12px; font-weight:700; padding:7px 10px; border-radius:6px; text-decoration:none;">✏️ 이 현장 수정</a>
+                            <button type="button" onclick="copyEventShareLink('${ev.id}')" style="flex:1; min-width:120px; background:#1f2937; border:1px solid #374151; color:#e5e7eb; font-size:12px; font-weight:600; padding:7px 10px; border-radius:6px; cursor:pointer;">🔗 고객 링크 복사</button>
+                        </div>
+                        ` : ''}
                         ${heroTitleHtml}
                         ${mainProductsHtml}
                         ${addonProductsHtml}
@@ -346,21 +576,23 @@
                 }
             });
 
-            // 종료된 이벤트 렌더링
-            let endedHtml = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">';
-            eventsData.forEach(ev => {
-                if (ev.status === 'ended') {
-                    endedHtml += `
-                    <div class="ended-card" style="flex: 1 1 calc(33.333% - 8px); min-width: 140px; opacity: 0.6; background-color: #222; border: 1px solid #444; padding: 10px; border-radius: 6px; cursor: default; text-align: center;">
-                        <div style="font-size: 11px; color: #999; margin-bottom: 4px;"><span style="background:#555; color:#fff; padding:2px 4px; border-radius:3px; margin-right:4px;">종료</span></div>
-                        <div style="font-size: 12px; color: #ccc; word-break: keep-all; line-height: 1.3;">
-                            ${ev.title}<br>(${ev.periodText})
-                        </div>
-                    </div>`;
-                }
-            });
-            endedHtml += '</div>';
-            html += endedHtml;
+            // 종료된 이벤트 렌더링 (일반 고객용: 비활성 카드 / 관리자 모드에서는 위에서 이미 클릭 가능 카드로 렌더됨)
+            if (!adminMode) {
+                let endedHtml = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">';
+                eventsData.forEach(ev => {
+                    if (ev.status === 'ended') {
+                        endedHtml += `
+                        <div class="ended-card" style="flex: 1 1 calc(33.333% - 8px); min-width: 140px; opacity: 0.6; background-color: #222; border: 1px solid #444; padding: 10px; border-radius: 6px; cursor: default; text-align: center;">
+                            <div style="font-size: 11px; color: #999; margin-bottom: 4px;"><span style="background:#555; color:#fff; padding:2px 4px; border-radius:3px; margin-right:4px;">종료</span></div>
+                            <div style="font-size: 12px; color: #ccc; word-break: keep-all; line-height: 1.3;">
+                                ${ev.title}<br>(${ev.periodText})
+                            </div>
+                        </div>`;
+                    }
+                });
+                endedHtml += '</div>';
+                html += endedHtml;
+            }
 
             container.innerHTML = html;
         }
@@ -495,7 +727,8 @@
                 consultTime: consultTime,
                 eventName: `${currentEventName} - [${product}]`,
                 timestamp: Date.now(),
-                status: "consultation_pending"
+                status: "consultation_pending",
+                sourceType: "web"
             };
 
             // Firebase RTDB에 먼저 저장

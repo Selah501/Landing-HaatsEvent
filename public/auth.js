@@ -73,6 +73,7 @@ function renderUnifiedHeader(activePageId, pageTitle) {
         { id: 'erp', name: '📊 재무장부', url: './erp.html', color: '#10b981' },
         { id: 'price_calculator', name: '💰 판매가계산', url: './price_calculator.html', color: '#c9ff00' },
         { id: 'search', name: '🔎 시공 검색', url: './admin_v2.html?tab=search', color: '#f59e0b' },
+        { id: 'photo_gallery', name: '📸 시공사진 갤러리', url: './photo_gallery.html', color: '#06b6d4' },
         { id: 'reservation', name: '📅 예약시스템', url: './reservation_v2.html?admin=true', color: '#6366f1' },
         { id: 'manual', name: '📖 매뉴얼', url: './manual.html', color: '#ec4899' },
         { id: 'landing', name: '🏠 랜딩페이지', url: './index.html', color: '#4b5563' }

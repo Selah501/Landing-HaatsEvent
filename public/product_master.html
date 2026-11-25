@@ -25,7 +25,7 @@
         
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #444; }
-        th { background-color: var(--color-deep-slate); color: var(--color-silver-mist); font-weight: 600; position: sticky; top: 0; }
+        th { background-color: var(--color-deep-slate); color: var(--color-silver-mist); font-weight: 600; position: sticky; top: 0; z-index: 10; }
         tr:hover { background-color: #333; }
         
         input[type="text"], input[type="number"], select {
@@ -156,37 +156,24 @@
             </select>
         </div>
         
-        <div class="form-group">
-            <label>제품 이미지 1 (기본 카탈로그 이미지 URL)</label>
-            <div style="display:flex; gap:6px; align-items:center;">
-                <input type="text" id="modalUrl1" placeholder="https://..." style="flex:1;">
-                <button type="button" onclick="openUrlPreview('modalUrl1')" style="background:#334155; color:#94a3b8; border:none; border-radius:6px; padding:8px 10px; cursor:pointer; font-size:14px; white-space:nowrap;" title="새 탭에서 열기">🔗</button>
+        
+        <div class="form-group" style="border: 1px solid #444; border-radius: 6px; padding: 12px; background: rgba(0,0,0,0.2); margin-bottom: 16px;">
+            <label style="color: var(--color-interactive-lime); margin-bottom: 8px; display: block;">📑 상세페이지 리스트 (통합 보관함)</label>
+            
+            <div style="display:flex; gap:6px; margin-bottom: 12px; align-items:center;">
+                <input type="text" id="newExternalUrl" placeholder="추가할 외부 이미지 또는 웹페이지 URL 입력..." style="flex:1; padding:8px; font-size:13px; border-radius:4px; border:1px solid #555; background:#222; color:white;">
+                <button type="button" onclick="addExternalUrl()" style="background:var(--color-interactive-lime); color:#000; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:13px; font-weight:bold; white-space:nowrap;">+ 외부 링크 추가</button>
             </div>
-        </div>
-        <div class="form-group">
-            <label>제품 이미지 2 (추가 설명 이미지 / HTML 페이지 URL)</label>
-            <div style="display:flex; gap:6px; align-items:center;">
-                <input type="text" id="modalUrl2" placeholder="https://..." style="flex:1;">
-                <button type="button" onclick="openUrlPreview('modalUrl2')" style="background:#334155; color:#94a3b8; border:none; border-radius:6px; padding:8px 10px; cursor:pointer; font-size:14px; white-space:nowrap;" title="새 탭에서 열기">🔗</button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>제품 이미지 3 (시공 사례 등 기타 URL)</label>
-            <div style="display:flex; gap:6px; align-items:center;">
-                <input type="text" id="modalUrl3" placeholder="https://..." style="flex:1;">
-                <button type="button" onclick="openUrlPreview('modalUrl3')" style="background:#334155; color:#94a3b8; border:none; border-radius:6px; padding:8px 10px; cursor:pointer; font-size:14px; white-space:nowrap;" title="새 탭에서 열기">🔗</button>
-            </div>
-        </div>
 
-        <div class="form-group" style="border: 1px dashed #555; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.2);">
-            <label style="color: var(--color-interactive-lime);">🤖 AI 상세페이지 (HTML 버전 보관함)</label>
-            <div id="aiDetailPagesList" style="margin-bottom: 8px; font-size: 13px; color: #aaa; display: flex; flex-direction: column; gap: 8px;">
+            <div id="detailPagesList" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
                 데이터를 불러오는 중...
             </div>
+            
             <div style="margin-top: 10px; font-size: 12px; color: #888;">
                 💡 <b>힌트:</b> 새로운 상세페이지 생성이 필요하시면 안티그래비티 채팅창에 <b>"상세페이지 만들어줘"</b>라고 입력하세요!
             </div>
         </div>
+
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
             <button onclick="closeModal()" style="background: #555; color: white;">취소</button>
@@ -198,6 +185,25 @@
 <!-- 글로벌 라이트박스 -->
 <div id="globalLightbox" class="global-lightbox" onclick="this.style.display='none'">
     <img id="globalLightboxImg" src="" alt="확대 이미지">
+</div>
+
+<!-- 제품 디테일 / 시공 노하우 모달 -->
+<div id="knowhowModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
+    <div style="background:#1c1c1e; border:1px solid #3a3a3c; border-radius:12px; width:92%; max-width:720px; max-height:88vh; display:flex; flex-direction:column; padding:20px; color:#fff;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:12px; margin-bottom:12px;">
+            <h3 id="knowhowTitle" style="margin:0; font-size:17px; color:#38bdf8;">📖 제품 디테일 · 시공 노하우</h3>
+            <button onclick="closeKnowhowModal()" style="background:#333; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer;">닫기</button>
+        </div>
+        <input type="hidden" id="knowhowProductId">
+        <div style="font-size:12px; color:#9ca3af; margin-bottom:8px;">
+            💡 모델별 세부 스펙, 쿡탑/전동댐퍼 연동법, 현장 시공 노하우, 자재 단가 등을 자유롭게 기록하고 검색할 수 있습니다.
+        </div>
+        <textarea id="knowhowText" rows="16" placeholder="이 제품의 세부 스펙이나 시공 노하우를 입력하세요..." style="width:100%; flex:1; background:#111; color:#e5e7eb; border:1px solid #444; border-radius:8px; padding:12px; font-size:13px; line-height:1.6; resize:vertical; box-sizing:border-box;"></textarea>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+            <button onclick="closeKnowhowModal()" style="background:#444; color:#fff; border:none; padding:9px 16px; border-radius:6px; cursor:pointer;">취소</button>
+            <button onclick="saveKnowhow()" style="background:#0ea5e9; color:#fff; border:none; padding:9px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">💾 노하우 저장</button>
+        </div>
+    </div>
 </div>
 
 <script src="auth.js"></script>
@@ -283,7 +289,8 @@
                 const name = (p.name || '').toLowerCase();
                 const model = (p.model || '').toLowerCase();
                 const memo = (p.marketing_memo || '').toLowerCase();
-                if (!name.includes(searchWord) && !model.includes(searchWord) && !memo.includes(searchWord)) return false;
+                const tech = (p.details?.tech_note || '').toLowerCase();
+                if (!name.includes(searchWord) && !model.includes(searchWord) && !memo.includes(searchWord) && !tech.includes(searchWord)) return false;
             }
             return true;
         });
@@ -294,6 +301,17 @@
         }
 
         filtered.forEach(p => {
+            const validUrls = (p.detail_urls || []).map(u => (u || '').trim()).filter(Boolean);
+            const imgPattern = /\.(png|jpe?g|gif|webp)(\?.*)?$/i;
+            const preferredImgUrl = validUrls.find(u => imgPattern.test(u));
+            const targetUrl = preferredImgUrl || validUrls[0] || '';
+            const isImageTarget = targetUrl ? imgPattern.test(targetUrl) : false;
+
+            const safeUrlAttr = targetUrl.replace(/'/g, "\\'");
+            const modelHtml = targetUrl
+                ? `<span style="color:var(--color-interactive-lime); cursor:pointer; text-decoration:underline;" title="${isImageTarget ? '카탈로그 이미지 보기' : '상세 페이지 열기'}" onclick="${isImageTarget ? `openLightbox('${safeUrlAttr}')` : `window.open('${safeUrlAttr}', '_blank')`}">${p.model || (isImageTarget ? '이미지보기' : '링크열기')}</span>`
+                : (p.model || '');
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>
@@ -306,17 +324,14 @@
                     ${p.is_set ? '<span style="color:#f59e0b; font-weight:bold; font-size:12px;">세트</span>' : '<span style="color:#8e8e93; font-size:12px;">단품</span>'}
                 </td>
                 <td>${p.name || ''}</td>
-                <td>
-                    ${p.detail_urls && p.detail_urls.length > 0 && p.detail_urls[0] ? 
-                        `<span style="color:var(--color-interactive-lime); cursor:pointer; text-decoration:underline;" onclick="openLightbox('${p.detail_urls[0]}')">${p.model || '이미지보기'}</span>` 
-                        : (p.model || '')}
-                </td>
+                <td>${modelHtml}</td>
                 <td>${(p.prices?.purchase || 0).toLocaleString()}원</td>
                 <td>${(p.prices?.sell_install || 0).toLocaleString()}원</td>
                 <td>${((p.prices?.options || 0) + (p.prices?.other || 0)).toLocaleString()}원</td>
                 <td style="color:var(--color-interactive-lime); font-weight:bold;">${(p.prices?.sell_total || 0).toLocaleString()}원</td>
-                <td>
-                    <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>상세/수정</button>
+                <td style="display:flex; gap:6px; align-items:center;">
+                    <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="openProductModalById('${p.id}')">상세/수정</button>
+                    <button style="padding:4px 8px; font-size:12px; border:none; border-radius:4px; cursor:pointer; background:${p.details?.tech_note ? '#0284c7' : '#374151'}; color:#fff;" onclick="openKnowhowModal('${p.id}')">📖 노하우</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -371,32 +386,84 @@
             alert('삭제 실패: ' + error.message);
         } else {
             prod.detail_pages = newPages;
-            renderAiPagesList(prod);
+            renderDetailPagesList(prod);
             alert('삭제되었습니다.');
         }
     }
 
-    function renderAiPagesList(prod) {
-        const aiListEl = document.getElementById('aiDetailPagesList');
+    
+    let currentDetailUrls = [];
+
+    function addExternalUrl() {
+        const urlInput = document.getElementById('newExternalUrl');
+        const url = urlInput.value.trim();
+        if (!url) {
+            alert('URL을 입력해주세요.');
+            return;
+        }
+        currentDetailUrls.push(url);
+        urlInput.value = '';
+        const prod = allProducts.find(p => p.id === currentEditProductId) || {};
+        renderDetailPagesList(prod);
+    }
+
+    function deleteExternalUrl(idx) {
+        if (!confirm('이 외부 링크를 리스트에서 삭제하시겠습니까?')) return;
+        currentDetailUrls.splice(idx, 1);
+        const prod = allProducts.find(p => p.id === currentEditProductId) || {};
+        renderDetailPagesList(prod);
+    }
+
+    function renderDetailPagesList(prod) {
+        const listEl = document.getElementById('detailPagesList');
+        let html = '';
+        
+        // 1. AI 상세페이지 (detail_pages)
         if (prod && prod.detail_pages && prod.detail_pages.length > 0) {
-            let html = '';
             prod.detail_pages.forEach(dp => {
+                let displayTitle = dp.title || '이름 없음';
+                if (displayTitle.includes("Legacy")) {
+                    displayTitle = "구형 병합본";
+                }
+                let dateStr = dp.created_at ? new Date(dp.created_at).toLocaleDateString('ko-KR', {year:'2-digit', month:'2-digit', day:'2-digit'}).replace(/\.\s/g, '.').replace(/\.$/, '') : '';
+                const nameStr = `📄 ${displayTitle} ${dateStr ? `(${dateStr})` : ''}`;
+                
                 html += `
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #2c2c2e; padding: 8px 12px; border-radius: 6px;">
-                    <span style="color: #fff;">📄 ${dp.title || '이름 없음'}</span>
+                    <span style="color: #fff;">${nameStr}</span>
                     <div style="display: flex; gap: 6px;">
                         <button type="button" onclick="previewAiVersion('${dp.id}')" style="background:#3b82f6; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:12px;">미리보기</button>
                         <button type="button" onclick="deleteAiVersion('${dp.id}')" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:12px;">삭제</button>
                     </div>
                 </div>`;
             });
-            aiListEl.innerHTML = html;
-        } else {
-            aiListEl.innerHTML = '<div style="padding: 10px 0;">보관된 AI 상세페이지가 없습니다.</div>';
         }
+        
+        // 2. 외부 링크 (detail_urls)
+        if (currentDetailUrls && currentDetailUrls.length > 0) {
+            currentDetailUrls.forEach((url, idx) => {
+                const isImg = url.toLowerCase().match(/\.(jpeg|jpg|gif|png|webp)$/);
+                const label = isImg ? `🔗 이미지 원본 ${idx+1}` : `🔗 외부 링크 ${idx+1}`;
+                
+                html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 8px 12px; border-radius: 6px; margin-top: 4px;">
+                    <span style="color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;" title="${url}">${label} <span style="font-size:11px; color:#64748b;">(${url})</span></span>
+                    <div style="display: flex; gap: 6px;">
+                        <button type="button" onclick="window.open('${url}', '_blank')" style="background:#3b82f6; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:12px;">미리보기</button>
+                        <button type="button" onclick="deleteExternalUrl(${idx})" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:12px;">삭제</button>
+                    </div>
+                </div>`;
+            });
+        }
+        
+        if (!html) {
+            html = '<div style="padding: 10px 0; color: #888;">보관된 상세페이지나 링크가 없습니다.</div>';
+        }
+        
+        listEl.innerHTML = html;
     }
 
-    function goToCalculator() {
+function goToCalculator() {
         if (!currentEditProductId) {
             alert('새로운 상품은 먼저 저장한 뒤 계산기로 이동할 수 있습니다.');
             return;
@@ -431,6 +498,15 @@
     }
 
     /* Modal Logic */
+    function openProductModalById(id) {
+        const prod = allProducts.find(p => String(p.id) === String(id));
+        if (!prod) {
+            alert('상품 정보를 찾을 수 없습니다.');
+            return;
+        }
+        openProductModal(prod);
+    }
+
     function openProductModal(prod) {
         currentEditProductId = prod ? prod.id : null;
         document.getElementById('modalTitle').textContent = prod ? '상품 수정' : '단품 추가';
@@ -454,13 +530,8 @@
         
         renderPriceHistories(prod);
         
-        const urls = prod ? (prod.detail_urls || []) : [];
-        document.getElementById('modalUrl1').value = urls[0] || '';
-        document.getElementById('modalUrl2').value = urls[1] || '';
-        document.getElementById('modalUrl3').value = urls[2] || '';
-
-        // AI 상세페이지 리스트 렌더링
-        renderAiPagesList(prod);
+        currentDetailUrls = prod ? (prod.detail_urls || []).filter(u => u) : [];
+        renderDetailPagesList(prod);
 
         // 세트 구성품 UI 제어
         const setGroup = document.getElementById('setComponentsGroup');
@@ -504,25 +575,28 @@
     async function saveProduct() {
         const id = document.getElementById('modalId').value;
         const isSet = document.getElementById('modalIsSet').value === 'true';
+        const existingProd = id ? allProducts.find(x => String(x.id) === String(id)) : null;
+        const purchaseVal = parseInt(document.getElementById('modalPricePurchase').value) || 0;
+        const installVal = parseInt(document.getElementById('modalPriceInstall').value) || 0;
+        const totalVal = parseInt(document.getElementById('modalPriceTotal').value) || 0;
         
         const payload = {
             name: document.getElementById('modalName').value,
             model: document.getElementById('modalModel').value,
             marketing_memo: document.getElementById('modalMarketingMemo').value.trim(),
-            is_active: true,
+            is_active: existingProd ? existingProd.is_active : true,
             is_set: isSet,
+            price_purchase: purchaseVal,
+            price_install: installVal,
+            price_selling: totalVal,
             prices: {
-                purchase: parseInt(document.getElementById('modalPricePurchase').value) || 0,
-                sell_install: parseInt(document.getElementById('modalPriceInstall').value) || 0,
+                purchase: purchaseVal,
+                sell_install: installVal,
                 options: parseInt(document.getElementById('modalPriceOptions').value) || 0,
                 other: parseInt(document.getElementById('modalPriceOther').value) || 0,
-                sell_total: parseInt(document.getElementById('modalPriceTotal').value) || 0
+                sell_total: totalVal
             },
-            detail_urls: [
-                document.getElementById('modalUrl1').value.trim(),
-                document.getElementById('modalUrl2').value.trim(),
-                document.getElementById('modalUrl3').value.trim()
-            ]
+            detail_urls: currentDetailUrls
         };
 
         if (isSet) {
@@ -548,11 +622,11 @@
     
     function populateSetDropdown() {
         const sel = document.getElementById('setComponentSelect');
-        sel.innerHTML = '<option value="">구성품 추가...</option>';
-        allProducts.filter(p => !p.is_set).forEach(p => {
+        sel.innerHTML = '<option value="">구성품 추가 (판매중 단품)...</option>';
+        allProducts.filter(p => !p.is_set && p.is_active).forEach(p => {
             const opt = document.createElement('option');
             opt.value = p.id;
-            opt.textContent = `${p.name} (${p.model})`;
+            opt.textContent = `${p.name} (${p.model || '-'})`;
             sel.appendChild(opt);
         });
         
@@ -592,6 +666,31 @@
         currentSetComponents.splice(idx, 1);
         renderSetComponents(currentSetComponents);
     }
+    function openKnowhowModal(productId) {
+        const prod = allProducts.find(p => String(p.id) === String(productId));
+        if (!prod) return;
+        document.getElementById('knowhowProductId').value = prod.id;
+        document.getElementById('knowhowTitle').textContent = `📖 ${prod.name} (${prod.model || '-'}) — 디테일 · 시공 노하우`;
+        document.getElementById('knowhowText').value = (prod.details && prod.details.tech_note) ? prod.details.tech_note : '';
+        document.getElementById('knowhowModal').style.display = 'flex';
+    }
+
+    function closeKnowhowModal() {
+        document.getElementById('knowhowModal').style.display = 'none';
+    }
+
+    async function saveKnowhow() {
+        const id = document.getElementById('knowhowProductId').value;
+        const prod = allProducts.find(p => String(p.id) === String(id));
+        if (!prod) return;
+        const newDetails = { ...(prod.details || {}), tech_note: document.getElementById('knowhowText').value };
+        const { error } = await sb.from('products').update({ details: newDetails }).eq('id', id);
+        if (error) return alert('노하우 저장 실패: ' + error.message);
+        prod.details = newDetails;
+        closeKnowhowModal();
+        renderTable();
+    }
+
 </script>
 </body>
 </html>

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="icon" href="data:,">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>하츠 충남대리점 · 상시 제품·가격·무이자 안내</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-black: #0a0a0a;
+            --bg-card: #18191d;
+            --bg-elevated: #222329;
+            --lime: #c9ff00;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border: #2c2d34;
+            --accent-pink: #e32652;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-black);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px 16px 80px;
+        }
+        .hero {
+            text-align: center;
+            padding: 24px 16px 20px;
+            background: linear-gradient(180deg, rgba(201,255,0,0.08) 0%, rgba(24,25,29,0.95) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 18px;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(201,255,0,0.14);
+            color: var(--lime);
+            border: 1px solid rgba(201,255,0,0.35);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 10px;
+        }
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            word-break: keep-all;
+        }
+        .hero p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            word-break: keep-all;
+        }
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            color: #e5e7eb;
+        }
+        .pill-btn.lime {
+            background: rgba(201,255,0,0.12);
+            border-color: rgba(201,255,0,0.45);
+            color: var(--lime);
+        }
+        .pill-btn.primary {
+            background: var(--lime);
+            border-color: var(--lime);
+            color: #000;
+            font-weight: 700;
+        }
+        .controls {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(10, 10, 10, 0.94);
+            backdrop-filter: blur(8px);
+            padding: 10px 0 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #222;
+        }
+        .search-box {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 10px;
+            outline: none;
+        }
+        .search-box:focus { border-color: var(--lime); }
+        .cat-tabs {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+        .cat-tab {
+            background: var(--bg-card);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .cat-tab.active {
+            background: var(--lime);
+            color: #000;
+            border-color: var(--lime);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .thumb-wrap {
+            width: 100%;
+            height: 190px;
+            background: #111216;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .thumb-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #fff;
+        }
+        .thumb-placeholder {
+            color: #6b7280;
+            font-size: 13px;
+            text-align: center;
+            padding: 16px;
+        }
+        .card-body {
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .cat-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: #cbd5e1;
+            background: #272830;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .set-badge {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fbbf24;
+            background: rgba(251,191,36,0.12);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .prod-title {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .prod-model {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .prod-memo {
+            font-size: 12px;
+            color: #d1d5db;
+            line-height: 1.45;
+        }
+        .price-box {
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px dashed #2e3038;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .price-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .price-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--lime);
+        }
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .btn-detail {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #3f414b;
+            background: #262830;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-consult {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: var(--lime);
+            color: #000;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-detail:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-box {
+            width: 100%;
+            max-width: 400px;
+            background: #141518;
+            border: 1.5px solid var(--lime);
+            border-radius: 16px;
+            padding: 24px 20px 20px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: transparent;
+            border: none;
+            color: #9ea0a9;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .form-field {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 8px;
+            border: 1px solid #33353e;
+            background: #1d1e24;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            cursor: pointer;
+        }
+        .lightbox img {
+            max-width: 95%;
+            max-height: 92vh;
+            border-radius: 8px;
+            background: #fff;
+        }
+        .footer {
+            margin-top: 36px;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+        .footer a { color: #9ca3af; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <div class="hero-badge">🛍️ 기간 무관 · 상시 안내 허브</div>
+            <h1>하츠 충남(홍성/내포) 대리점 전체 취급 제품</h1>
+            <p>
+                전단지 이벤트 기간이 지나도 언제든지 <strong>현재 시공 포함 가격 · 제품 상세 스펙 · 최신 카드 무이자 할부</strong>를 확인하고 바로 상담·예약하실 수 있습니다.
+            </p>
+            <div class="hero-actions">
+                <button type="button" class="pill-btn lime" onclick="openInstallmentModal()">💳 카드 무이자 할부 안내</button>
+                <a href="./index.html" class="pill-btn">📢 진행 중 아파트 이벤트 보기</a>
+                <a href="./reservation_v2.html" class="pill-btn primary">📅 바로 설치 예약하기</a>
+            </div>
+        </header>
+
+        <section class="controls">
+            <input type="text" id="searchInput" class="search-box" placeholder="찾으시는 제품명, 모델명, 키워드 입력 (예: 사각씽크볼, 테라, 티오람)..." oninput="renderCatalog()">
+            <div class="cat-tabs" id="catTabs">
+                <button type="button" class="cat-tab active" onclick="selectCategory('전체', this)">전체</button>
+                <button type="button" class="cat-tab" onclick="selectCategory('씽크볼·수전', this)">씽크볼·수전</button>
+                <button type="button" class="cat-tab" onclick="selectCategory('주방후드', this)">주방후드</button>
+                <button type="button" class="cat-tab" onclick="selectCategory('욕실환풍기', this)">욕실환풍기</button>
+                <button type="button" class="cat-tab" onclick="selectCategory('기타·부자재', this)">기타·부자재</button>
+            </div>
+        </section>
+
+        <main id="catalogGrid" class="grid">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px 0; color: #9ca3af;">
+                제품 정보를 불러오는 중입니다...
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div><a href="./guide/work-and-payment.html">교체공정 및 결제안내</a> · <a href="./index.html">이벤트 메인페이지</a></div>
+            <div>캠페인 주관사: 하츠 충남(홍성/내포) 대리점 · TBJ 홈케어 사업부</div>
+        </footer>
+    </div>
+
+    <!-- 카드 무이자 할부 안내 팝업 -->
+    <div id="installmentModal" class="modal-overlay" onclick="if (event.target === this) closeInstallmentModal()">
+        <div class="modal-box">
+            <button type="button" class="modal-close" onclick="closeInstallmentModal()">✕</button>
+            <div style="text-align:center; margin-bottom:14px;">
+                <div class="hero-badge" style="margin-bottom:8px;">💳 무이자 할부 안내</div>
+                <h3 style="margin:0 0 4px; font-size:17px;">신용카드 무이자 할부 혜택</h3>
+                <p style="margin:0; font-size:12px; color:#9ca3af;">2026.11~12월 기준 · 5만원 이상 개인 신용카드 결제 시</p>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:13px; color:#e5e7eb; margin-bottom:14px;">
+                <tr>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33;">NH농협카드</td>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33; text-align:right; color:var(--lime); font-weight:700;">2 ~ 6개월 무이자</td>
+                </tr>
+                <tr>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33;">하나 / BC / 우리카드</td>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33; text-align:right; font-weight:600;">2 ~ 5개월 무이자</td>
+                </tr>
+                <tr>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33;">신한 / KB국민 / 현대 / 삼성 / 롯데</td>
+                    <td style="padding:9px 4px; border-bottom:1px solid #2c2d33; text-align:right; font-weight:600;">2 ~ 3개월 무이자</td>
+                </tr>
+            </table>
+            <p style="font-size:11px; color:#8e8e93; line-height:1.5; margin:0 0 14px;">
+                ※ 법인·체크·선불·기프트카드는 제외되며, 현장 무선단말기 및 카드사 정책에 따라 실제 적용 개월 수는 변동될 수 있습니다.
+            </p>
+            <button type="button" class="btn-consult" style="width:100%; padding:12px;" onclick="closeInstallmentModal()">확인</button>
+        </div>
+    </div>
+
+    <!-- 상시 간편 상담 신청 모달 -->
+    <div id="consultModal" class="modal-overlay" onclick="if (event.target === this) closeConsultModal()">
+        <div class="modal-box">
+            <button type="button" class="modal-close" onclick="closeConsultModal()">✕</button>
+            <h3 style="margin:0 0 6px; font-size:18px; color:var(--lime);">💬 무료 상담 · 맞춤 견적 신청</h3>
+            <p id="consultProductLabel" style="margin:0 0 14px; font-size:13px; color:#d1d5db;"></p>
+            <input type="text" id="consultApt" class="form-field" placeholder="아파트명 및 동·호수 (예: 내포LH스타힐스 101동 102호)">
+            <input type="tel" id="consultPhone" class="form-field" placeholder="연락처 (예: 010-1234-5678)">
+            <select id="consultTime" class="form-field">
+                <option value="언제든 가능">통화 가능 시간: 언제든 가능</option>
+                <option value="오전 (09:00~12:00)">오전 (09:00~12:00)</option>
+                <option value="오후 (13:00~18:00)">오후 (13:00~18:00)</option>
+                <option value="저녁 (18:00 이후)">저녁 (18:00 이후)</option>
+            </select>
+            <button type="button" id="btnSubmitConsult" class="btn-consult" style="width:100%; padding:13px; font-size:15px;" onclick="submitAlwaysOnConsult()">상담 신청 완료하기</button>
+        </div>
+    </div>
+
+    <!-- 이미지 확대 라이트박스 -->
+    <div id="lightbox" class="lightbox" onclick="this.style.display='none'">
+        <img id="lightboxImg" src="" alt="제품 카탈로그">
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const app = initializeApp({
+            databaseURL: "https://flyer-event-page-2026-default-rtdb.firebaseio.com",
+            projectId: "flyer-event-page-2026"
+        });
+        window.firebaseDB = getDatabase(app);
+        window.firebasePush = push;
+        window.firebaseSet = set;
+        window.firebaseRef = ref;
+    </script>
+
+    <script>
+        const SUPABASE_URL = 'https://belchthacupzpgxevecx.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_weMvIv-69PgtXwzGlgweLg_NEJfOACN';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let activeProducts = [];
+        let selectedCategory = '전체';
+        let selectedConsultProduct = '';
+
+        function classifyCategory(prod) {
+            const text = `${prod.name || ''} ${prod.model || ''}`.toLowerCase();
+            if (text.includes('씽크볼') || text.includes('싱크볼') || text.includes('수전') || text.includes('배수구')) return '씽크볼·수전';
+            if (text.includes('후드') || text.includes('테라') || text.includes('허리케인')) return '주방후드';
+            if (text.includes('환풍기') || text.includes('티오람') || text.includes('제로크') || text.includes('터보') || text.includes('플렉스')) return '욕실환풍기';
+            return '기타·부자재';
+        }
+
+        function getThumbUrl(prod) {
+            const urls = (prod.detail_urls || []).map(u => (u || '').trim()).filter(Boolean);
+            const imgRegex = /\.(png|jpe?g|gif|webp)(\?.*)?$/i;
+            return urls.find(u => imgRegex.test(u)) || '';
+        }
+
+        function selectCategory(cat, btn) {
+            selectedCategory = cat;
+            document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderCatalog();
+        }
+
+        function openDetail(prodId) {
+            const prod = activeProducts.find(p => String(p.id) === String(prodId));
+            if (!prod) return;
+            if (prod.detail_pages && prod.detail_pages.length > 0) {
+                window.open(`./product.html?id=${prod.id}&version=${prod.detail_pages[0].id}`, '_blank');
+                return;
+            }
+            const urls = (prod.detail_urls || []).map(u => (u || '').trim()).filter(Boolean);
+            if (urls.length > 0) {
+                const target = urls[0];
+                if (/\.(png|jpe?g|gif|webp)(\?.*)?$/i.test(target)) {
+                    openLightbox(target);
+                } else {
+                    window.open(target, '_blank');
+                }
+            }
+        }
+
+        function openLightbox(url) {
+            if (!url) return;
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        function openInstallmentModal() { document.getElementById('installmentModal').style.display = 'flex'; }
+        function closeInstallmentModal() { document.getElementById('installmentModal').style.display = 'none'; }
+
+        function openConsultModal(prodName) {
+            selectedConsultProduct = prodName;
+            document.getElementById('consultProductLabel').textContent = `선택 제품: ${prodName}`;
+            document.getElementById('consultModal').style.display = 'flex';
+        }
+        function closeConsultModal() { document.getElementById('consultModal').style.display = 'none'; }
+
+        async function submitAlwaysOnConsult() {
+            const apt = document.getElementById('consultApt').value.trim();
+            const phone = document.getElementById('consultPhone').value.trim();
+            const consultTime = document.getElementById('consultTime').value;
+
+            if (!apt || apt.length < 3 || !/\d/.test(apt)) {
+                alert('⚠️ 아파트명과 동·호수를 함께 입력해주세요 (예: 101동 102호).');
+                document.getElementById('consultApt').focus();
+                return;
+            }
+            if (!phone || phone.replace(/[^0-9]/g, '').length < 9) {
+                alert('⚠️ 연락처를 정확히 입력해주세요.');
+                document.getElementById('consultPhone').focus();
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitConsult');
+            const origText = btn.textContent;
+            btn.textContent = '신청 처리 중...';
+            btn.disabled = true;
+
+            const payload = {
+                apartment: apt,
+                phone: phone,
+                consultTime: consultTime,
+                eventName: `[상시페이지] ${selectedConsultProduct}`,
+                timestamp: Date.now(),
+                status: 'consultation_pending',
+                sourceType: 'web'
+            };
+
+            try {
+                if (window.firebaseDB) {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const newRef = window.firebasePush(window.firebaseRef(window.firebaseDB, `consultations/${todayStr}`));
+                    await window.firebaseSet(newRef, payload);
+                }
+                const GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby4sFDQcQ8BWX0jLdKZq86Ob3z537xSaHZ7Xl2ecg1k4kLO9Qw0TtMPG8BgUIiiUfekRQ/exec";
+                await fetch(GOOGLE_WEBAPP_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                alert('✅ 상담 신청이 접수되었습니다! 확인 후 빠르게 연락드리겠습니다.');
+                closeConsultModal();
+                document.getElementById('consultApt').value = '';
+                document.getElementById('consultPhone').value = '';
+            } catch (err) {
+                alert('일시적 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                console.error(err);
+            } finally {
+                btn.textContent = origText;
+                btn.disabled = false;
+            }
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            const filtered = activeProducts.filter(p => {
+                const cat = classifyCategory(p);
+                if (selectedCategory !== '전체' && cat !== selectedCategory) return false;
+                if (q) {
+                    const hay = `${p.name || ''} ${p.model || ''} ${p.marketing_memo || ''}`.toLowerCase();
+                    if (!hay.includes(q)) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px 0; color:#9ca3af;">조건에 맞는 제품이 없습니다.</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const cat = classifyCategory(p);
+                const thumb = getThumbUrl(p);
+                const sellTotal = p.prices && p.prices.sell_total ? Number(p.prices.sell_total) : 0;
+                const priceText = sellTotal > 0 ? `${sellTotal.toLocaleString()}원` : '상담 후 맞춤 견적';
+                const hasDetail = (p.detail_pages && p.detail_pages.length > 0) || ((p.detail_urls || []).some(u => (u || '').trim()));
+                const safeName = (p.name || '').replace(/'/g, "\\'");
+
+                return `
+                <article class="card">
+                    <div class="thumb-wrap" onclick="${thumb ? `openLightbox('${thumb.replace(/'/g, "\\'")}')` : `openDetail('${p.id}')`}">
+                        ${thumb
+                            ? `<img src="${thumb}" alt="${p.name || ''}" loading="lazy">`
+                            : `<div class="thumb-placeholder">📷 상세페이지/카탈로그<br>준비 중</div>`}
+                    </div>
+                    <div class="card-body">
+                        <div class="meta-row">
+                            <span class="cat-badge">${cat}</span>
+                            ${p.is_set ? '<span class="set-badge">풀세트 구성</span>' : ''}
+                        </div>
+                        <h2 class="prod-title">${p.name || ''}</h2>
+                        <div class="prod-model">모델명: ${p.model || '-'}</div>
+                        ${p.marketing_memo ? `<div class="prod-memo">${p.marketing_memo}</div>` : ''}
+                        <div class="price-box">
+                            <span class="price-label">${sellTotal > 0 ? '시공 포함 기준가' : '가격 안내'}</span>
+                            <span class="price-value">${priceText}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-detail" ${hasDetail ? '' : 'disabled'} onclick="openDetail('${p.id}')">📄 상세 스펙</button>
+                            <button type="button" class="btn-consult" onclick="openConsultModal('${safeName}')">💬 상담·예약</button>
+                        </div>
+                    </div>
+                </article>`;
+            }).join('');
+        }
+
+        async function loadCatalog() {
+            const { data, error } = await sb
+                .from('products')
+                .select('id,name,model,is_active,is_set,marketing_memo,prices,detail_urls,detail_pages')
+                .eq('is_active', true)
+                .order('name');
+            if (error) {
+                document.getElementById('catalogGrid').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px 0; color:#f87171;">제품 목록을 불러오지 못했습니다.</div>';
+                return;
+            }
+            activeProducts = data || [];
+            renderCatalog();
+        }
+
+        loadCatalog();
+    </script>
+</body>
+</html>

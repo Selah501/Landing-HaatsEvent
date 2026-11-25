@@ -74,6 +74,48 @@
   - [작업 요약본 보기 (Work Logs)](file:///c:/dev/전단지이벤트/.agents/work_logs/20260915_이벤트_도입문구_동적노출_및_워크플로우세팅.md)
 
 
+## [2026-11-25] 상담신청 · 설치예약 동선 및 옵션·동시할인 개선
+### 주요 변경 사항
+1. **상담신청 폼 개선 (`index.html`, `catalog.html`)**: 스크롤 이동, 품목별 선택 옵션·동시신청 할인(추가 상품당 2만원)·예상 합계 실시간 표시, KST 로컬 날짜 저장 및 제출 후 단지명 초기화 버그 수정.
+2. **설치예약 순서 개편 (`reservation_v2.html`)**: 제품 선택 → 날짜 선택 → 시간 선택 순서로 변경하고, 소요시간 기준 연속 예약 불가 시간대 자동 필터링 및 `?event=` 복귀 동선 연결.
+3. **작업 이력**:
+   - Git Commit Message: `feat(landing): reorder reservation flow by duration and add bundle discount summary`
+   - [상세 요약 워크스루](.agents/work_logs/20261125_상담신청_설치예약_동선및할인개선.md)
+
+## [2026-11-25] 카탈로그 이미지 기준점 복구 · 상단 메뉴 3그룹화 · 상시 페이지 구축
+### 주요 변경 사항
+1. **카탈로그 표준 이미지 DB 연결 복구**: `테라`, `허리케인 스노우`, `폰테 210 수전`, `사각씽크볼 8502세트`에 2차 표준 폴더(`images/catalog/`) 이미지 연결 및 구형 1차 불량 링크 정리. (`티오람` 2종·`힘펠` 5종은 중요 펜딩으로 분류)
+2. **상단 통합 메뉴(GNB) 3그룹화**: `auth.js` 11개 평면 버튼을 `현장·현업` / `상품·자료` / `통제·고객` 3그룹으로 정리하고 `🛍️ 상시페이지` 버튼 추가.
+3. **기간 무관 상시 페이지(`catalog.html`) 신설**: Supabase 활성 제품·시공포함 가격·상세 스펙·최신 무이자 할부·간편 상담 신청을 제공하는 상시 허브 구축 및 `index.html` 진입 버튼 연결.
+4. **작업 이력**:
+   - Git Commit Message: `feat(landing): group unified GNB into 3 workflows and add always-on catalog hub`
+   - [상세 요약 워크스루](.agents/work_logs/20261125_카탈로그기준점_상단메뉴그룹핑_상시페이지구축.md)
+
+## [2026-11-20] Supabase 복구 확인 및 7일 일시중지 방지(Keep-Alive) 보완
+### 주요 변경 사항
+1. **Supabase(`haatz-crm`) 복구 확인**:
+   - 무료 플랜 Paused 상태에서 `Resume` 완료 후 `products` 테이블 정상 조회(`200 OK`) 검증.
+2. **7일 미사용 Paused 방지 Keep-Alive 적용**:
+   - `crm_shared.py`에 `ping_supabase_keepalive()` 추가 및 `crm_daemon.py`의 8시간 주기 하트비트 루틴에 연동.
+3. **작업 이력**:
+   - Git Commit Message: `feat(crm): add supabase keep-alive ping to prevent free tier auto-pause`
+   - [상세 요약 워크스루](.agents/work_logs/20261120_Supabase_복구확인_및_KeepAlive_적용.md)
+
+
+## [2026-11-17] 통화 AI 데몬 복구 (Google Drive 경로 변경 + Gemini API 선불 전환) 및 AGENTS.md 인코딩 수정
+### 주요 변경 사항
+1. **원인 1 (감시 폴더 단절 및 빈 로컬 폴더 생성 버그 수정)**:
+   - 2026-10-18 Google Drive 마운트 경로가 `C:\Users\user\내 드라이브(danbyfa@gmail.com)`에서 `G:\내 드라이브\Call_Records`로 변경되면서 데몬이 빈 로컬 폴더를 생성해 감시하던 문제 해결.
+   - `landing/functions/.env`의 `AUDIO_WATCH_DIR`을 `G:\내 드라이브\Call_Records`로 수정하고, `crm_shared.py`에서 감시 폴더 미존재 시 가짜 폴더를 생성(`os.makedirs`)하지 않고 `RuntimeError`를 발생시키도록 안전장치 추가.
+2. **원인 2 (Gemini API 선불 전환 대응)**:
+   - 선불 크레딧 소진(`402 RESOURCE_EXHAUSTED`) 확인 후 AI Studio 선불 충전 완료 및 API 정상 응답 검증.
+3. **`C:\Users\user\.gemini\config\AGENTS.md` 인코딩 복구**:
+   - CP949와 UTF-8이 혼합되어 읽기 실패(`fail`)하던 전역 설정 파일을 순수 UTF-8로 병합 복구.
+4. **작업 이력**:
+   - Git Commit Message: `fix(crm): update google drive watch dir and prevent dummy folder creation`
+   - [상세 요약 워크스루](.agents/work_logs/20261117_통화AI_복구_및_AGENTS인코딩_수정.md)
+
+
 ## [2026-09-23] ERP 대시보드 실적집계 항목 개선 및 일평균/비율 표기 고도화
 ### 주요 변경 사항
 1. **매출이익 항목 추가**: 
@@ -186,6 +228,9 @@
    - [상세 요약 워크스루](.agents/work_logs/20260917_판매가계산기_및_상품마스터_역할분리_및_오류수정.md)
 
 ## [Pending / Future Work]
+- **[중요 펜딩 / 2026-11-25] 미수록 하츠 환풍기(티오람) & 타사(힘펠) 표준 카탈로그 이미지 확보:**
+  - `티오람 미니`, `티오람G` 및 힘펠 5종(`제로크 MD-N`, `흡기`, `소형 터보팬`, `중형 터보747`, `중형 플렉스 댐퍼`)은 현재 더미/기존 이미지로 유지.
+  - 타사(힘펠)는 카탈로그 내부 형태가 하츠와 다르므로, 추후 대표님 수동 촬영/자료 확보 시 별도 포맷으로 신중히 반영 예정.
 - **마스터 표(테이블) UI/UX 대대적 개편 (우선순위: 매우 높음):**
   - 확정된 달력 예약건(
 eservations)을 테이블에서 렌더링 제외시켜 순수한 '팔로업/보류/상담 대기열'로 역할 분리.
@@ -603,3 +648,5 @@ eservations)을 테이블에서 렌더링 제외시켜 순수한 '팔로업/보�
 
 ## 📌 향후 과제 (Pending / Future Work)
 - **집계데이터 시각화**: 기간별/현장별 집계데이터를 그래프로 시각화하여 매출 및 순이익 추세와 개선점 분석에 활용할 수 있도록 UI/UX 고도화.
+- **Gemini API 키 분리 (`Step 0-4` 연계)**: 현업 통화 AI 데몬(`landing/functions/.env`)용 API 키와 학습·시뮬레이션용 API 키를 분리하여 선불 크레딧 소진 리스크 차단.
+- **3자 프로젝트 연계 (`전단지이벤트` ↔ `가_인프라개발` ↔ `지식메모리`)**: 현업 트러블슈팅/매뉴얼 및 인프라 관제 이력을 `C:\dev\지식메모리` 지식 축적 체계와 상호 연계.
